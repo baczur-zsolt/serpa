@@ -1,14 +1,17 @@
 <?php
 class AccessController{
     
-    public static function login($login){
+    public static function login(){
         if(isset($_POST['email']) && isset($_POST['password'])){
-            $where='email="'.$login['email'].'" AND password="'.$login['password'].'"';
-            $user=Db::Select("tbl_staff", "*", $where);
+            $where='email="'.$_POST['email'].'" AND password=SHA2("'.$_POST['password'].'", 256)';
+            $user=Db::Select("tbl_enter", "*", $where);
             if(!$user==null){
                 session_start();
-                $_SESSION['staff_id']=$user[0]['staff_id'];
-                $_SESSION['access_level']=$user[0]['access_level'];
+                $_SESSION['staff_ID']=$user[0]['staff_ID'];
+                
+                $level=Db::Select("tbl_staff", "access_level", "staff_ID=".$user[0]['staff_ID']);
+                
+                $_SESSION['access_level']=$level[0]['access_level'];
                 $_SESSION['session_id']=session_id();
                 PageController::main();
             }
@@ -27,12 +30,15 @@ class AccessController{
         return $data;
     }
     public static function access(){
+        
         session_start();
+        header('Content-Type: application/json');
+        
         if(isset($_SESSION['session_id']) && session_id()==$_SESSION['session_id']){
-            echo json_encode(['response' => $_SESSION]);
+            echo json_encode(['response' => 'success', 'access_level' => $_SESSION['access_level']]);
         }
         else{
-            HomeController::main('homePage');
+            echo json_encode(['response' => 'error', 'message' => 'Unauthorized access']);
         }
     }
     public static function logout(){

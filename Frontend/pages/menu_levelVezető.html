@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../css/output.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+  
+</head>
+
+<body class="font-[Poppins] bg-gray-50">
+    <div class="flex flex-col lg:flex-row">
+  <!-- Sidebar -->
+  <div id="sidebar" class="hidden z-1 lg:block fixed top-16 lg:top-0 left-0 h-screen w-64  bg-gray-50 text-white ">
+    <ul class="p-4">
+        <!-- Irányítópult-->
+
+        <div class="text-blue-400 text-xl sm:block">
+            
+             
+              
+              
+            
+      
+            <div>
+              <!-- Irányítópult-->
+      
+              <div class="p-2.5 mt-2 flex items-center rounded-md px-4 duration-300 cursor-pointer  hover:bg-blue-500 group" >
+                  <svg class="fill-[#009DF7] group-hover:fill-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009DF7"><path d="M560-600q-17 0-28.5-11.5T520-640v-160q0-17 11.5-28.5T560-840h240q17 0 28.5 11.5T840-800v160q0 17-11.5 28.5T800-600H560ZM160-440q-17 0-28.5-11.5T120-480v-320q0-17 11.5-28.5T160-840h240q17 0 28.5 11.5T440-800v320q0 17-11.5 28.5T400-440H160Zm400 320q-17 0-28.5-11.5T520-160v-320q0-17 11.5-28.5T560-520h240q17 0 28.5 11.5T840-480v320q0 17-11.5 28.5T800-120H560Zm-400 0q-17 0-28.5-11.5T120-160v-160q0-17 11.5-28.5T160-360h240q17 0 28.5 11.5T440-320v160q0 17-11.5 28.5T400-120H160Z"/></svg>
+                <span class="text-[15px] ml-4 text-gray-900 group-hover:text-white">Irányítópult</span>
+              </div>
+              
+              
+              
+      <!-- Értékesítés kezelés-->
+              <div class="sideMenuBtn p-2.5 mt-2 flex items-center rounded-md px-4 duration-300 cursor-pointer  hover:bg-blue-600 group" data-dropdown-toggle="ertekesitesAlmenu" data-arrow-toggle="arrow1">
+                  <svg class="fill-[#009DF7] group-hover:fill-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009DF7"><path d="M280-640q-33 0-56.5-23.5T200-720v-80q0-33 23.5-56.5T280-880h400q33 0 56.5 23.5T760-800v80q0 33-23.5 56.5T680-640H280Zm40-80h320q16 0 22.5-14.5T680-760q0-17-11.5-28.5T640-800H320q-17 0-28.5 11.5T280-760q11 11 17.5 25.5T320-720ZM160-80q-33 0-56.5-23.5T80-160v-40h800v40q0 33-23.5 56.5T800-80H160ZM80-240l139-313q10-22 30-34.5t43-12.5h376q23 0 43 12.5t30 34.5l139 313H80Zm260-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm120 160h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm120 160h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Z"/></svg>          <div class="flex justify-between w-full items-center" >
+                  <span class="text-[15px] ml-4 text-gray-900 group-hover:text-white">Értékesítés kezelése</span>
+                  
+                </div>
+              </div>
+              
+            
+      <!-- Készletkezelés menü-->
+              <div class="p-2.5 mt-2 flex items-center rounded-md px-4 duration-300 cursor-pointer  hover:bg-blue-600 group" data-dropdown-toggle="keszletkezelesAlmenu" data-arrow-toggle="arrow2" >
+                  <svg class="fill-[#009DF7] group-hover:fill-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009DF7"><path d="M200-80q-33 0-56.5-23.5T120-160v-451q-18-11-29-28.5T80-680v-120q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v120q0 23-11 40.5T840-611v451q0 33-23.5 56.5T760-80H200Zm-40-600h640v-120H160v120Zm240 280h160q17 0 28.5-11.5T600-440q0-17-11.5-28.5T560-480H400q-17 0-28.5 11.5T360-440q0 17 11.5 28.5T400-400Z"/></svg>            <div class="flex justify-between w-full items-center">
+                    <span class="text-[15px] ml-4 text-gray-900 group-hover:text-white">Készlet kezelése</span>
+                    
+                  </div>
+                </div>
+                
+                
+      <!-- Partnerkezelés menü-->
+      <div class="p-2.5 mt-2 flex items-center rounded-md px-4 duration-300 cursor-pointer  hover:bg-blue-600 group" data-dropdown-toggle="partnerkezelesAlmenu" data-arrow-toggle="arrow3">
+          <svg class="fill-[#009DF7] group-hover:fill-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009DF7"><path d="M484-120q-17 0-28.5-11.5T444-160q0-7 3-14.5t9-13.5l171-171q6-6 6-14.5t-6-14.5q-6-6-14.5-5.5T598-387L428-217q-6 6-13 9t-15 3q-17 0-28.5-11.5T360-245q0-10 3-16.5t8-11.5l171-171q6-6 6-14t-6-14q-6-6-14-6t-14 6L343-302q-6 6-13 9t-16 3q-16 0-28-12t-12-28q0-8 3-15t9-13l170-170q6-6 6-14.5t-6-14.5q-6-6-14-6t-14 6L258-386q-5 5-12 8t-17 3q-17 0-28.5-11.5T189-415q0-8 3-15t9-13l196-196q11-11 27.5-10t27.5 12l122 122q11 11 26 17.5t30 6.5q32 0 56-22.5t24-57.5q0-14-5-29t-18-28L550-765q-11-11-14.5-24t3.5-25q9-15 23-22t31-7q21 0 43 10t40 28l169 170q18 18 26.5 40t8.5 51q0 20-9 40.5T845-466L512-132q-8 8-14 10t-14 2ZM116-475q-19-14-28.5-33.5T78-550q0-23 9.5-45t27.5-40l169-170q17-17 37.5-26t43.5-9q25 0 48.5 9t40.5 26l205 205q5 5 8.5 12.5T671-572q0 17-11.5 28.5T631-532q-8 0-15.5-3.5T603-544L480-666q-23-23-56.5-23T367-666L179-478q-13 13-30.5 13.5T116-475Z"/></svg>    <div class="flex justify-between w-full items-center" >
+            <span class="text-[15px] ml-4 text-gray-900 group-hover:text-white">Partnerek kezelése</span>
+            
+          </div>
+        </div>
+        
+        
+        
+        
+      
+            </div>
+          </div>
+        </div>
+  </div>
+
+  <!-- Main content area -->
+  
+
+
+    
+  <script src="./Frontend/js/dashboard.js"></script>
+
+</body>
+</html>

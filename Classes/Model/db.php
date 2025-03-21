@@ -2,7 +2,7 @@
 
 class Db{
     private static $servername = "localhost";
-    private static $database ="cms_20241128";
+    private static $database ="cms_20250314";
     private static $username = "root";
     private static $password = "";
     private static $pdo = null;
@@ -26,11 +26,12 @@ class Db{
         $query = self::Query($sql);
         return $query->fetchAll(\PDO::FETCH_ASSOC);
     }
-
-    public static function getUserName($id){
-        $response=self::Select("tbl_staff", "first_name,last_name", "staff_id=$id");
-        return $response[0];
+    public static function Insert($table, $columns, $values){
+ 
+        $sql = "INSERT INTO ".$table." (".$columns.") VALUES (".$values.");";      
+        $query = self::Query($sql);
+        return $query->fetchAll(\PDO::FETCH_ASSOC);
     }
-    
+   
 }
 ?>

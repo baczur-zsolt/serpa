@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "@tailwindcss/cli": "^4.0.14",
+    "@tailwindcss/vite": "^4.0.14"
+  },
+  "name": "vizsgamunkamvc",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {
+    "tailwindcss": "^4.0.14"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx @tailwindcss/cli -i /Frontend/css/input.css -o Frontend/css/style.css --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
