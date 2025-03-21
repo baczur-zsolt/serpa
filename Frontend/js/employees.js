@@ -165,10 +165,10 @@ function openEditModal() {
     let user = employeesData.find(emp => emp.id == userId);
 
     if (user) {
-        document.getElementById("editProductName").value = user.product_name;
-        document.getElementById("editProductNumber").value = user.number;
-        document.getElementById("editPurchasePrice").value = user.purchase_price;
-        document.getElementById("editSalePrice").value = user.sale_price;
+        document.getElementById("editName").value = user.product_name;
+        document.getElementById("editEmail").value = user.number;
+        document.getElementById("editStatus").value = user.purchase_price;
+        document.getElementById("editPosition").value = user.sale_price;
 
         document.getElementById("editModal").classList.remove("hidden");
     }
@@ -573,12 +573,6 @@ function addUser(userData) {
 
 
 
-
-
-userSettingsMenu.addEventListener('click', () => {
-    const userSettingsDropdownMenu = document.getElementById("userSettingsDropdownMenu") 
-    userSettingsDropdownMenu.classList.toggle('hidden');
-});
 
 
 

@@ -2,17 +2,18 @@
 //Pagination
 
 const tableBody = document.querySelector("#employeesTable tbody");
-const rowsPerPage = 10;
+const rowsPerPage = 9;
 let currentPage = 1;
 let employeesData = [];
 
 //Felhasználók adatainak lekérése
-//../../backend/api.php?endpoint=staff
-fetch('https://dummyjson.com/users')
+//
+//https://67bdcc05321b883e790df6fe.mockapi.io/api/users
+fetch('https://67bdcc05321b883e790df6fe.mockapi.io/api/users')
     .then(res => res.json())
     .then(data => {
         console.log(data);
-        employeesData = data.users; // Adatok eltárolása
+        employeesData = data; // Adatok eltárolása
         renderTable();
     })
     .catch(error => console.error("Hiba a letöltésnél:", error));
@@ -21,7 +22,7 @@ fetch('https://dummyjson.com/users')
 // Felhasználó törlése
 function deleteUser(selectedUserId) {
     if (selectedUserId) {
-        fetch(`https://dummyjson.com/products=${selectedUserId}`, {
+        fetch(`../api.php?endpoint=staff&id=${selectedUserId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
@@ -82,7 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
 // 🔹 Táblázat frissítése az aktuális oldallal
 function renderTable() {
     tableBody.innerHTML = "";
-    mobileView.innerHTML = ""; // 📌 Mobil nézet törlése az új adatok előtt
 
     let start = (currentPage - 1) * rowsPerPage;
     let end = start + rowsPerPage;
@@ -91,23 +91,60 @@ function renderTable() {
     paginatedItems.forEach(user => {
         let row = document.createElement("tr");
         row.classList.add("hover:bg-gray-100");
-
-        row.id = user.id;
+        
+        // A data-id hozzáadása a sorhoz
+        row.id = user.id;  // Itt adod hozzá a data-id attribútumot
 
         row.innerHTML = `
-            <td class="px-6 py-4">${user.title}</td>
-            <td class="px-6 py-4">${user.stock}</td>
-            <td class="px-6 py-4">${user.price}</td>
-            <td class="px-6 py-4">${user.price}</td>
+            <td class="hidden">${user.id}</td>
+            <th class="flex gap-3 px-6 py-4 font-normal text-gray-900">
+                <div class="text-sm">
+                    <div class="font-medium text-gray-700">${user.name}</div>
+                    <div class="text-gray-400">${user.email}</div>
+                </div>
+            </th>
+            <td class="px-6 py-4">${user.last_name + ' ' + user.first_name}</td>
+            <td class="px-6 py-4">
+  ${(() => {
+    if (user.status === 'Aktív') {
+      return `
+        <span class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
+          <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span>
+          Aktív
+        </span>
+      `;
+    } else if (user.status === 'Inaktív') {
+      return `
+        <span class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
+          <span class="h-1.5 w-1.5 rounded-full bg-red-600"></span>
+          Inaktív
+        </span>
+      `;
+    } else {
+        return `
+        <span class="inline-flex items-center gap-1 rounded-full bg-gray-50 px-2 py-1 text-xs font-semibold text-gray-600">
+          <span class="h-1.5 w-1.5 rounded-full bg-gray-600"></span>
+          Ismeretlen
+        </span>
+      `;
+    }
+  })()}
+</td>
+            <td class="px-6 py-4">${user.access_level }</td>
+            <td class="px-6 py-4">${user.phone_number}</td>
+            <td class="px-6 py-4">${user.address_zipcode}</td>
+            <td class="px-6 py-4">${user.address_city}</td>
+            <td class="px-6 py-4">${user.address_street}</td>
+            <td class="px-6 py-4">${user.address_housenumber}</td>
             <td class="px-6 py-4">
                 <div class="flex justify-center gap-4">
                     <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
                         </svg>
                     </button>
                     <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.id}">
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
                         </svg>
                     </button>
@@ -115,63 +152,33 @@ function renderTable() {
             </td>
         `;
         tableBody.appendChild(row);
-
-        // 📌 Mobil verzióhoz tartozó kártya nézet
-        const card = document.createElement("div");
-        card.className = "bg-white shadow-md rounded-lg p-4 border border-gray-200";
-        card.innerHTML = `
-            <div class="flex justify-between">
-                <h3 class="text-lg font-semibold text-gray-900">${user.title}</h3>
-                <div class="flex gap-2">
-                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
-                        </svg>
-                    </button>
-                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.id}">
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <p class="text-sm text-gray-500">Mennyiség: ${user.stock}</p>
-            <p class="text-sm text-gray-500">Vétel ár: ${user.price}</p>
-            <p class="text-sm text-gray-500">Eladási ár: ${user.price}</p>
-        `;
-        mobileView.appendChild(card);
     });
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
-    // 📌 Event Listener-ek optimalizálása
+    // Modal megnyitása
     document.querySelectorAll(".edit-btn").forEach(button => {
-        button.addEventListener("click", openEditModal);
+        button.addEventListener("click", function () {
+            let userId = this.dataset.id;
+            let user = employeesData.find(emp => emp.id == userId);
+
+            if (user) {
+                document.getElementById("editName").value = user.name;
+                document.getElementById("editEmail").value = user.email;
+                document.getElementById("editPhone").value = user.phone;
+                document.getElementById("editZip").value = user.address_zipcode;
+                document.getElementById("editCity").value = user.address_city;
+                document.getElementById("editStreet").value = user.address_street;
+                document.getElementById("editHouse").value = user.address_housenumber;
+
+                document.getElementById("editModal").classList.remove("hidden");
+            }
+        });
     });
 
-    document.getElementById("closeUserSettingsMenuModal").addEventListener("click", closeEditModal);
-
+    // Modal bezárása
+    document.getElementById("closeUserSettingsMenuModal").addEventListener("click", function () {
+        document.getElementById("editModal").classList.add("hidden");
+    });
     generatePageNumbers();
-}
-
-// 📌 Funkció a szerkesztő modal megnyitására
-function openEditModal() {
-    let userId = this.dataset.id;
-    let user = employeesData.find(emp => emp.id == userId);
-
-    if (user) {
-        document.getElementById("editProductName").value = user.product_name;
-        document.getElementById("editProductNumber").value = user.number;
-        document.getElementById("editPurchasePrice").value = user.purchase_price;
-        document.getElementById("editSalePrice").value = user.sale_price;
-
-        document.getElementById("editModal").classList.remove("hidden");
-    }
-}
-
-// 📌 Funkció a szerkesztő modal bezárására
-function closeEditModal() {
-    document.getElementById("editModal").classList.add("hidden");
 }
 
 function generatePageNumbers() {
@@ -237,7 +244,7 @@ const closeModal = document.getElementById('closeModal');
 const modal = document.getElementById('crud-modal');
 const overlay = document.getElementById('overlay');
 const userDeleteModal = document.getElementById('userDeleteModal');
-const applyNewProduct = document.getElementById('applyNewProduct');
+const applyNewStaff = document.getElementById('applyNewStaff');
 
 
 // Modal megnyitása
@@ -265,14 +272,14 @@ modal.addEventListener('click', (e) => {
 });
 
 
-
-applyNewProduct.addEventListener("click", function () {
+/*
+    applyNewStaff.addEventListener("click", function () {
         modal.classList.add("hidden");
         overlay.classList.add('hidden');
     });
 
 
-
+*/
 
 
 
@@ -428,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     
         // Küldés a backendnek
-        fetch(`https://dummyjson.com/products/${editingRow.id}`, {
+        fetch(`https://67bdcc05321b883e790df6fe.mockapi.io/api/users/${editingRow.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -476,7 +483,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (confirm("Biztosan törölni szeretnéd ezt az elemet?")) {
             // Küldés a backendnek DELETE kéréssel
-            fetch(`https://dummyjson.com/products/${userId}`, {
+            fetch(`https://67bdcc05321b883e790df6fe.mockapi.io/api/users/${userId}`, {
                 method: "DELETE"
             })
             .then(response => {
@@ -505,18 +512,45 @@ document.addEventListener("DOMContentLoaded", function () {
 //Új alkalazott felvétele Modal logikája
 // Új alkalmazott hozzáadása (POST)
 // Az eseménykezelő a form submitjára
-document.getElementById('applyNewProduct').addEventListener('click', function(event) {
-    event.preventDefault();  // Megakadályozza, hogy a form alapértelmezetten újratöltse az oldalt
+document.getElementById('applyNewStaff').addEventListener('click', function(event) {
+    event.preventDefault();  // Megakadályozza az oldal újratöltését
 
-    
+    const requiredFields = [
+        'newstaff_name',
+        'newstaff_email',
+        'newstaff_phone_number',
+        'newstaff_address_zipcode',
+        'newstaff_address_city',
+        'newstaff_address_street',
+        'newstaff_address_housenumber'
+    ];
 
-    const fullName = document.getElementById('newstaff_name').value; // Ha egyetlen mezőben van a teljes név
-    const nameParts = fullName.split(" "); // A szóköz alapján szétválasztjuk (feltételezve, hogy csak két rész van, de ha több, akkor jobban kell kezelni)
-    
-    // Ha van első és utolsó név
-    const first_name = nameParts[0]; 
-    const last_name = nameParts[1] || ""; // Ha nincs utolsó név, akkor üres stringet adunk vissza
-    
+    let isValid = true;
+
+    requiredFields.forEach(id => {
+        const input = document.getElementById(id);
+        const errorMessage = input.nextElementSibling; 
+        
+        if (input.value.trim() === '') {
+            input.classList.add('border-red-500');
+            errorMessage.classList.remove('hidden'); 
+            isValid = false;
+        } else {
+            input.classList.remove('border-red-500');
+            errorMessage.classList.add('hidden'); 
+        }
+    });
+
+    if (!isValid) {
+        return; // Ha van üres mező, nem folytatjuk tovább
+    }
+
+    const fullName = document.getElementById('newstaff_name').value;
+    const nameParts = fullName.split(" ");
+
+    const first_name = nameParts[0];
+    const last_name = nameParts[1] || "";
+
     const userData = {
         first_name: first_name,
         last_name: last_name,
@@ -530,14 +564,20 @@ document.getElementById('applyNewProduct').addEventListener('click', function(ev
         access_level: document.getElementById('newstaff_access_level').options[document.getElementById('newstaff_access_level').selectedIndex].textContent,
     };
 
-    // Hívjuk meg az addUser funkciót, hogy elküldje az adatokat
+    // Ha minden mező ki van töltve, akkor küldjük el az adatokat és zárjuk be a modalt
     addUser(userData);
+
+    // Modal és overlay elrejtése
+    modal.classList.add("hidden");
+    overlay.classList.add('hidden');
 });
+
+
 
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
 function addUser(userData) {
-    fetch(`https://dummyjson.com/products`, {
+    fetch(`https://67bdcc05321b883e790df6fe.mockapi.io/api/users`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -577,3 +617,36 @@ userSettingsMenu.addEventListener('click', () => {
 
 
 
+document.getElementById("applyNewStaffForm").addEventListener("submit", function(event) {
+    event.preventDefault(); // Megakadályozza az alapértelmezett form elküldést
+  
+    // Töröljük az előző hibákat
+    const errors = document.querySelectorAll('.text-red-500');
+    errors.forEach(error => error.classList.add('hidden'));
+  
+    let isValid = true; // Ez a változó fogja jelezni, hogy minden mező kitöltésre került-e
+  
+    // Az összes required mező végigellenőrzése
+    const requiredFields = document.querySelectorAll('input[required], select[required]');
+    requiredFields.forEach(field => {
+      const errorMessage = document.getElementById(`${field.id}-error`);
+      
+      // Ha a mező üres, hibaüzenetet jelenítünk meg
+      if (!field.value.trim()) {
+        errorMessage.classList.remove('hidden'); // Megjeleníti a hibaüzenetet
+        isValid = false;
+      }
+    });
+  
+    // Ha a form valid, akkor elküldhetjük
+    if (isValid) {
+      console.log("Form submitted successfully!");
+      // Ha tényleg postolni szeretnéd az űrlapot, használhatod a fetch-et, pl:
+      // fetch('url', { method: 'POST', body: new FormData(event.target) });
+      // form.submit(); // Ha az alapértelmezett submitot szeretnéd használni
+    } else {
+      console.log("Form validation failed.");
+    }
+  });
+  
+  
