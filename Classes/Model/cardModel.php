@@ -2,7 +2,9 @@
 
 class cardModel {
     public static function getCards() {
-        session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();  
+        }
         $accessLevel = $_SESSION['access_level'] ?? 'guest';
 
         $icons = [
@@ -45,22 +47,22 @@ class cardModel {
     
     public static function getEmployeeCount() {
         $result=Db::Select("tbl_staff", "COUNT(*) AS total");
-        return $result['total'] ?? 0;
+        return $result[0]['total'] ?? 0;
     }
 
     public static function getProductCount() {
         $result=Db::Select("tbl_product", "COUNT(*) AS total");
-        return $result['total'] ?? 0;
+        return $result[0]['total'] ?? 0;
     }
 
     public static function getPartnerCount() {
         $result=Db::Select("tbl_customer", "COUNT(*) AS total");
-        return $result['total'] ?? 0;
+        return $result[0]['total'] ?? 0;
     }
 
     public static function getSalesCount() {
         $result=Db::Select("tbl_sale", "COUNT(*) AS total");
-        return $result['total'] ?? 0;
+        return $result[0]['total'] ?? 0;
     }
 /*
     public static function getStatisticsCount() {
@@ -71,7 +73,7 @@ class cardModel {
 
     public static function getFinanceSum() {
         $result=Db::Select("tbl_finance", "COUNT(*) AS total");
-        return $result['total'] ?? 0;
+        return $result[0]['total'] ?? 0;
     }
 
 }

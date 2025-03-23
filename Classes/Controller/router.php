@@ -22,7 +22,7 @@ public function matchRoute(string $method, string $uri){
         call_user_func($this->routes[$method][$url], $id);
         return;
     }
-    HomeController::main('homePage');
+    header("Location: home");
 }
     
 }

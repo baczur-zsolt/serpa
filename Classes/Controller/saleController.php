@@ -5,9 +5,16 @@
             $response=SaleModel::getSaleById($id);
             echo json_encode($response);
         }
-        public static function setSale(){
-            
+        public static function setSale(){ 
             $response=SaleModel::setSaleFromJSON(); 
+            echo json_encode($response);
+        }
+        public static function updateSale($id){
+            $response=SaleModel::updateSaleFromJSON($id);
+            echo json_encode($response);
+        }
+        public static function deleteSale($id){
+            $response=SaleModel::deleteSaleById($id);
             echo json_encode($response);
         }
     }

@@ -6,7 +6,7 @@ class PageModel{
         }
         
         $level=$_SESSION['access_level'];
-        
+
         ob_start();
         include_once 'Frontend/pages/header.html';
         include_once 'Frontend/pages/menu_level'.$level.'.html';
