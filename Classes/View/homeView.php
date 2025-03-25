@@ -1,5 +1,5 @@
 <?php
-class PageView{
+class HomeView{
 
     public static function showPage($homeModel){
         echo $homeModel;

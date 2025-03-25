@@ -13,15 +13,24 @@ class AccessController{
                 
                 $_SESSION['access_level']=$level[0]['access_level'];
                 $_SESSION['session_id']=session_id();
-                PageController::main();
+                $_SESSION['time']=time();
+                header("Location: body");
             }
             else{
-                HomeController::main('login');
+                header("Location: login");
             }
         }
         else{
-            HomeController::main('login');
+            header("Location: login");
         }
+    }
+    public static function logout(){
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();  
+        }
+        session_unset();
+        session_destroy();
+        header("Location: home");
     }
     public static function validate($data){
         $data = trim($data);
@@ -29,9 +38,10 @@ class AccessController{
         $data = htmlspecialchars($data);
         return $data;
     }
-    public static function access(){
-        
-        session_start();
+    public static function getUserAccessLevel(){    
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();  
+        }
         header('Content-Type: application/json');
         
         if(isset($_SESSION['session_id']) && session_id()==$_SESSION['session_id']){
@@ -41,11 +51,20 @@ class AccessController{
             echo json_encode(['response' => 'error', 'message' => 'Unauthorized access']);
         }
     }
-    public static function logout(){
-        session_start();
-        session_unset();
-        session_destroy();
-        HomeController::main('homePage');
+    public static function accessLevel($pageLevel){
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();  
+        }
+
+        $timeLimit=900;
+
+        if(isset($_SESSION['access_level']) && $_SESSION['access_level']>=$pageLevel && $_SESSION['time']+$timeLimit>time()){
+            $_SESSION['time']=time();
+            return;
+        }else{
+            self::logout();
+            exit;
+        }
     }
 }
 ?>
