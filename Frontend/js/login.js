@@ -1,8 +1,4 @@
-/****************************************************************************************************
- *                                   Bejelentkezés gomb validációja                                 *
- ****************************************************************************************************/
-
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+document.getElementById('loginForm').addEventListener('submit', (e) => {
     e.preventDefault();
 
     const email = document.getElementById('email').value.trim();
@@ -12,16 +8,13 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const passwordErrorElement = document.getElementById('password-error');
     const generalErrorElement = document.getElementById('general-error');
 
-    
-
     // Hibaüzenetek törlése
-    emailErrorElement.innerHTML = '';
-    passwordErrorElement.innerHTML = '';
-    generalErrorElement.innerHTML = '';
+    emailErrorElement.textContent = '';
+    passwordErrorElement.textContent = '';
+    generalErrorElement.textContent = '';
 
     let hasError = false;
 
-    // Egyszerű kliens oldali validáció
     if (!email) {
         emailErrorElement.textContent = 'Az email mező kitöltése kötelező!';
         hasError = true;
@@ -32,32 +25,8 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         hasError = true;
     }
 
-    if (hasError) return; // Ne küldje el a kérést, ha van hiba
+    if (hasError) {return};
 
-    try {
-        const response = await fetch('../../backend/loginAPI.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            // Sikeres bejelentkezés -> átirányítás
-            window.location.href = '../pages/dashboard.html';
-        } else {
-            // Általános szerveroldali hiba megjelenítése
-            generalErrorElement.textContent = result.error || 'Hiba történt a bejelentkezés során.';
-        }
-    } catch (error) {
-        console.error('Hiba:', error);
-        generalErrorElement.textContent = 'Hálózati hiba történt. Próbáld újra később!';
-    }
+    // Ha nincs hiba, engedjük az űrlap elküldését
+    e.target.submit();
 });
-
-
-
-

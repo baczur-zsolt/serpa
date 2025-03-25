@@ -8,11 +8,11 @@ let employeesData = [];
 
 //Felhasználók adatainak lekérése
 //../../backend/api.php?endpoint=staff
-fetch('https://dummyjson.com/products')
+fetch('http://localhost/vizsgamunkaMVC/sale')
     .then(res => res.json())
     .then(data => {
         console.log(data);
-        employeesData = data.products; // Adatok eltárolása
+        employeesData = data; // Adatok eltárolása
         renderTable();
     })
     .catch(error => console.error("Hiba a letöltésnél:", error));
@@ -21,7 +21,7 @@ fetch('https://dummyjson.com/products')
 // Felhasználó törlése
 function deleteUser(selectedUserId) {
     if (selectedUserId) {
-        fetch(`https://dummyjson.com/products=${selectedUserId}`, {
+        fetch(`http://localhost/vizsgamunkaMVC/sale=${selectedUserId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
@@ -95,10 +95,10 @@ function renderTable() {
         row.id = user.id;
 
         row.innerHTML = `
-            <td class="px-6 py-4">${user.title}</td>
-            <td class="px-6 py-4">${user.stock}</td>
-            <td class="px-6 py-4">${user.price}</td>
-            <td class="px-6 py-4">${user.price}</td>
+            <td class="px-6 py-4">${user.sale_ID}</td>
+            <td class="px-6 py-4">${user.quantity_sale}</td>
+            <td class="px-6 py-4">${user.total_price}</td>
+            <td class="px-6 py-4">${user.sale_date}</td>
             <td class="px-6 py-4">
                 <div class="flex justify-center gap-4">
                     <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
@@ -121,7 +121,7 @@ function renderTable() {
         card.className = "bg-white shadow-md rounded-lg p-4 border border-gray-200";
         card.innerHTML = `
             <div class="flex justify-between">
-                <h3 class="text-lg font-semibold text-gray-900">${user.title}</h3>
+                <h3 class="text-lg font-semibold text-gray-900">${user.sale_ID}</h3>
                 <div class="flex gap-2">
                     <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
@@ -135,9 +135,9 @@ function renderTable() {
                     </button>
                 </div>
             </div>
-            <p class="text-sm text-gray-500">Mennyiség: ${user.stock}</p>
-            <p class="text-sm text-gray-500">Vétel ár: ${user.price}</p>
-            <p class="text-sm text-gray-500">Eladási ár: ${user.price}</p>
+            <p class="text-sm text-gray-500">Mennyiség: ${user.quantity_sale}</p>
+            <p class="text-sm text-gray-500">Vétel ár: ${user.total_price}</p>
+            <p class="text-sm text-gray-500">Eladási ár: ${user.sale_date}</p>
         `;
         mobileView.appendChild(card);
     });
@@ -349,16 +349,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const tableBody = document.getElementById("employeesTable");
 
     // Űrlap mezők
-    const editName = document.getElementById("editName");
-    const editEmail = document.getElementById("editEmail");
-    const editStatus = document.getElementById("editStatus");
-    const editPosition = document.getElementById("editPosition");
-    const editPhone = document.getElementById("editPhone");
-    const editZip = document.getElementById("editZip");
-    const editCity = document.getElementById("editCity");
-    const editStreet = document.getElementById("editStreet");
-    const editHouse = document.getElementById("editHouse");
-
+    const editName = document.getElementById("editProductName");
+    const editEmail = document.getElementById("editProductNumber");
+    const editStatus = document.getElementById("editPurchasePrice");
+    const editPosition = document.getElementById("editSalePrice");
     let editingRow = null;
 
     // **Eseménykezelő delegálása a táblázatra**
@@ -369,29 +363,11 @@ document.addEventListener("DOMContentLoaded", function () {
         editingRow = button.closest("tr");
 
         // Az adatokat beállítjuk az űrlap mezőkbe
-        editName.value = editingRow.querySelector("td:nth-child(3)").textContent.trim();
-        editEmail.value = editingRow.querySelector("th .text-gray-400").textContent.trim();
-
-        const statusText  = editingRow.querySelector("td:nth-child(4) span").textContent.trim();
-        // Státusz kiválasztása a select-ben
-        const editStatusOption = Array.from(editStatus.options).find(option => option.textContent.trim() === statusText);
-        if (editStatusOption) {
-            editStatus.value = editStatusOption.value;
-        }
-
-
-        const positionText = editingRow.querySelector("td:nth-child(5)").textContent.trim();
-        // Beosztás kiválasztása a select-ben
-        const editPositionOption = Array.from(editPosition.options).find(option => option.textContent.trim() === positionText);
-        if (editPositionOption) {
-            editPosition.value = editPositionOption.value;
-        }
-
-        editPhone.value = editingRow.querySelector("td:nth-child(6)").textContent.trim();
-        editZip.value = editingRow.querySelector("td:nth-child(7)").textContent.trim();
-        editCity.value = editingRow.querySelector("td:nth-child(8)").textContent.trim();
-        editStreet.value = editingRow.querySelector("td:nth-child(9)").textContent.trim();
-        editHouse.value = editingRow.querySelector("td:nth-child(10)").textContent.trim();
+        editName.value = editingRow.querySelector("td:nth-child(1)").textContent.trim();
+        editEmail.value = editingRow.querySelector("td:nth-child(2)").textContent.trim();
+        editStatus.value = editingRow.querySelector("td:nth-child(3)").textContent.trim();
+        editPosition.value = editingRow.querySelector("td:nth-child(4)").textContent.trim();
+   
 
         // Modal megjelenítése
         editModal.classList.remove("hidden");
@@ -418,17 +394,12 @@ document.addEventListener("DOMContentLoaded", function () {
         first_name: firstName,
         
         email: editEmail.value,
-        status: editStatus.options[editStatus.selectedIndex].textContent,
-        access_level: editPosition.options[editPosition.selectedIndex].textContent,
-        phone_number: editPhone.value,
-        address_zipcode: editZip.value,
-        address_city: editCity.value,
-        address_street: editStreet.value,
-        address_housenumber: editHouse.value
+        status: editStatus.value,
+        access_level: editPosition.value
     };
     
         // Küldés a backendnek
-        fetch(`https://dummyjson.com/products/${editingRow.id}`, {
+        fetch(`http://localhost/vizsgamunkaMVC/sale/${editingRow.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -446,11 +417,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 editingRow.querySelector("th .text-gray-400").textContent = updatedData.email;
                 editingRow.querySelector("td:nth-child(4) span").textContent = updatedData.status;
                 editingRow.querySelector("td:nth-child(5)").textContent = updatedData.access_level;
-                editingRow.querySelector("td:nth-child(6)").textContent = updatedData.phone_number;
-                editingRow.querySelector("td:nth-child(7)").textContent = updatedData.address_zipcode;
-                editingRow.querySelector("td:nth-child(8)").textContent = updatedData.address_city;
-                editingRow.querySelector("td:nth-child(9)").textContent = updatedData.address_street;
-                editingRow.querySelector("td:nth-child(10)").textContent = updatedData.address_housenumber;
                 
                 editModal.classList.add("hidden");
                 editingRow = null;
@@ -476,7 +442,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (confirm("Biztosan törölni szeretnéd ezt az elemet?")) {
             // Küldés a backendnek DELETE kéréssel
-            fetch(`https://dummyjson.com/products/${userId}`, {
+            fetch(`http://localhost/vizsgamunkaMVC/sale/${userId}`, {
                 method: "DELETE"
             })
             .then(response => {
@@ -537,7 +503,7 @@ document.getElementById('applyNewProduct').addEventListener('click', function(ev
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
 function addUser(userData) {
-    fetch(`https://dummyjson.com/products`, {
+    fetch(`http://localhost/vizsgamunkaMVC/sale`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
