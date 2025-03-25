@@ -516,58 +516,40 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
     event.preventDefault();  // Megakadályozza az oldal újratöltését
 
     const requiredFields = [
-        { id: 'newstaff_name', type: 'text', errorMessage: 'Név megadása kötelező!' },
-        { id: 'newstaff_email', type: 'email', errorMessage: 'Email megadása kötelező!!' },
-        { id: 'newstaff_phone_number', type: 'text', errorMessage: 'Telefonszám megadása kötelező!' },
-        { id: 'newstaff_address_zipcode', type: 'text', errorMessage: 'Irányítószám megadása kötelező!' },
-        { id: 'newstaff_address_city', type: 'text', errorMessage: 'Város megadása kötelező!' },
-        { id: 'newstaff_address_street', type: 'text', errorMessage: 'Utca megadása kötelező!' },
-        { id: 'newstaff_address_housenumber', type: 'number', errorMessage: 'Házszám megadása kötelező!!' }
+        'newstaff_name',
+        'newstaff_email',
+        'newstaff_phone_number',
+        'newstaff_address_zipcode',
+        'newstaff_address_city',
+        'newstaff_address_street',
+        'newstaff_address_housenumber'
     ];
 
     let isValid = true;
 
-    requiredFields.forEach(field => {
-        const input = document.getElementById(field.id);
-        const errorMessage = input.nextElementSibling; // A hibaüzenet a mező után
-
-        // Alapértelmezett validálás (üres mezők)
+    requiredFields.forEach(id => {
+        const input = document.getElementById(id);
+        const errorMessage = input.nextElementSibling; 
+        
         if (input.value.trim() === '') {
             input.classList.add('border-red-500');
-            errorMessage.textContent = field.errorMessage;
-            errorMessage.classList.remove('hidden');
+            errorMessage.classList.remove('hidden'); 
             isValid = false;
         } else {
             input.classList.remove('border-red-500');
-            errorMessage.classList.add('hidden');
-        }
-
-        // Típus-specifikus validálás
-        if (field.type === 'email' && input.value.trim() !== '' && !/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(input.value)) {
-            input.classList.add('border-red-500');
-            errorMessage.textContent = 'Érvénytelen e-mail cím';
-            errorMessage.classList.remove('hidden');
-            isValid = false;
-        }
-
-        if (field.type === 'number' && input.value.trim() !== '' && isNaN(input.value)) {
-            input.classList.add('border-red-500');
-            errorMessage.textContent = 'Házszámnak számnak kell lennie';
-            errorMessage.classList.remove('hidden');
-            isValid = false;
+            errorMessage.classList.add('hidden'); 
         }
     });
 
     if (!isValid) {
-        return; // Ha van üres mező vagy érvénytelen adat, nem folytatjuk tovább
+        return; // Ha van üres mező, nem folytatjuk tovább
     }
 
-    // A név felosztása kereszt- és vezetéknévre
     const fullName = document.getElementById('newstaff_name').value;
     const nameParts = fullName.split(" ");
 
     const first_name = nameParts[0];
-    const last_name = nameParts[1] || ""; // Ha nincs második név, akkor üres érték
+    const last_name = nameParts[1] || "";
 
     const userData = {
         first_name: first_name,
@@ -589,8 +571,6 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
     modal.classList.add("hidden");
     overlay.classList.add('hidden');
 });
-
-
 
 
 
