@@ -23,7 +23,7 @@ const icons = {
                     cardElement.classList.add("card");
     
                     cardElement.innerHTML = `
-                        <div class="flex flex-col shadow p-4 bg-white rounded-md h-full" x-show="canViewCard('Pénzügyek')">
+                        <div class="flex flex-col shadow p-4 bg-white rounded-md h-full">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h6 class="text-xs font-medium leading-none tracking-wider text-gray-500 uppercase">
@@ -35,19 +35,17 @@ const icons = {
                                     </span>
                                 </div>
                                 <div>
-                                    <span>
-                                        ${card.icon}
-                                    </span>
+                                    <span>${card.icon}</span>
                                 </div>
                             </div>
     
                             <div class="mt-4">
-                                <button class="w-3/4 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-800 flex items-center gap-2 justify-center">
+                                <a href="${card.URL}" class="w-3/4 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-800 flex items-center gap-2 justify-center">
                                     <span>${card.button}</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#F3F3F3">
                                         <path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/>
                                     </svg>
-                                </button>
+                                </a>
                             </div>
                         </div>
                     `;
@@ -58,4 +56,5 @@ const icons = {
             })
             .catch(error => console.error("Hiba a kártyák betöltésekor: ", error));
     });
+    
     
