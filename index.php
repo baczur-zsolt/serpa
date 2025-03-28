@@ -7,20 +7,20 @@ $method = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
 
 
-// View
+// Show pages
 $router->addRoute('GET', '/vizsgamunkaMVC/home', function(){
     HomeController::main('homePage');
 });
 $router->addRoute('GET', '/vizsgamunkaMVC/login', function(){
     HomeController::main('login');
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/body', function() {
+$router->addRoute('GET', '/vizsgamunkaMVC/dashboard', function() {
     AccessController::accessLevel(1);
     PageController::main();
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/dashboard', function() {
+$router->addRoute('GET', '/vizsgamunkaMVC/sales', function() {
     AccessController::accessLevel(1);
-    PageController::main('dashboard');
+    PageController::main('sales');
 });
 $router->addRoute('GET', '/vizsgamunkaMVC/products', function() {
     AccessController::accessLevel(2);
@@ -44,8 +44,14 @@ $router->addRoute('GET', '/vizsgamunkaMVC/finances', function() {
 });
 
 
+//Show cards
+$router->addRoute('GET', '/vizsgamunkaMVC/cards', function() {
+    AccessController::accessLevel(1);
+    CardController::main();
+});
 
-//Access
+
+//Access management
 $router->addRoute('GET', '/vizsgamunkaMVC/logout', function(){
     AccessController::logout();
 });
@@ -58,14 +64,7 @@ $router->addRoute('GET', '/vizsgamunkaMVC/access', function(){
 });
 
 
-//Card
-$router->addRoute('GET', '/vizsgamunkaMVC/cards', function() {
-    AccessController::accessLevel(1);
-    CardController::main();
-});
-
-
-//User
+//User data management
 $router->addRoute('GET', '/vizsgamunkaMVC/username', function(){
     AccessController::accessLevel(1);
     UserController::getUserName();
@@ -76,13 +75,13 @@ $router->addRoute('GET', '/vizsgamunkaMVC/access_level', function(){
 });
 
 
-//Get, Set
+//JSON data request, response
 $router->addRoute('GET', '/vizsgamunkaMVC/sale', function($id){
     AccessController::accessLevel(1);
     SaleController::getSale($id);
 });
 $router->addRoute('POST', '/vizsgamunkaMVC/sale', function(){
-    AccessController::accessLevel(1);
+    // AccessController::accessLevel(1);
     SaleController::setSale();
 });
 $router->addRoute('PUT', '/vizsgamunkaMVC/sale', function($id){

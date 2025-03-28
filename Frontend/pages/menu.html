@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menü</title>
+    <style>
+        /* Alap stílusok a menühöz */
+        .menu-item {
+            padding: 10px;
+            background-color: #f0f0f0;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        .menu-item:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <nav id="menu"></nav>
+    <div id="sidebar">
+        <!-- Sidebar tartalom -->
+      </div>
+    <script>
+        // Az API hívás a menü lekérésére
+        fetch('/vizsgamunkaMVC/menu')
+            .then(response => response.json())
+            .then(menu => {
+                if (menu.response === "error") {
+                    console.error(menu.message);
+                    return;
+                }
+
+                const menuContainer = document.getElementById('menu');
+                menu.forEach(item => {
+                    const menuItem = document.createElement('div');
+                    menuItem.classList.add('menu-item');
+                    menuItem.innerHTML = `<a href="${item.link}">${item.name}</a>`; // Link hozzáadása a menüponthoz
+                    menuContainer.appendChild(menuItem);
+                });
+            })
+            .catch(error => console.error('Hiba a menü betöltésekor:', error));
+    </script>
+</body>
+</html>
