@@ -21,11 +21,11 @@ class UserModel{
         }
     
         if (!isset($_SESSION['staff_ID'])) {
-            return ([
+            $response = ([
                 "response" => "error",
                 "message" => "Nincs bejelentkezett felhasználó!"
             ]);
-            return;
+            return $response;
         }
     
         $staffId = $_SESSION['staff_ID']; // A bejelentkezett felhasználó ID-je

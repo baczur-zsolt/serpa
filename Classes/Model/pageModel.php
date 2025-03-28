@@ -1,6 +1,6 @@
 <?php
 class PageModel{
-    public static function getPage($page = 'body'){
+    public static function getPage($page = 'dashboard'){
         if (session_status() == PHP_SESSION_NONE) {
             session_start();  
         }
