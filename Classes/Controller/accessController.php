@@ -41,19 +41,19 @@ class AccessController{
         $data = htmlspecialchars($data);        //Converts some predefined characters to HTML entities
         return $data;
     }
-    public static function getUserAccessLevel(){    
-        if (session_status() == PHP_SESSION_NONE) {     //Start session if not running 
-            session_start();  
-        }
-        header('Content-Type: application/json');       //Sets header to JSON
+    // public static function getUserAccessLevel(){    
+    //     if (session_status() == PHP_SESSION_NONE) {     //Start session if not running 
+    //         session_start();  
+    //     }
+    //     header('Content-Type: application/json');       //Sets header to JSON
         
-        if(isset($_SESSION['session_id']) && session_id()==$_SESSION['session_id']){    //Checks if the "session_id" exists and if the "session_id" is equal to "session_id()"
-            echo json_encode(['response' => 'success', 'access_level' => $_SESSION['access_level']]);   //Response in JSON
-        }
-        else{
-            echo json_encode(['response' => 'error', 'message' => 'Unauthorized access']);      //Response in JSON
-        }
-    }
+    //     if(isset($_SESSION['session_id']) && session_id()==$_SESSION['session_id']){    //Checks if the "session_id" exists and if the "session_id" is equal to "session_id()"
+    //         echo json_encode(['response' => 'success', 'access_level' => $_SESSION['access_level']]);   //Response in JSON
+    //     }
+    //     else{
+    //         echo json_encode(['response' => 'error', 'message' => 'Unauthorized access']);      //Response in JSON
+    //     }
+    // }
     public static function accessLevel($pageLevel){
         if (session_status() == PHP_SESSION_NONE) {     //Start session if not running
             session_start();  
