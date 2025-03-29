@@ -52,19 +52,15 @@ $router->addRoute('GET', '/vizsgamunkaMVC/cards', function() {
 
 
 //Access management
-$router->addRoute('GET', '/vizsgamunkaMVC/logout', function(){
-    AccessController::logout();
-});
 $router->addRoute('POST', '/vizsgamunkaMVC/login', function(){
     AccessController::login();
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/access', function(){
-    AccessController::accessLevel(1);
-    AccessController::getUserAccessLevel();
+$router->addRoute('GET', '/vizsgamunkaMVC/logout', function(){
+    AccessController::logout();
 });
 
 
-//User data management
+//JSON data request, response
 $router->addRoute('GET', '/vizsgamunkaMVC/username', function(){
     AccessController::accessLevel(1);
     UserController::getUserName();
@@ -73,15 +69,16 @@ $router->addRoute('GET', '/vizsgamunkaMVC/access_level', function(){
     AccessController::accessLevel(1);
     UserController::getUserAccessLevel();
 });
-
-
-//JSON data request, response
+// $router->addRoute('GET', '/vizsgamunkaMVC/access', function(){
+//     AccessController::accessLevel(1);
+//     AccessController::getUserAccessLevel();
+// });
 $router->addRoute('GET', '/vizsgamunkaMVC/sale', function($id){
     AccessController::accessLevel(1);
     SaleController::getSale($id);
 });
 $router->addRoute('POST', '/vizsgamunkaMVC/sale', function(){
-    // AccessController::accessLevel(1);
+    AccessController::accessLevel(1);
     SaleController::setSale();
 });
 $router->addRoute('PUT', '/vizsgamunkaMVC/sale', function($id){
