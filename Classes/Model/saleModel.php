@@ -46,18 +46,30 @@ class SaleModel{
 
         $json = file_get_contents('php://input');           //"php://input" is a read-only stream that allows you to read raw data from the request body
         $data = json_decode($json, true);                   //Decoding json data returns an ARRAY if the parameter is TRUE, an OBJECT if it is FALSE
-        $col_val=array();       
-        foreach ($data as $x => $y) {
-            array_push($col_val, "$x=$y");                  //Compiles the data from the received array into a new array by key-value pair
-          };
-        
-        $columns_values=implode(",", ($col_val));           //Convert to string
-        $where='sale_ID='.$id;
-        
-        Db::Update('tbl_sale', $columns_values, $where);    //Calls the update function with the column and value pairs and the where
+        $col_val=array();
+        if(!$data==null){
+            foreach ($data as $x => $y) {
+                if(($x=='staff_ID' || $x=='customer_ID' || $x=='product_ID' || $x=='quantity_sale') && is_int($y)){
+                    array_push($col_val, "$x=$y");                  //Compiles the data from the received array into a new array by key-value pair
+                };
+            };
+        };
+        if(!$col_val==null){
+            $columns_values=implode(",", ($col_val));           //Convert to string
+            $where='sale_ID='.$id;
+            
+            Db::Update('tbl_sale', $columns_values, $where);    //Calls the update function with the column and value pairs and the where
 
-        $response='OK';
-        return $response;
+            $response='OK';
+            return $response;
+        }else{
+            http_response_code(406);
+            $response = ([
+                "response" => "error",
+                "message" => "Nem megfelelő adat!"
+            ]);
+            return $response;
+        }
     }
     public static function deleteSaleById($id){
         $where='sale_ID='.$id;
