@@ -92,5 +92,4 @@ $router->addRoute('DELETE', '/vizsgamunkaMVC/sale', function($id){
 
 
 $router->matchRoute($method, $uri);
-//Teszt
 ?>
