@@ -18,7 +18,9 @@ class SaleModel{
         $json = file_get_contents('php://input');       //"php://input" is a read-only stream that allows you to read raw data from the request body
         $data = json_decode($json, true);               //Decoding json data returns an ARRAY if the parameter is TRUE, an OBJECT if it is FALSE
         
-        if(isset($data['staff_ID']) && isset($data['customer_ID']) && isset($data['product_ID']) && isset($data['quantity_sale'])){
+        if(isset($data['staff_ID']) && isset($data['customer_ID']) && isset($data['product_ID']) && isset($data['quantity_sale'])
+        && is_int($data['staff_ID']) && is_int($data['customer_ID']) && is_int($data['product_ID']) && is_int($data['quantity_sale'])){
+            
             $values=$data['staff_ID'].","
             .$data['customer_ID'].","
             .$data['product_ID'].","
@@ -31,7 +33,7 @@ class SaleModel{
             ]);
             return $response;
         }
-        $columns='staff_ID,customer_ID,product_ID,quantity_sale,total_price';
+        $columns='staff_ID,customer_ID,product_ID,quantity_sale';
         
         $values=implode(",", array($values));                                               //Convert to string 
         Db::Insert('tbl_sale', $columns, $values);                                          //Call the insert function with columns and values
