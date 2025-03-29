@@ -92,10 +92,5 @@ $router->addRoute('DELETE', '/vizsgamunkaMVC/sale', function($id){
 
 
 $router->matchRoute($method, $uri);
-<<<<<<< Updated upstream
 //Teszt
 ?>
-=======
-//Fel
-?>
->>>>>>> Stashed changes
