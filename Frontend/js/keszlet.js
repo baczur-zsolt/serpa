@@ -1,4 +1,5 @@
-
+import { API_URL } from './config.js';
+console.log(API_URL);
 //Pagination
 
 const tableBody = document.querySelector("#employeesTable tbody");
@@ -8,7 +9,7 @@ let employeesData = [];
 
 //Felhasználók adatainak lekérése
 //../../backend/api.php?endpoint=staff
-fetch('https://dummyjson.com/products')
+fetch(`${API_URL}products`)
     .then(res => res.json())
     .then(data => {
         console.log(data);
@@ -21,7 +22,7 @@ fetch('https://dummyjson.com/products')
 // Felhasználó törlése
 function deleteUser(selectedUserId) {
     if (selectedUserId) {
-        fetch(`https://dummyjson.com/products=${selectedUserId}`, {
+        fetch(`${API_URL}=${selectedUserId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
@@ -428,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     
         // Küldés a backendnek
-        fetch(`https://dummyjson.com/products/${editingRow.id}`, {
+        fetch(`${API_URL}products/${editingRow.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -476,7 +477,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (confirm("Biztosan törölni szeretnéd ezt az elemet?")) {
             // Küldés a backendnek DELETE kéréssel
-            fetch(`https://dummyjson.com/products/${userId}`, {
+            fetch(`${API_URL}products/${userId}`, {
                 method: "DELETE"
             })
             .then(response => {
@@ -537,7 +538,7 @@ document.getElementById('applyNewProduct').addEventListener('click', function(ev
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
 function addUser(userData) {
-    fetch(`https://dummyjson.com/products`, {
+    fetch(`${API_URL}products`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -570,10 +571,6 @@ function addUser(userData) {
 
 
 
-userSettingsMenu.addEventListener('click', () => {
-    const userSettingsDropdownMenu = document.getElementById("userSettingsDropdownMenu") 
-    userSettingsDropdownMenu.classList.toggle('hidden');
-});
 
 
 
