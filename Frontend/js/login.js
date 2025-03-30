@@ -1,3 +1,5 @@
+import { API_URL } from './config.js';
+
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -29,7 +31,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     if (hasError) return; // Ne küldje el a kérést, ha van hiba
 
     try {
-        const response = await fetch('/vizsgamunkaMVC/login', {
+        const response = await fetch(`${API_URL}login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

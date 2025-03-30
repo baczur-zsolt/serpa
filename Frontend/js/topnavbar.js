@@ -1,3 +1,5 @@
+import { API_URL } from './config.js';
+
 //oldalsáv almenük nyitása/zárása
 
 
@@ -67,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function(){
   const namespace=document.getElementById('namespace');
 
   function loadPage(){
-      fetch('/vizsgamunkaMVC/username')
+      fetch(`${API_URL}username`)
       .then(response=>{
           if (!response.ok) {
               throw new Error("Nem sikerült a lekérdezés!");
@@ -89,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const accessLevelElement = document.getElementById('access_level');
 
     function loadAccessLevel() {
-        fetch('/vizsgamunkaMVC/access_level')
+        fetch(`${API_URL}access_level`)
         .then(response => response.json())
         .then(data => {
             console.log(data);

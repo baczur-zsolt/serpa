@@ -1,4 +1,4 @@
-
+import { API_URL } from './config.js';
 //Pagination
 
 const tableBody = document.querySelector("#employeesTable tbody");
@@ -8,7 +8,7 @@ let employeesData = [];
 
 //Felhasználók adatainak lekérése
 //../../backend/api.php?endpoint=staff
-fetch('https://dummyjson.com/users')
+fetch(`${API_URL}partner`)
     .then(res => res.json())
     .then(data => {
         console.log(data);
@@ -21,7 +21,7 @@ fetch('https://dummyjson.com/users')
 // Felhasználó törlése
 function deleteUser(selectedUserId) {
     if (selectedUserId) {
-        fetch(`https://dummyjson.com/products=${selectedUserId}`, {
+        fetch(`${API_URL}partner=${selectedUserId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
@@ -47,7 +47,7 @@ function deleteUser(selectedUserId) {
 
 
 
-
+/*
 // Felhasználók törlése a sorból az ikon megnyomásával
 document.addEventListener("DOMContentLoaded", function () {
     let selectedUserId = null;
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
+*/
 // 🔹 Táblázat frissítése az aktuális oldallal
 function renderTable() {
     tableBody.innerHTML = "";
@@ -282,7 +282,7 @@ applyNewProduct.addEventListener("click", function () {
 
 
 
-
+/*
 // Adatok szerkesztése "ceruza ikonnal"
 document.addEventListener("DOMContentLoaded", function () {
     let selectedUserId = null;
@@ -313,7 +313,7 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteUser(selectedUserId); // Külön függvény meghívása
     });
 });
-
+*/
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-btn").forEach((button) => {
       button.addEventListener("click", function (event) {
@@ -432,7 +432,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     
         // Küldés a backendnek
-        fetch(`https://dummyjson.com/products/${editingRow.id}`, {
+        fetch(`${API_URL}partner${editingRow.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -480,7 +480,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (confirm("Biztosan törölni szeretnéd ezt az elemet?")) {
             // Küldés a backendnek DELETE kéréssel
-            fetch(`https://dummyjson.com/products/${userId}`, {
+            fetch(`${API_URL}partner/${userId}`, {
                 method: "DELETE"
             })
             .then(response => {
@@ -541,7 +541,7 @@ document.getElementById('applyNewProduct').addEventListener('click', function(ev
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
 function addUser(userData) {
-    fetch(`https://dummyjson.com/products`, {
+    fetch(`${API_URL}partner`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

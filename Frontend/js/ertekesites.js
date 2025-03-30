@@ -1,3 +1,5 @@
+const API_URL = "http://localhost/vizsgamunkaMVC/";
+
 
 //Pagination
 
@@ -47,7 +49,7 @@ function deleteUser(selectedUserId) {
 
 
 
-
+/*
 // Felhasználók törlése a sorból az ikon megnyomásával
 document.addEventListener("DOMContentLoaded", function () {
     let selectedUserId = null;
@@ -78,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
+*/
 // 🔹 Táblázat frissítése az aktuális oldallal
 function renderTable() {
     tableBody.innerHTML = "";
@@ -278,7 +280,7 @@ applyNewProduct.addEventListener("click", function () {
 
 
 
-
+/*
 // Adatok szerkesztése "ceruza ikonnal"
 document.addEventListener("DOMContentLoaded", function () {
     let selectedUserId = null;
@@ -309,7 +311,7 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteUser(selectedUserId); // Külön függvény meghívása
     });
 });
-
+*/
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-btn").forEach((button) => {
       button.addEventListener("click", function (event) {

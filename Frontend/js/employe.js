@@ -1,4 +1,4 @@
-
+import { API_URL } from './config.js'; 
 //Pagination
 
 const tableBody = document.querySelector("#employeesTable tbody");
@@ -9,7 +9,7 @@ let employeesData = [];
 //Felhasználók adatainak lekérése
 //
 //https://67bdcc05321b883e790df6fe.mockapi.io/api/users
-fetch('https://67bdcc05321b883e790df6fe.mockapi.io/api/users')
+fetch(`${API_URL}employe`)
     .then(res => res.json())
     .then(data => {
         console.log(data);
@@ -22,7 +22,7 @@ fetch('https://67bdcc05321b883e790df6fe.mockapi.io/api/users')
 // Felhasználó törlése
 function deleteUser(selectedUserId) {
     if (selectedUserId) {
-        fetch(`../api.php?endpoint=staff&id=${selectedUserId}`, {
+        fetch(`${API_URL}employe=${selectedUserId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
@@ -435,7 +435,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     
         // Küldés a backendnek
-        fetch(`https://67bdcc05321b883e790df6fe.mockapi.io/api/users/${editingRow.id}`, {
+        fetch(`${API_URL}employe/${editingRow.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -483,7 +483,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (confirm("Biztosan törölni szeretnéd ezt az elemet?")) {
             // Küldés a backendnek DELETE kéréssel
-            fetch(`https://67bdcc05321b883e790df6fe.mockapi.io/api/users/${userId}`, {
+            fetch(`${API_URL}employe/${userId}`, {
                 method: "DELETE"
             })
             .then(response => {
@@ -577,7 +577,7 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
 function addUser(userData) {
-    fetch(`https://67bdcc05321b883e790df6fe.mockapi.io/api/users`, {
+    fetch(`${API_URL}employe`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
