@@ -571,10 +571,6 @@ function addUser(userData) {
 
 
 
-userSettingsMenu.addEventListener('click', () => {
-    const userSettingsDropdownMenu = document.getElementById("userSettingsDropdownMenu") 
-    userSettingsDropdownMenu.classList.toggle('hidden');
-});
 
 
 
