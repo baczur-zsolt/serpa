@@ -1,4 +1,4 @@
-const API_URL = "http://localhost/vizsgamunkaMVC/";
+import { API_URL } from './config.js';
 
 
 //Pagination
@@ -10,7 +10,7 @@ let employeesData = [];
 
 //Felhasználók adatainak lekérése
 //../../backend/api.php?endpoint=staff
-fetch('http://localhost/vizsgamunkaMVC/sale')
+fetch(`${API_URL}sale`)
     .then(res => res.json())
     .then(data => {
         console.log(data);
@@ -23,7 +23,7 @@ fetch('http://localhost/vizsgamunkaMVC/sale')
 // Felhasználó törlése
 function deleteUser(selectedUserId) {
     if (selectedUserId) {
-        fetch(`http://localhost/vizsgamunkaMVC/sale=${selectedUserId}`, {
+        fetch(`${API_URL}sale=${selectedUserId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
@@ -91,10 +91,12 @@ function renderTable() {
     let paginatedItems = employeesData.slice(start, end);
 
     paginatedItems.forEach(user => {
+        console.log(user);
         let row = document.createElement("tr");
         row.classList.add("hover:bg-gray-100");
 
-        row.id = user.id;
+        row.id = user.sale_ID;
+        row.setAttribute("data-id", user.sale_ID); // 📌 Hozzáadja a data-id attribútumot
 
         row.innerHTML = `
             <td class="px-6 py-4">${user.sale_ID}</td>
@@ -401,7 +403,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     
         // Küldés a backendnek
-        fetch(`http://localhost/vizsgamunkaMVC/sale/${editingRow.id}`, {
+        fetch(`${API_URL}sale/${editingRow.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -435,16 +437,16 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!button) return;
 
         const row = button.closest("tr"); // Megkeressük a táblázatsort
-        const userId = row.id; // Az azonosító kinyerése
+        const userId = row.dataset.id; // Az azonosító kinyerése
 
         if (!userId) {
             console.error("Nincs érvényes ID az elemhez.");
             return;
         }
-
+        console.log("User ID:", userId);
         if (confirm("Biztosan törölni szeretnéd ezt az elemet?")) {
             // Küldés a backendnek DELETE kéréssel
-            fetch(`http://localhost/vizsgamunkaMVC/sale/${userId}`, {
+            fetch(`${API_URL}sale/${userId}`, {
                 method: "DELETE"
             })
             .then(response => {
@@ -505,7 +507,7 @@ document.getElementById('applyNewProduct').addEventListener('click', function(ev
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
 function addUser(userData) {
-    fetch(`http://localhost/vizsgamunkaMVC/sale`, {
+    fetch(`${API_URL}sale`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
