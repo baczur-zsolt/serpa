@@ -60,11 +60,9 @@ class SaleModel{
         };
         if(!$col_val==null){
             $columns_values=implode(",", ($col_val));           //Convert to string
-            $where='sale_ID='.$id;
-            
-            Db::Update('tbl_sale', $columns_values, $where);    //Calls the update function with the column and value pairs and the where
-
-            $response='OK';
+            $where='sale_ID='.$id;         
+            $rows=Db::Update('tbl_sale', $columns_values, $where);    //Calls the update function with the column and value pairs and the where
+            $response='Updated '.$rows.' rows';
             return $response;
         }else{
             http_response_code(406);
@@ -76,11 +74,12 @@ class SaleModel{
         }
     }
     public static function deleteSaleById($id){
+        Db::SetFKChecks(0);
         $where='sale_ID='.$id;
-        Db::Delete('tbl_sale', $where);
-        
-        $response='OK';
-        return $where;
+        $rows=Db::Delete('tbl_sale', $where);       
+        Db::SetFKChecks(1);
+        $response='Deleted '.$rows.' rows';
+        return $response;
     }
 }
 ?>

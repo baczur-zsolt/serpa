@@ -28,19 +28,23 @@ class Db{
     public static function Insert($table, $columns, $values){
         $sql = "INSERT INTO ".$table." (".$columns.") VALUES (".$values.");";      
         $query = self::Query($sql);
-        return $query->fetchAll(\PDO::FETCH_ASSOC);
+        return $query;
     }
 
     public static function Update($table, $columns_values, $where){ 
         $sql = "UPDATE ".$table." SET ".$columns_values." WHERE ".$where.";";
         $query = self::Query($sql);
-        return $query->fetchAll(\PDO::FETCH_ASSOC);
+        return $query->rowCount();
     }
 
     public static function Delete($table, $where){
         $sql = "DELETE FROM ".$table." WHERE ".$where.";";
         $query = self::Query($sql);
-        return $query->fetchAll(\PDO::FETCH_ASSOC);
+        return $query->rowCount();
+    }
+    public static function SetFKChecks($flag){
+        $sql ="set foreign_key_checks = {$flag};";
+        self::Query($sql);
     }
    
 }

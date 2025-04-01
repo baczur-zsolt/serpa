@@ -61,6 +61,7 @@ $router->addRoute('GET', '/vizsgamunkaMVC/logout', function(){
 
 
 //JSON data request, response
+//User
 $router->addRoute('GET', '/vizsgamunkaMVC/username', function(){
     AccessController::accessLevel(1);
     UserController::getUserName();
@@ -69,10 +70,7 @@ $router->addRoute('GET', '/vizsgamunkaMVC/access_level', function(){
     AccessController::accessLevel(1);
     UserController::getUserAccessLevel();
 });
-// $router->addRoute('GET', '/vizsgamunkaMVC/access', function(){
-//     AccessController::accessLevel(1);
-//     AccessController::getUserAccessLevel();
-// });
+//Sales
 $router->addRoute('GET', '/vizsgamunkaMVC/sale', function($id){
     AccessController::accessLevel(1);
     SaleController::getSale($id);
@@ -88,6 +86,23 @@ $router->addRoute('PUT', '/vizsgamunkaMVC/sale', function($id){
 $router->addRoute('DELETE', '/vizsgamunkaMVC/sale', function($id){
     AccessController::accessLevel(1);
     SaleController::deleteSale($id);
+});
+//Products
+$router->addRoute('GET', '/vizsgamunkaMVC/product', function($id){
+    AccessController::accessLevel(2);
+    ProductController::getProduct($id);
+});
+$router->addRoute('POST', '/vizsgamunkaMVC/product', function(){
+    AccessController::accessLevel(2);
+    ProductController::setProduct();
+});
+$router->addRoute('PUT', '/vizsgamunkaMVC/product', function($id){
+    AccessController::accessLevel(2);
+    ProductController::updateProduct($id);
+});
+$router->addRoute('DELETE', '/vizsgamunkaMVC/product', function($id){
+    AccessController::accessLevel(2);
+    ProductController::deleteProduct($id);
 });
 
 
