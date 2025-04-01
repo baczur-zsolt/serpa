@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("userDeleteModal").classList.add("hidden");
         });
     });
-
+    
     // Törlés megerősítése
     document.querySelector(".text-white.bg-blue-600").addEventListener("click", function () {
         deleteUser(selectedUserId); // Külön függvény meghívása
@@ -81,130 +81,132 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 // 🔹 Táblázat frissítése az aktuális oldallal
-function renderTable() {
-    tableBody.innerHTML = "";
+    function renderTable() {
+        tableBody.innerHTML = "";
 
-    let start = (currentPage - 1) * rowsPerPage;
-    let end = start + rowsPerPage;
-    let paginatedItems = employeesData.slice(start, end);
+        let start = (currentPage - 1) * rowsPerPage;
+        let end = start + rowsPerPage;
+        let paginatedItems = employeesData.slice(start, end);
 
-    paginatedItems.forEach(user => {
-        let row = document.createElement("tr");
-        row.classList.add("hover:bg-gray-100");
-        
-        // A data-id hozzáadása a sorhoz
-        row.id = user.id;  // Itt adod hozzá a data-id attribútumot
+        paginatedItems.forEach(user => {
+            console.log(user)
+            let row = document.createElement("tr");
+            row.classList.add("hover:bg-gray-100");
+            
+            // A data-id hozzáadása a sorhoz
+            row.id = user.id;  // Itt adod hozzá a data-id attribútumot
 
-        row.innerHTML = `
-            <td class="hidden">${user.id}</td>
-            <th class="flex gap-3 px-6 py-4 font-normal text-gray-900">
-                <div class="text-sm">
-                    <div class="font-medium text-gray-700">${user.name}</div>
-                    <div class="text-gray-400">${user.email}</div>
-                </div>
-            </th>
-            <td class="px-6 py-4">${user.last_name + ' ' + user.first_name}</td>
-            <td class="px-6 py-4">
-  ${(() => {
-    if (user.status === 'Aktív') {
-      return `
-        <span class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-          <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-          Aktív
-        </span>
-      `;
-    } else if (user.status === 'Inaktív') {
-      return `
-        <span class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
-          <span class="h-1.5 w-1.5 rounded-full bg-red-600"></span>
-          Inaktív
-        </span>
-      `;
-    } else {
+            row.innerHTML = `
+                <td class="hidden">${user.id}</td>
+                <th class="flex gap-3 px-6 py-4 font-normal text-gray-900">
+                    <div class="text-sm">
+                        <div class="font-medium text-gray-700">${user.name}</div>
+                        <div class="text-gray-400">${user.email}</div>
+                    </div>
+                </th>
+                <td class="px-6 py-4">${user.last_name + ' ' + user.first_name}</td>
+                <td class="px-6 py-4">
+    ${(() => {
+        if (user.status === 'Aktív') {
         return `
-        <span class="inline-flex items-center gap-1 rounded-full bg-gray-50 px-2 py-1 text-xs font-semibold text-gray-600">
-          <span class="h-1.5 w-1.5 rounded-full bg-gray-600"></span>
-          Ismeretlen
-        </span>
-      `;
-    }
-  })()}
-</td>
-            <td class="px-6 py-4">${user.access_level }</td>
-            <td class="px-6 py-4">${user.phone_number}</td>
-            <td class="px-6 py-4">${user.address_zipcode}</td>
-            <td class="px-6 py-4">${user.address_city}</td>
-            <td class="px-6 py-4">${user.address_street}</td>
-            <td class="px-6 py-4">${user.address_housenumber}</td>
-            <td class="px-6 py-4">
-                <div class="flex justify-center gap-4">
-                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
-                        </svg>
-                    </button>
-                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.id}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-                        </svg>
-                    </button>
-                </div>
-            </td>
+            <span class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
+            <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span>
+            Aktív
+            </span>
         `;
-        tableBody.appendChild(row);
-
-        // 📌 Mobil verzióhoz tartozó kártya nézet
-        const card = document.createElement("div");
-        card.className = "bg-white shadow-md rounded-lg p-4 border border-gray-200";
-        card.innerHTML = `
-            <div class="flex justify-between">
-                <h3 class="text-lg font-semibold text-gray-900">${user.sale_ID}</h3>
-                <div class="flex gap-2">
-                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
-                        </svg>
-                    </button>
-                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.id}">
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <p class="text-sm text-gray-500">Mennyiség: ${user.quantity_sale}</p>
-            <p class="text-sm text-gray-500">Vétel ár: ${user.total_price}</p>
-            <p class="text-sm text-gray-500">Eladási ár: ${user.sale_date}</p>
+        } else if (user.status === 'Inaktív') {
+        return `
+            <span class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
+            <span class="h-1.5 w-1.5 rounded-full bg-red-600"></span>
+            Inaktív
+            </span>
         `;
-        mobileView.appendChild(card);
-    });
+        } else {
+            return `
+            <span class="inline-flex items-center gap-1 rounded-full bg-gray-50 px-2 py-1 text-xs font-semibold text-gray-600">
+            <span class="h-1.5 w-1.5 rounded-full bg-gray-600"></span>
+            Ismeretlen
+            </span>
+        `;
+        }
+    })()}
+    </td>
+                <td class="px-6 py-4">${user.access_level }</td>
+                <td class="px-6 py-4">${user.phone_number}</td>
+                <td class="px-6 py-4">${user.address_zipcode}</td>
+                <td class="px-6 py-4">${user.address_city}</td>
+                <td class="px-6 py-4">${user.address_street}</td>
+                <td class="px-6 py-4">${user.address_housenumber}</td>
+                <td class="px-6 py-4">
+                    <div class="flex justify-center gap-4">
+                        
+                        <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
+                            </svg>
+                        </button>
+                        <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
 
-    // Modal megnyitása
-    document.querySelectorAll(".edit-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            let userId = this.dataset.id;
-            let user = employeesData.find(emp => emp.id == userId);
-
-            if (user) {
-                document.getElementById("editName").value = user.name;
-                document.getElementById("editEmail").value = user.email;
-                document.getElementById("editPhone").value = user.phone;
-                document.getElementById("editZip").value = user.address_zipcode;
-                document.getElementById("editCity").value = user.address_city;
-                document.getElementById("editStreet").value = user.address_street;
-                document.getElementById("editHouse").value = user.address_housenumber;
-
-                document.getElementById("editModal").classList.remove("hidden");
-            }
+            // 📌 Mobil verzióhoz tartozó kártya nézet
+            const card = document.createElement("div");
+            card.className = "bg-white shadow-md rounded-lg p-4 border border-gray-200";
+            card.innerHTML = `
+                <div class="flex justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">${user.sale_ID}</h3>
+                    <div class="flex gap-2">
+                        <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
+                            </svg>
+                        </button>
+                        <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-500">Mennyiség: ${user.quantity_sale}</p>
+                <p class="text-sm text-gray-500">Vétel ár: ${user.total_price}</p>
+                <p class="text-sm text-gray-500">Eladási ár: ${user.sale_date}</p>
+            `;
+            mobileView.appendChild(card);
         });
-    });
 
-    // Modal bezárása
-    document.getElementById("closeUserSettingsMenuModal").addEventListener("click", function () {
-        document.getElementById("editModal").classList.add("hidden");
-    });
-    generatePageNumbers();
-}
+        // Modal megnyitása
+        document.querySelectorAll(".edit-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                let userId = this.dataset.id;
+                let user = employeesData.find(emp => emp.id == userId);
+
+                if (user) {
+                    document.getElementById("editName").value = user.name;
+                    document.getElementById("editEmail").value = user.email;
+                    document.getElementById("editPhone").value = user.phone;
+                    document.getElementById("editZip").value = user.address_zipcode;
+                    document.getElementById("editCity").value = user.address_city;
+                    document.getElementById("editStreet").value = user.address_street;
+                    document.getElementById("editHouse").value = user.address_housenumber;
+
+                    document.getElementById("editModal").classList.remove("hidden");
+                }
+            });
+        });
+
+        // Modal bezárása
+        document.getElementById("closeUserSettingsMenuModal").addEventListener("click", function () {
+            document.getElementById("editModal").classList.add("hidden");
+        });
+        generatePageNumbers();
+    }
 
 function generatePageNumbers() {
     const totalPages = Math.ceil(employeesData.length / rowsPerPage);
