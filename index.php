@@ -104,6 +104,40 @@ $router->addRoute('DELETE', '/vizsgamunkaMVC/product', function($id){
     AccessController::accessLevel(2);
     ProductController::deleteProduct($id);
 });
+//Partners
+$router->addRoute('GET', '/vizsgamunkaMVC/partner', function($id){
+    AccessController::accessLevel(2);
+    PartnerController::getPartner($id);
+});
+$router->addRoute('POST', '/vizsgamunkaMVC/partner', function(){
+    AccessController::accessLevel(2);
+    PartnerController::setPartner();
+});
+$router->addRoute('PUT', '/vizsgamunkaMVC/partner', function($id){
+    AccessController::accessLevel(2);
+    PartnerController::updatePartner($id);
+});
+$router->addRoute('DELETE', '/vizsgamunkaMVC/partner', function($id){
+    AccessController::accessLevel(2);
+    PartnerController::deletePartner($id);
+});
+//Eployees
+$router->addRoute('GET', '/vizsgamunkaMVC/employee', function($id){
+    AccessController::accessLevel(3);
+    EmployeeController::getEmployee($id);
+});
+$router->addRoute('POST', '/vizsgamunkaMVC/employee', function(){
+    AccessController::accessLevel(3);
+    EmployeeController::setEmployee();
+});
+$router->addRoute('PUT', '/vizsgamunkaMVC/employee', function($id){
+    AccessController::accessLevel(3);
+    EmployeeController::updateEmployee($id);
+});
+$router->addRoute('DELETE', '/vizsgamunkaMVC/employee', function($id){
+    AccessController::accessLevel(3);
+    EmployeeController::deleteEmployee($id);
+});
 
 
 $router->matchRoute($method, $uri);

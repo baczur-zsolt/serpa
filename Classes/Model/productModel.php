@@ -2,16 +2,11 @@
 
 class ProductModel{
     
-    public static function getProductById($id=null){       //Returns the "tbl_sale" table data based on the "id" request
+    public static function getProductById($id=null){       //Returns the "tbl_product" table data based on the "id" request
 
         if(!$id==null)$id='product_ID='.$id;
 
-        $response=Db::Select("tbl_product", "*", $id);     //Querying the "tbl_sale" table with "id"
-        
-        $productId='product_ID='.$response[0]['product_ID'];
-
-        // $res2=Db::Select("tbl_product", "product_name", $productId);   
-        // array_push($response, $res2[0]);
+        $response=Db::Select("tbl_product", "*", $id);     //Querying the "tbl_product" table with "id"
 
         if($response==null){
             http_response_code(404);
@@ -57,7 +52,7 @@ class ProductModel{
         
         $values=implode(",", array($values));                                               //Convert to string 
         Db::Insert('tbl_product', $columns, $values);                                          //Call the insert function with columns and values
-        $last_insert_id=Db::Select('tbl_product', 'last_insert_id()')[0]['last_insert_id()'];  //Gets the "id" of the last row inserted into the "tbl_sale" table
+        $last_insert_id=Db::Select('tbl_product', 'last_insert_id()')[0]['last_insert_id()'];  //Gets the "id" of the last row inserted into the "tbl_product" table
         $response=Db::Select('tbl_product', '*','product_ID='.$last_insert_id);                   //Retrieves the entire row based on "id"
         http_response_code(201);
         return $response;
