@@ -1,15 +1,14 @@
 import { API_URL } from './config.js';
-
-
 //Pagination
 
 const tableBody = document.querySelector("#employeesTable tbody");
-const rowsPerPage = 10;
+const rowsPerPage = 9;
 let currentPage = 1;
 let employeesData = [];
 
 //Felhasználók adatainak lekérése
-//../../backend/api.php?endpoint=staff
+//
+//https://67bdcc05321b883e790df6fe.mockapi.io/api/users
 fetch(`${API_URL}sale`)
     .then(res => res.json())
     .then(data => {
@@ -23,7 +22,7 @@ fetch(`${API_URL}sale`)
 // Felhasználó törlése
 function deleteUser(selectedUserId) {
     if (selectedUserId) {
-        fetch(`${API_URL}sale=${selectedUserId}`, {
+        fetch(`${API_URL}=${selectedUserId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
@@ -49,7 +48,7 @@ function deleteUser(selectedUserId) {
 
 
 
-/*
+
 // Felhasználók törlése a sorból az ikon megnyomásával
 document.addEventListener("DOMContentLoaded", function () {
     let selectedUserId = null;
@@ -73,45 +72,48 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("userDeleteModal").classList.add("hidden");
         });
     });
-
+    
     // Törlés megerősítése
     document.querySelector(".text-white.bg-blue-600").addEventListener("click", function () {
         deleteUser(selectedUserId); // Külön függvény meghívása
     });
 });
 
-*/
+
 // 🔹 Táblázat frissítése az aktuális oldallal
-function renderTable() {
-    tableBody.innerHTML = "";
-    mobileView.innerHTML = ""; // 📌 Mobil nézet törlése az új adatok előtt
+    function renderTable() {
+        tableBody.innerHTML = "";
 
-    let start = (currentPage - 1) * rowsPerPage;
-    let end = start + rowsPerPage;
-    let paginatedItems = employeesData.slice(start, end);
+        let start = (currentPage - 1) * rowsPerPage;
+        let end = start + rowsPerPage;
+        let paginatedItems = employeesData.slice(start, end);
 
-    paginatedItems.forEach(user => {
-        console.log(user);
-        let row = document.createElement("tr");
-        row.classList.add("hover:bg-gray-100");
-
-        row.id = user.sale_ID;
-        row.setAttribute("data-id", user.sale_ID); // 📌 Hozzáadja a data-id attribútumot
+        paginatedItems.forEach(user => {
+            console.log(user)
+            let row = document.createElement("tr");
+            row.classList.add("hover:bg-gray-100");
+            
+            // A data-id hozzáadása a sorhoz
+        row.id = user.sale_ID;  // Itt adod hozzá a data-id attribútumot
+        
 
         row.innerHTML = `
+            <td class="hidden">${user.id}</td>
             <td class="px-6 py-4">${user.sale_ID}</td>
             <td class="px-6 py-4">${user.quantity_sale}</td>
-            <td class="px-6 py-4">${user.total_price}</td>
+            
+            <td class="px-6 py-4">${user.total_price }</td>
             <td class="px-6 py-4">${user.sale_date}</td>
             <td class="px-6 py-4">
                 <div class="flex justify-center gap-4">
+                    
                     <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
                         </svg>
                     </button>
                     <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.id}">
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
                         </svg>
                     </button>
@@ -146,37 +148,32 @@ function renderTable() {
         mobileView.appendChild(card);
     });
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+        // Modal megnyitása
+        document.querySelectorAll(".edit-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                let userId = this.dataset.id;
+                let user = employeesData.find(emp => emp.id == userId);
 
-    // 📌 Event Listener-ek optimalizálása
-    document.querySelectorAll(".edit-btn").forEach(button => {
-        button.addEventListener("click", openEditModal);
-    });
+                if (user) {
+                    document.getElementById("editName").value = user.name;
+                    document.getElementById("editEmail").value = user.email;
+                    document.getElementById("editPhone").value = user.phone;
+                    document.getElementById("editZip").value = user.address_zipcode;
+                    document.getElementById("editCity").value = user.address_city;
+                    document.getElementById("editStreet").value = user.address_street;
+                    document.getElementById("editHouse").value = user.address_housenumber;
 
-    document.getElementById("closeUserSettingsMenuModal").addEventListener("click", closeEditModal);
+                    document.getElementById("editModal").classList.remove("hidden");
+                }
+            });
+        });
 
-    generatePageNumbers();
-}
-
-// 📌 Funkció a szerkesztő modal megnyitására
-function openEditModal() {
-    let userId = this.dataset.id;
-    let user = employeesData.find(emp => emp.id == userId);
-
-    if (user) {
-        document.getElementById("editProductName").value = user.product_name;
-        document.getElementById("editProductNumber").value = user.number;
-        document.getElementById("editPurchasePrice").value = user.purchase_price;
-        document.getElementById("editSalePrice").value = user.sale_price;
-
-        document.getElementById("editModal").classList.remove("hidden");
+        // Modal bezárása
+        document.getElementById("closeUserSettingsMenuModal").addEventListener("click", function () {
+            document.getElementById("editModal").classList.add("hidden");
+        });
+        generatePageNumbers();
     }
-}
-
-// 📌 Funkció a szerkesztő modal bezárására
-function closeEditModal() {
-    document.getElementById("editModal").classList.add("hidden");
-}
 
 function generatePageNumbers() {
     const totalPages = Math.ceil(employeesData.length / rowsPerPage);
@@ -241,7 +238,7 @@ const closeModal = document.getElementById('closeModal');
 const modal = document.getElementById('crud-modal');
 const overlay = document.getElementById('overlay');
 const userDeleteModal = document.getElementById('userDeleteModal');
-const applyNewProduct = document.getElementById('applyNewProduct');
+const applyNewStaff = document.getElementById('applyNewStaff');
 
 
 // Modal megnyitása
@@ -270,7 +267,7 @@ modal.addEventListener('click', (e) => {
 
 
 
-applyNewProduct.addEventListener("click", function () {
+    applyNewStaff.addEventListener("click", function () {
         modal.classList.add("hidden");
         overlay.classList.add('hidden');
     });
@@ -282,7 +279,7 @@ applyNewProduct.addEventListener("click", function () {
 
 
 
-/*
+
 // Adatok szerkesztése "ceruza ikonnal"
 document.addEventListener("DOMContentLoaded", function () {
     let selectedUserId = null;
@@ -313,7 +310,7 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteUser(selectedUserId); // Külön függvény meghívása
     });
 });
-*/
+
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-btn").forEach((button) => {
       button.addEventListener("click", function (event) {
@@ -353,10 +350,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const tableBody = document.getElementById("employeesTable");
 
     // Űrlap mezők
-    const editName = document.getElementById("editProductName");
-    const editEmail = document.getElementById("editProductNumber");
-    const editStatus = document.getElementById("editPurchasePrice");
-    const editPosition = document.getElementById("editSalePrice");
+    const editName = document.getElementById("editName");
+    const editEmail = document.getElementById("editEmail");
+    const editStatus = document.getElementById("editStatus");
+    const editPosition = document.getElementById("editPosition");
+    const editPhone = document.getElementById("editPhone");
+    const editZip = document.getElementById("editZip");
+    const editCity = document.getElementById("editCity");
+    const editStreet = document.getElementById("editStreet");
+    const editHouse = document.getElementById("editHouse");
+
     let editingRow = null;
 
     // **Eseménykezelő delegálása a táblázatra**
@@ -367,11 +370,12 @@ document.addEventListener("DOMContentLoaded", function () {
         editingRow = button.closest("tr");
 
         // Az adatokat beállítjuk az űrlap mezőkbe
-        editName.value = editingRow.querySelector("td:nth-child(1)").textContent.trim();
-        editEmail.value = editingRow.querySelector("td:nth-child(2)").textContent.trim();
-        editStatus.value = editingRow.querySelector("td:nth-child(3)").textContent.trim();
-        editPosition.value = editingRow.querySelector("td:nth-child(4)").textContent.trim();
-   
+        editName.value = editingRow.querySelector("td:nth-child(2)").textContent.trim();
+        editEmail.value = editingRow.querySelector("td:nth-child(3)").textContent.trim();
+        editStatus.value = editingRow.querySelector("td:nth-child(4)").textContent.trim();
+        editPosition.value = editingRow.querySelector("td:nth-child(5)").textContent.trim();
+
+        
 
         // Modal megjelenítése
         editModal.classList.remove("hidden");
@@ -417,9 +421,9 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data) {
                 // A frontend frissítése
                 
-                editingRow.querySelector("td:nth-child(3)").textContent = updatedData.last_name + ' ' + updatedData.first_name;
-                editingRow.querySelector("th .text-gray-400").textContent = updatedData.email;
-                editingRow.querySelector("td:nth-child(4) span").textContent = updatedData.status;
+                editingRow.querySelector("td:nth-child(2)").textContent = updatedData.last_name + ' ' + updatedData.first_name;
+                editingRow.querySelector("td:nth-child(3)").textContent = updatedData.email;
+                editingRow.querySelector("td:nth-child(4)").textContent = updatedData.status;
                 editingRow.querySelector("td:nth-child(5)").textContent = updatedData.access_level;
                 
                 editModal.classList.add("hidden");
@@ -437,13 +441,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!button) return;
 
         const row = button.closest("tr"); // Megkeressük a táblázatsort
-        const userId = row.dataset.id; // Az azonosító kinyerése
+        const userId = row.id; // Az azonosító kinyerése
 
         if (!userId) {
             console.error("Nincs érvényes ID az elemhez.");
             return;
         }
-        console.log("User ID:", userId);
+
         if (confirm("Biztosan törölni szeretnéd ezt az elemet?")) {
             // Küldés a backendnek DELETE kéréssel
             fetch(`${API_URL}sale/${userId}`, {
@@ -475,7 +479,7 @@ document.addEventListener("DOMContentLoaded", function () {
 //Új alkalazott felvétele Modal logikája
 // Új alkalmazott hozzáadása (POST)
 // Az eseménykezelő a form submitjára
-document.getElementById('applyNewProduct').addEventListener('click', function(event) {
+document.getElementById('applyNewStaff').addEventListener('click', function(event) {
     event.preventDefault();  // Megakadályozza, hogy a form alapértelmezetten újratöltse az oldalt
 
     

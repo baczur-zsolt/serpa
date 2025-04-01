@@ -136,33 +136,38 @@
       </button>
         
       </div>
-      <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5">
-        <div class="hidden md:block">
+      <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md m-5">
+        <div class="hidden lg:block">
+
         <table id="employeesTable" class="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead class="bg-gray-50">
             <tr>
-              <th scope="col" class="px-6 py-3 font-medium text-gray-900">Felhasználó</th>
-              <th scope="col" class="px-6 py-3 font-medium text-gray-900">Név</th>
-              <th scope="col" class="px-6 py-3 font-medium text-gray-900">Státusz</th>
+              <th class="w-1/12 px-6 py-3 font-medium text-gray-900">Felhasználó</th>
+              <th class="w-1/12 px-6 py-3 font-medium text-gray-900">Név</th>
+              <th class="w-1/12 px-6 py-3 font-medium text-gray-900">Státusz</th>
               
               
-              <th scope="col" class="px-6 py-4 font-medium text-gray-900">Beosztás</th>
+              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Beosztás</th>
               
-              <th scope="col" class="px-6 py-4 font-medium text-gray-900">Telefonszám</th>
-              <th scope="col" class="px-6 py-4 font-medium text-gray-900">Irányítószám</th>
-              <th scope="col" class="px-6 py-4 font-medium text-gray-900">Város</th>
-              <th scope="col" class="px-6 py-4 font-medium text-gray-900">Közterület neve</th>
-              <th scope="col" class="px-6 py-4 font-medium text-gray-900">Házszám</th>
-              <th scope="col" class="px-6 py-4 font-medium text-gray-900"></th>
+              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Telefonszám</th>
+              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Irányítószám</th>
+              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Város</th>
+              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Közterület neve</th>
+              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Házszám</th>
+              <th class="w-1/12 px-6 py-4 font-medium text-gray-900"></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
+            <!-- Ide kerülnek a dinamikusan betöltött sorok -->
+        </tbody>
 
-          </tbody>
+          
         </table>
       </div>
         <!-- Mobil nézet: Kártya formátum -->
-        <div id="mobileView" class="md:hidden space-y-4">
+        <div id="mobileView" class="block lg:hidden space-y-4">
+
+
           <!-- Dinamikusan betöltött kártyák -->
       </div>
     </div>
