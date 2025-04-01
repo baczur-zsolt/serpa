@@ -1,4 +1,4 @@
-import { API_URL } from './config.js'; 
+
 //Pagination
 
 const tableBody = document.querySelector("#employeesTable tbody");
@@ -9,7 +9,7 @@ let employeesData = [];
 //Felhasználók adatainak lekérése
 //
 //https://67bdcc05321b883e790df6fe.mockapi.io/api/users
-fetch(`${API_URL}employe`)
+fetch('https://67bdcc05321b883e790df6fe.mockapi.io/api/users')
     .then(res => res.json())
     .then(data => {
         console.log(data);
@@ -22,7 +22,7 @@ fetch(`${API_URL}employe`)
 // Felhasználó törlése
 function deleteUser(selectedUserId) {
     if (selectedUserId) {
-        fetch(`${API_URL}employe=${selectedUserId}`, {
+        fetch(`../api.php?endpoint=staff&id=${selectedUserId}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
@@ -152,6 +152,31 @@ function renderTable() {
             </td>
         `;
         tableBody.appendChild(row);
+
+        // 📌 Mobil verzióhoz tartozó kártya nézet
+        const card = document.createElement("div");
+        card.className = "bg-white shadow-md rounded-lg p-4 border border-gray-200";
+        card.innerHTML = `
+            <div class="flex justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">${user.sale_ID}</h3>
+                <div class="flex gap-2">
+                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
+                        </svg>
+                    </button>
+                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.id}">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500">Mennyiség: ${user.quantity_sale}</p>
+            <p class="text-sm text-gray-500">Vétel ár: ${user.total_price}</p>
+            <p class="text-sm text-gray-500">Eladási ár: ${user.sale_date}</p>
+        `;
+        mobileView.appendChild(card);
     });
 
     // Modal megnyitása
@@ -272,20 +297,20 @@ modal.addEventListener('click', (e) => {
 });
 
 
-/*
+
     applyNewStaff.addEventListener("click", function () {
         modal.classList.add("hidden");
         overlay.classList.add('hidden');
     });
 
 
-*/
 
 
 
 
 
-/*
+
+
 // Adatok szerkesztése "ceruza ikonnal"
 document.addEventListener("DOMContentLoaded", function () {
     let selectedUserId = null;
@@ -316,7 +341,7 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteUser(selectedUserId); // Külön függvény meghívása
     });
 });
-*/
+
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-btn").forEach((button) => {
       button.addEventListener("click", function (event) {
@@ -435,7 +460,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     
         // Küldés a backendnek
-        fetch(`${API_URL}employe/${editingRow.id}`, {
+        fetch(`https://67bdcc05321b883e790df6fe.mockapi.io/api/users/${editingRow.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -483,7 +508,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (confirm("Biztosan törölni szeretnéd ezt az elemet?")) {
             // Küldés a backendnek DELETE kéréssel
-            fetch(`${API_URL}employe/${userId}`, {
+            fetch(`https://67bdcc05321b883e790df6fe.mockapi.io/api/users/${userId}`, {
                 method: "DELETE"
             })
             .then(response => {
@@ -513,44 +538,17 @@ document.addEventListener("DOMContentLoaded", function () {
 // Új alkalmazott hozzáadása (POST)
 // Az eseménykezelő a form submitjára
 document.getElementById('applyNewStaff').addEventListener('click', function(event) {
-    event.preventDefault();  // Megakadályozza az oldal újratöltését
+    event.preventDefault();  // Megakadályozza, hogy a form alapértelmezetten újratöltse az oldalt
 
-    const requiredFields = [
-        'newstaff_name',
-        'newstaff_email',
-        'newstaff_phone_number',
-        'newstaff_address_zipcode',
-        'newstaff_address_city',
-        'newstaff_address_street',
-        'newstaff_address_housenumber'
-    ];
+    
 
-    let isValid = true;
-
-    requiredFields.forEach(id => {
-        const input = document.getElementById(id);
-        const errorMessage = input.nextElementSibling; 
-        
-        if (input.value.trim() === '') {
-            input.classList.add('border-red-500');
-            errorMessage.classList.remove('hidden'); 
-            isValid = false;
-        } else {
-            input.classList.remove('border-red-500');
-            errorMessage.classList.add('hidden'); 
-        }
-    });
-
-    if (!isValid) {
-        return; // Ha van üres mező, nem folytatjuk tovább
-    }
-
-    const fullName = document.getElementById('newstaff_name').value;
-    const nameParts = fullName.split(" ");
-
-    const first_name = nameParts[0];
-    const last_name = nameParts[1] || "";
-
+    const fullName = document.getElementById('newstaff_name').value; // Ha egyetlen mezőben van a teljes név
+    const nameParts = fullName.split(" "); // A szóköz alapján szétválasztjuk (feltételezve, hogy csak két rész van, de ha több, akkor jobban kell kezelni)
+    
+    // Ha van első és utolsó név
+    const first_name = nameParts[0]; 
+    const last_name = nameParts[1] || ""; // Ha nincs utolsó név, akkor üres stringet adunk vissza
+    
     const userData = {
         first_name: first_name,
         last_name: last_name,
@@ -564,20 +562,14 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         access_level: document.getElementById('newstaff_access_level').options[document.getElementById('newstaff_access_level').selectedIndex].textContent,
     };
 
-    // Ha minden mező ki van töltve, akkor küldjük el az adatokat és zárjuk be a modalt
+    // Hívjuk meg az addUser funkciót, hogy elküldje az adatokat
     addUser(userData);
-
-    // Modal és overlay elrejtése
-    modal.classList.add("hidden");
-    overlay.classList.add('hidden');
 });
-
-
 
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
 function addUser(userData) {
-    fetch(`${API_URL}employe`, {
+    fetch(`https://67bdcc05321b883e790df6fe.mockapi.io/api/users`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -610,40 +602,10 @@ function addUser(userData) {
 
 
 
+userSettingsMenu.addEventListener('click', () => {
+    const userSettingsDropdownMenu = document.getElementById("userSettingsDropdownMenu") 
+    userSettingsDropdownMenu.classList.toggle('hidden');
+});
 
 
 
-
-document.getElementById("applyNewStaffForm").addEventListener("submit", function(event) {
-    event.preventDefault(); // Megakadályozza az alapértelmezett form elküldést
-  
-    // Töröljük az előző hibákat
-    const errors = document.querySelectorAll('.text-red-500');
-    errors.forEach(error => error.classList.add('hidden'));
-  
-    let isValid = true; // Ez a változó fogja jelezni, hogy minden mező kitöltésre került-e
-  
-    // Az összes required mező végigellenőrzése
-    const requiredFields = document.querySelectorAll('input[required], select[required]');
-    requiredFields.forEach(field => {
-      const errorMessage = document.getElementById(`${field.id}-error`);
-      
-      // Ha a mező üres, hibaüzenetet jelenítünk meg
-      if (!field.value.trim()) {
-        errorMessage.classList.remove('hidden'); // Megjeleníti a hibaüzenetet
-        isValid = false;
-      }
-    });
-  
-    // Ha a form valid, akkor elküldhetjük
-    if (isValid) {
-      console.log("Form submitted successfully!");
-      // Ha tényleg postolni szeretnéd az űrlapot, használhatod a fetch-et, pl:
-      // fetch('url', { method: 'POST', body: new FormData(event.target) });
-      // form.submit(); // Ha az alapértelmezett submitot szeretnéd használni
-    } else {
-      console.log("Form validation failed.");
-    }
-  });
-  
-  

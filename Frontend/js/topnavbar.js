@@ -41,9 +41,14 @@ import { API_URL } from './config.js';
   });
   
   
-  function toggleDropdown() {
-       document.getElementById("myDropdown").classList.toggle("hidden");
-   }
+  document.addEventListener("DOMContentLoaded", function() {
+    function toggleDropdown() {
+        document.getElementById("myDropdown").classList.toggle("hidden");
+    }
+
+    // Hozzáadjuk a kattintás eseményt a gombhoz
+    document.querySelector("button[onclick='toggleDropdown()']").addEventListener("click", toggleDropdown);
+});
   
    
    window.onclick = function(event) {
