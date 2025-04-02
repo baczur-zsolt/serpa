@@ -8,10 +8,12 @@ class SaleModel{
 
         $response=Db::Select("tbl_sale", "*", $id);     //Querying the "tbl_sale" table with "id"
         
-        $productId='product_ID='.$response[0]['product_ID'];
-        $res2=Db::Select("tbl_product", "product_name", $productId);
-        
-        array_push($response, $res2[0]);
+        for($i=0; $i<count($response); $i++){
+            $productId='product_ID='.$response[$i]['product_ID'];
+            $res2=Db::Select("tbl_product", "product_name", $productId);
+            $response[$i]+=$res2[0];
+        }
+
         if($response==null){
             http_response_code(404);
         }
