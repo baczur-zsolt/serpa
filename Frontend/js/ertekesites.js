@@ -439,19 +439,21 @@ document.addEventListener("DOMContentLoaded", function () {
     // **Eseménykezelő delegálása a táblázatra**
     tableBody.addEventListener("click", function (event) {
         const button = event.target.closest(".delete-btn"); // Ellenőrizzük, hogy a kattintás a törlés gombon történt-e
-    if (!button) return;
-
-    const saleId = button.getAttribute("data-id"); // Kinyerjük a sale_ID-t a gomb data-id attribútumából
-    console.log("Törlendő sale_ID:", saleId); // Ellenőrzés
-
-    if (!saleId) {
-        console.error("Nincs érvényes sale_ID.");
-        return;
-    }
-
+        if (!button) return;
+    
+        const saleId = button.getAttribute("data-id"); // Kinyerjük a sale_ID-t a gomb data-id attribútumából
+        console.log("Törlendő sale_ID:", saleId); // Ellenőrzés
+    
+        if (!saleId) {
+            console.error("Nincs érvényes sale_ID.");
+            return;
+        }
+    
         if (confirm("Biztosan törölni szeretnéd ezt az elemet?")) {
-            // Küldés a backendnek DELETE kéréssel
-            fetch(`${API_URL}sale/${saleId}`, {
+            const row = button.closest("tr"); // Megkeressük a törlendő sort
+    
+            // Backend DELETE kérés küldése
+            fetch(`${API_URL}sale%7B${saleId}%7D`, {
                 method: "DELETE"
             })
             .then(response => {
@@ -462,7 +464,7 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 console.log("Törlés sikeres:", data);
-                row.remove(); // Ha sikeres a törlés, eltávolítjuk a sort a táblázatból
+                if (row) row.remove(); // Ha sikeres a törlés, eltávolítjuk a sort a táblázatból
             })
             .catch(error => {
                 console.error("Hiba a törlés során:", error);
