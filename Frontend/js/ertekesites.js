@@ -12,7 +12,7 @@ let employeesData = [];
 fetch(`${API_URL}sale`)
     .then(res => res.json())
     .then(data => {
-        console.log(data);
+        
         employeesData = data; // Adatok eltárolása
         renderTable();
     })
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let paginatedItems = employeesData.slice(start, end);
 
         paginatedItems.forEach(user => {
-            console.log(user)
+            
             let row = document.createElement("tr");
             row.classList.add("hover:bg-gray-100");
             
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
                         </svg>
                     </button>
-                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.id}">
+                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.sale_ID}">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
                         </svg>
@@ -410,6 +410,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(`${API_URL}sale/${editingRow.id}`, {
             method: "PUT",
             headers: {
+                "Accept": "application/json",
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(updatedData)
@@ -438,19 +439,19 @@ document.addEventListener("DOMContentLoaded", function () {
     // **Eseménykezelő delegálása a táblázatra**
     tableBody.addEventListener("click", function (event) {
         const button = event.target.closest(".delete-btn"); // Ellenőrizzük, hogy a kattintás a törlés gombon történt-e
-        if (!button) return;
+    if (!button) return;
 
-        const row = button.closest("tr"); // Megkeressük a táblázatsort
-        const userId = row.id; // Az azonosító kinyerése
+    const saleId = button.getAttribute("data-id"); // Kinyerjük a sale_ID-t a gomb data-id attribútumából
+    console.log("Törlendő sale_ID:", saleId); // Ellenőrzés
 
-        if (!userId) {
-            console.error("Nincs érvényes ID az elemhez.");
-            return;
-        }
+    if (!saleId) {
+        console.error("Nincs érvényes sale_ID.");
+        return;
+    }
 
         if (confirm("Biztosan törölni szeretnéd ezt az elemet?")) {
             // Küldés a backendnek DELETE kéréssel
-            fetch(`${API_URL}sale/${userId}`, {
+            fetch(`${API_URL}sale/${saleId}`, {
                 method: "DELETE"
             })
             .then(response => {
@@ -494,14 +495,7 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
     const userData = {
         first_name: first_name,
         last_name: last_name,
-        email: document.getElementById('newstaff_email').value,
-        phone_number: document.getElementById('newstaff_phone_number').value,
-        address_zipcode: document.getElementById('newstaff_address_zipcode').value,
-        address_city: document.getElementById('newstaff_address_city').value,
-        address_street: document.getElementById('newstaff_address_street').value,
-        address_housenumber: document.getElementById('newstaff_address_housenumber').value,
-        status: document.getElementById('newstaff_status').options[document.getElementById('newstaff_status').selectedIndex].textContent,
-        access_level: document.getElementById('newstaff_access_level').options[document.getElementById('newstaff_access_level').selectedIndex].textContent,
+        email: document.getElementById('newstaff_email').value
     };
 
     // Hívjuk meg az addUser funkciót, hogy elküldje az adatokat
@@ -520,7 +514,7 @@ function addUser(userData) {
     })
     .then(response => response.json())  // Feltételezve, hogy a backend JSON válaszokat küld
     .then(data => {
-        console.log('Felhasználó sikeresen hozzáadva:', data);
+        
         console.log("Backend válasz:", data);
             if (data) {
                 // A frontend frissítése
