@@ -8,12 +8,12 @@ public function addRoute(string $method, string $uri, $closure){
 }
 public function matchRoute(string $method, string $uri){
 
-    $exp=explode('%7B', $uri);
-    $url=$exp[0];
+    $exp=explode('/', $uri);
+    $url="/".$exp[1]."/".$exp[2];
     
-    if(isset($exp[1])){
-        preg_match('/\d+/', $exp[1], $id);
-        $id=$id[0];
+    if(isset($exp[3])){
+        $id=(int)$exp[3];
+        if($id==0)$id=null;
     }else{
         $id=null;
     }
@@ -23,6 +23,7 @@ public function matchRoute(string $method, string $uri){
         return;
     }
     header("Location: home");
+
 }
     
 }
