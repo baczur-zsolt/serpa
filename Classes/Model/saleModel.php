@@ -19,9 +19,9 @@ class SaleModel{
         }
         return $response;
     }
-    public static function setSaleFromJSON(){           //Inserts the received data into table
+    public static function setSaleFromJSON($json=null){           //Inserts the received data into table
 
-        $json = file_get_contents('php://input');       //"php://input" is a read-only stream that allows you to read raw data from the request body
+        if($json==null)$json = file_get_contents('php://input');       //"php://input" is a read-only stream that allows you to read raw data from the request body
         $data = json_decode($json, true);               //Decoding json data returns an ARRAY if the parameter is TRUE, an OBJECT if it is FALSE
         
         if(isset($data['staff_ID']) && isset($data['customer_ID']) && isset($data['product_ID']) && isset($data['quantity_sale'])
@@ -76,11 +76,20 @@ class SaleModel{
         }
     }
     public static function deleteSaleById($id){
-        Db::SetFKChecks(0);
-        $where='sale_ID='.$id;
-        $rows=Db::Delete('tbl_sale', $where);       
-        Db::SetFKChecks(1);
-        $response='Deleted '.$rows.' rows';
+        // Db::SetFKChecks(0);
+        // $where='sale_ID='.$id;
+        // $rows=Db::Delete('tbl_sale', $where);       
+        // Db::SetFKChecks(1);
+        // $response='Deleted '.$rows.' rows';
+        $data=self::getSaleById($id);
+        $request=array(
+                "staff_ID"=>$data[0]['staff_ID'],
+                "customer_ID"=>$data[0]['customer_ID'],
+                "product_ID"=>$data[0]['product_ID'],
+                "quantity_sale"=>$data[0]['quantity_sale']*-1
+        );
+
+        $response=self::setSaleFromJSON(json_encode($request));
         return $response;
     }
 }
