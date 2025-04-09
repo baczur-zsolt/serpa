@@ -48,7 +48,7 @@
                   <div class="col-span-2 sm:col-span-1">
                     <label for="newstaff_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Termék neve</label>
                     <input type="text" name="name" id="newstaff_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
-                    placeholder="Alkalmazott neve" required>
+                    placeholder="Termék neve" required>
                     <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
 
@@ -69,7 +69,7 @@
 
                   <div class="col-span-2 sm:col-span-1">
                       <label for="newstaff_access_level" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Eladás ideje</label>
-                      <input type="date" name="email" id="newstaff_access_level" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Eladás ideje" required>
+                      <input type="datetime-local" name="email" id="newstaff_access_level" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Eladás ideje" required>
                       <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
 
@@ -149,7 +149,7 @@
 
 
 
-  <!--Felhasználó törlése Modal
+  <!--Felhasználó törlése Modal-->
   <div id="userDeleteModaloverlay" class="hidden absolute inset-0 bg-black/50 z-10"></div>
   <div id="userDeleteModal" tabindex="-1" class="hidden flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ">
       <div class="relative p-4 w-full max-w-md max-h-full">
@@ -173,7 +173,7 @@
           </div>
       </div>
   </div>
-  -->
+  
 
     <!--Felhasználó adatainak módosítása Modal -->
 <div id="editModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
@@ -184,13 +184,13 @@
     <input type="text" id="editName" class="w-full p-2 border rounded mb-2" />
 
     <label for="editEmail" class="block text-sm font-medium text-gray-700">Mennyiség:</label>
-    <input type="text" id="editEmail" class="w-full p-2 border rounded mb-2" />
+    <input type="number" id="editEmail" class="w-full p-2 border rounded mb-2" />
 
     <label for="editStatus" class="block text-sm font-medium text-gray-700">Eladási ár:</label>
     <input type="text" id="editStatus" class="w-full p-2 border rounded mb-2" />
 
     <label for="editPosition" class="block text-sm font-medium text-gray-700">Eladás ideje:</label>
-    <input type="text" id="editPosition" class="w-full p-2 border rounded mb-2" />
+    <input type="datetime-local" id="editPosition" class="w-full p-2 border rounded mb-2" />
 
     <div class="flex justify-end gap-2">
       <button id="closeUserSettingsMenuModal" class="bg-gray-500 text-white px-4 py-2 rounded">Mégse</button>
@@ -203,5 +203,25 @@
   
 <script type="module" src="./Frontend/js/topnavbar.js"></script>
 <script type="module" src="./Frontend/js/ertekesites.js"></script>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      let input = document.getElementById("newstaff_access_level");
+      let now = new Date();
+  
+      // Formázza az időt YYYY-MM-DDTHH:MM:SS formátumban
+      let year = now.getFullYear();
+      let month = String(now.getMonth() + 1).padStart(2, '0');
+      let day = String(now.getDate()).padStart(2, '0');
+      let hours = String(now.getHours()).padStart(2, '0');
+      let minutes = String(now.getMinutes()).padStart(2, '0');
+      let seconds = String(now.getSeconds()).padStart(2, '0');
+  
+      let formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+      
+      input.value = formattedDateTime;
+  });
+  </script>
 </body>
 </html>

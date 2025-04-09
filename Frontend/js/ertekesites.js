@@ -20,6 +20,7 @@ fetch(`${API_URL}sale`)
 
 //Felhasználók törlése a sorból az ikon megnyomásával
 // Felhasználó törlése
+/*
 function deleteUser(selectedUserId) {
     if (selectedUserId) {
         fetch(`${API_URL}=${selectedUserId}`, {
@@ -43,13 +44,14 @@ function deleteUser(selectedUserId) {
         });
     }
 }
-
+*/
 //Felhasználói adatok módosítása
 
 
 
 
 // Felhasználók törlése a sorból az ikon megnyomásával
+/*
 document.addEventListener("DOMContentLoaded", function () {
     let selectedUserId = null;
 
@@ -78,40 +80,40 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteUser(selectedUserId); // Külön függvény meghívása
     });
 });
+*/
 
 
 // 🔹 Táblázat frissítése az aktuális oldallal
-    function renderTable() {
-        tableBody.innerHTML = "";
+function renderTable() {
+    tableBody.innerHTML = "";  // Táblázat ürítése
 
-        let start = (currentPage - 1) * rowsPerPage;
-        let end = start + rowsPerPage;
-        let paginatedItems = employeesData.slice(start, end);
+    let start = (currentPage - 1) * rowsPerPage;
+    let end = start + rowsPerPage;
+    let paginatedItems = employeesData.slice(start, end);
 
-        paginatedItems.forEach(user => {
-            
-            let row = document.createElement("tr");
-            row.classList.add("hover:bg-gray-100");
-            
-            // A data-id hozzáadása a sorhoz
-        row.id = user.sale_ID;  // Itt adod hozzá a data-id attribútumot
+    paginatedItems.forEach(user => {
         
+        let row = document.createElement("tr");
+        row.classList.add("hover:bg-gray-100");
+        row.id = user.sale_ID;  // A data-id hozzáadása a sorhoz
 
         row.innerHTML = `
             <td class="hidden">${user.id}</td>
-            <td class="px-6 py-4">${user.sale_ID}</td>
+            <td class="px-6 py-4">${user.staff_ID}</td>
+            <td class="px-6 py-4">${user.customer_ID}</td>
+            <td class="px-6 py-4">${user.product_name}</td>
             <td class="px-6 py-4">${user.quantity_sale}</td>
-            
-            <td class="px-6 py-4">${user.total_price }</td>
+            <td class="px-6 py-4">${user.total_price}</td>
             <td class="px-6 py-4">${user.sale_date}</td>
             <td class="px-6 py-4">
                 <div class="flex justify-center gap-4">
-                    
-                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
+                    <!-- Edit gomb -->
+                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.sale_ID}">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
                         </svg>
                     </button>
+                    <!-- Delete gomb -->
                     <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.sale_ID}">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
@@ -122,20 +124,23 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         tableBody.appendChild(row);
 
-        // 📌 Mobil verzióhoz tartozó kártya nézet
+        // 📌 Mobil verzióhoz tartozó kártya nézet (használjuk ugyanazokat a gombokat)
         const card = document.createElement("div");
         card.className = "bg-white shadow-md rounded-lg p-4 border border-gray-200";
         card.innerHTML = `
             <div class="flex justify-between">
-                <h3 class="text-lg font-semibold text-gray-900">${user.sale_ID}</h3>
+                <h3 class="text-lg font-semibold text-gray-900">${user.staff_ID}</h3>
+                <h3 class="text-lg font-semibold text-gray-900">${user.customer_ID}</h3>
+                <h3 class="text-lg font-semibold text-gray-900">${user.product_name}</h3>
                 <div class="flex gap-2">
-                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.id}">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                    <!-- Mobil nézet: ugyanaz a gomb, mint a táblázatban -->
+                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.sale_ID}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
                         </svg>
                     </button>
-                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.id}">
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.sale_ID}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
                         </svg>
                     </button>
@@ -148,30 +153,97 @@ document.addEventListener("DOMContentLoaded", function () {
         mobileView.appendChild(card);
     });
 
-        // Modal megnyitása
-        document.querySelectorAll(".edit-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                let userId = this.dataset.id;
-                let user = employeesData.find(emp => emp.id == userId);
 
-                if (user) {
-                    document.getElementById("editName").value = user.name;
-                    document.getElementById("editEmail").value = user.email;
-                    document.getElementById("editPhone").value = user.phone;
-                    document.getElementById("editZip").value = user.address_zipcode;
-                    document.getElementById("editCity").value = user.address_city;
-                    document.getElementById("editStreet").value = user.address_street;
-                    document.getElementById("editHouse").value = user.address_housenumber;
-
-                    document.getElementById("editModal").classList.remove("hidden");
-                }
-            });
+        // Event delegation a táblázat soraiban
+        tableBody.addEventListener("click", function(e) {
+            if (e.target.closest(".edit-btn")) {
+                const id = e.target.closest(".edit-btn").dataset.id;
+                const item = employeesData.find(emp => emp.sale_ID == id);
+                openEditModal(item);
+            } else if (e.target.closest(".delete-btn")) {
+                const id = e.target.closest(".delete-btn").dataset.id;
+                deleteSale(id);
+            }
         });
 
-        // Modal bezárása
-        document.getElementById("closeUserSettingsMenuModal").addEventListener("click", function () {
-            document.getElementById("editModal").classList.add("hidden");
-        });
+function openEditModal(item) {
+    // Feltételezzük, hogy minden input elem ID-ja megfelelő
+    document.getElementById("editName").value = item.product_name;
+    document.getElementById("editEmail").value = item.quantity_sale;
+    document.getElementById("editStatus").value = item.total_price;
+    document.getElementById("editPosition").value = item.sale_date;
+
+    // Mentéshez szükség lesz az ID-ra is, amit külön el kell tárolni
+    document.getElementById("saveChanges").dataset.id = item.sale_ID;
+
+    document.getElementById("editModal").classList.remove("hidden");
+}
+
+// Bezárás gomb
+document.getElementById("closeUserSettingsMenuModal").addEventListener("click", () => {
+    document.getElementById("editModal").classList.add("hidden");
+});
+
+// Mentés gomb esemény
+document.getElementById("saveChanges").addEventListener("click", async function () {
+    const id = this.dataset.id;
+    const updatedData = {
+        product_name: document.getElementById("editName").value,
+        quantity_sale: parseInt(document.getElementById("editEmail").value),
+        total_price: parseFloat(document.getElementById("editStatus").value),
+        sale_date: document.getElementById("editPosition").value
+    };
+    
+
+    const response = await fetch(`${API_URL}sale/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData)
+        
+    });
+    console.log(updatedData);
+    if (response.ok) {
+        const index = employeesData.findIndex(emp => emp.sale_ID == id);
+        employeesData[index] = { ...employeesData[index], ...updatedData };
+        renderTable();
+        document.getElementById("editModal").classList.add("hidden");
+    } else {
+        alert("Hiba a frissítés során!");
+    }
+});
+
+// Törlés
+async function deleteSale(id) {
+    if (!confirm("Biztosan törölni szeretnéd ezt az eladást?")) return;
+
+    const response = await fetch(`${API_URL}sale/${id}`, {
+        method: "DELETE"
+    });
+
+    if (response.ok) {
+        employeesData = employeesData.filter(emp => emp.sale_ID != id);
+        renderTable();
+    } else {
+        alert("Hiba a törlés során!");
+    }
+}
+// Például közvetlenül a script betöltésekor:
+if (!window.mobileViewHandlerAdded) {
+    mobileView.addEventListener("click", function(e) {
+        if (e.target.closest(".edit-btn")) {
+            const id = e.target.closest(".edit-btn").dataset.id;
+            const item = employeesData.find(emp => emp.sale_ID == id);
+            openEditModal(item);
+        } else if (e.target.closest(".delete-btn")) {
+            const id = e.target.closest(".delete-btn").dataset.id;
+            deleteSale(id);
+        }
+    });
+    window.mobileViewHandlerAdded = true; // jelölés, hogy már hozzád lett adva
+}
+
+        
+        
         generatePageNumbers();
     }
 
@@ -270,6 +342,7 @@ modal.addEventListener('click', (e) => {
     applyNewStaff.addEventListener("click", function () {
         modal.classList.add("hidden");
         overlay.classList.add('hidden');
+        
     });
 
 
@@ -281,6 +354,7 @@ modal.addEventListener('click', (e) => {
 
 
 // Adatok szerkesztése "ceruza ikonnal"
+/*
 document.addEventListener("DOMContentLoaded", function () {
     let selectedUserId = null;
 
@@ -310,7 +384,7 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteUser(selectedUserId); // Külön függvény meghívása
     });
 });
-
+*/
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-btn").forEach((button) => {
       button.addEventListener("click", function (event) {
@@ -343,50 +417,55 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   
 
+  /*
+
   document.addEventListener("DOMContentLoaded", function () {
     const editModal = document.getElementById("editModal");
     const saveChanges = document.getElementById("saveChanges");
     const closeUserSettingsMenuModal = document.getElementById("closeUserSettingsMenuModal");
-    const tableBody = document.getElementById("employeesTable");
+
+    const tableBody = document.getElementById("employeesTable").querySelector("tbody"); // ez fontos!
 
     // Űrlap mezők
     const editName = document.getElementById("editName");
     const editEmail = document.getElementById("editEmail");
     const editStatus = document.getElementById("editStatus");
     const editPosition = document.getElementById("editPosition");
-    const editPhone = document.getElementById("editPhone");
-    const editZip = document.getElementById("editZip");
-    const editCity = document.getElementById("editCity");
-    const editStreet = document.getElementById("editStreet");
-    const editHouse = document.getElementById("editHouse");
 
     let editingRow = null;
 
-    // **Eseménykezelő delegálása a táblázatra**
     tableBody.addEventListener("click", function (event) {
         const button = event.target.closest(".edit-btn");
-        if (!button) return;
 
-        editingRow = button.closest("tr");
+        if (button) {
+            console.log("Szerkesztés gombra kattintottál!");
+            editingRow = button.closest("tr");
+            console.log(button.closest("tr"))
 
-        // Az adatokat beállítjuk az űrlap mezőkbe
-        editName.value = editingRow.querySelector("td:nth-child(2)").textContent.trim();
-        editEmail.value = editingRow.querySelector("td:nth-child(3)").textContent.trim();
-        editStatus.value = editingRow.querySelector("td:nth-child(4)").textContent.trim();
-        editPosition.value = editingRow.querySelector("td:nth-child(5)").textContent.trim();
+            if (editingRow) {
+                console.log("Szerkesztett sor:", editingRow);
 
-        
+                editName.value = editingRow.querySelector("td:nth-child(2)").textContent.trim();
+                editEmail.value = editingRow.querySelector("td:nth-child(3)").textContent.trim();
+                editStatus.value = editingRow.querySelector("td:nth-child(4)").textContent.trim();
+                editPosition.value = editingRow.querySelector("td:nth-child(5)").textContent.trim();
 
-        // Modal megjelenítése
-        editModal.classList.remove("hidden");
+                editModal.classList.remove("hidden");
+            } else {
+                console.warn("Nem talált szerkeszthető sort!");
+            }
+        }
     });
 
-    // Modal bezárása
     closeUserSettingsMenuModal.addEventListener("click", function () {
         editModal.classList.add("hidden");
     });
 
+
     saveChanges.addEventListener("click", function () {
+        
+        console.log("SaveChanges gombra kattintottál");
+        console.log("editingRow:", editingRow); // EZT ADD HOZZÁ
         if (!editingRow) return;
 
         if (!editingRow) return;
@@ -407,7 +486,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     
         // Küldés a backendnek
-        fetch(`${API_URL}sale/${editingRow.id}`, {
+        fetch(`${API_URL}sale/${editingRow.dataset.id}`, {
             method: "PUT",
             headers: {
                 "Accept": "application/json",
@@ -437,23 +516,24 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // **Eseménykezelő delegálása a táblázatra**
-    tableBody.addEventListener("click", function (event) {
-        const button = event.target.closest(".delete-btn"); // Ellenőrizzük, hogy a kattintás a törlés gombon történt-e
-        if (!button) return;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        tableBody.addEventListener("click", function (event) {
+            const button = event.target.closest(".delete-btn"); // Csak akkor fut tovább, ha delete-btn-re kattintottak
+            if (!button) return;
     
-        const saleId = button.getAttribute("data-id"); // Kinyerjük a sale_ID-t a gomb data-id attribútumából
-        console.log("Törlendő sale_ID:", saleId); // Ellenőrzés
+            const saleId = button.getAttribute("data-id");
+            if (!saleId) {
+                console.error("Nincs érvényes sale_ID.");
+                return;
+            }
     
-        if (!saleId) {
-            console.error("Nincs érvényes sale_ID.");
-            return;
-        }
+            const confirmDelete = confirm(`Biztosan törlöd az ID: ${saleId} rekordot?`);
+            if (!confirmDelete) return;
     
-        if (confirm("Biztosan törölni szeretnéd ezt az elemet?")) {
-            const row = button.closest("tr"); // Megkeressük a törlendő sort
+            const row = button.closest("tr");
     
-            // Backend DELETE kérés küldése
-            fetch(`${API_URL}sale%7B${saleId}%7D`, {
+            fetch(`${API_URL}sale/${saleId}`, {
                 method: "DELETE"
             })
             .then(response => {
@@ -464,16 +544,18 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 console.log("Törlés sikeres:", data);
-                if (row) row.remove(); // Ha sikeres a törlés, eltávolítjuk a sort a táblázatból
+                if (row) row.remove(); // Sor eltávolítása, ha sikeres
             })
             .catch(error => {
                 console.error("Hiba a törlés során:", error);
                 alert("Hiba történt a törlés során.");
             });
-        }
+        });
     });
     
 });
+
+*/
 
 
 
@@ -482,6 +564,7 @@ document.addEventListener("DOMContentLoaded", function () {
 //Új alkalazott felvétele Modal logikája
 // Új alkalmazott hozzáadása (POST)
 // Az eseménykezelő a form submitjára
+
 document.getElementById('applyNewStaff').addEventListener('click', function(event) {
     event.preventDefault();  // Megakadályozza, hogy a form alapértelmezetten újratöltse az oldalt
 
@@ -501,7 +584,13 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
     };
 
     // Hívjuk meg az addUser funkciót, hogy elküldje az adatokat
+
+
     addUser(userData);
+
+    document.getElementById('newstaff_name').value = "";
+    document.getElementById('newstaff_email').value = "";
+    
 });
 
 // Az addUser függvény, amely elküldi a POST kérést
@@ -512,28 +601,30 @@ function addUser(userData) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(userData)  // A felhasználó adatai JSON formátumban
+        body: JSON.stringify(userData)
     })
-    .then(response => response.json())  // Feltételezve, hogy a backend JSON válaszokat küld
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Hiba a szerveren: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
-        
         console.log("Backend válasz:", data);
-            if (data) {
-                // A frontend frissítése
-                
-                renderTable();
-            } else {
-                alert("Hiba történt a módosítás során!");
-            }
-        employeesData.push(data);  // Új adat hozzáadása a tárolt felhasználókhoz
-        renderTable();  // Frissítjük a táblázatot
+        
+        if (data && data.id) {  // Ellenőrizzük, hogy van-e releváns adat
+            employeesData.unshift(data);  // Új adat hozzáadása
+            renderTable();  // Táblázat frissítése
+        } else {
+            alert("Hiba történt a módosítás során! Hibás vagy hiányzó adatok.");
+        }
     })
     .catch(error => {
         console.error('Hiba történt a felhasználó hozzáadásakor:', error);
+        alert("Hiba történt a felhasználó hozzáadásakor. Kérlek, próbáld újra.");
     });
-    
-    
 }
+
 
 
 

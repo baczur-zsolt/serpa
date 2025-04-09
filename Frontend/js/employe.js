@@ -1,6 +1,7 @@
 
 //Pagination
 
+
 const tableBody = document.querySelector("#employeesTable tbody");
 const rowsPerPage = 9;
 let currentPage = 1;
@@ -181,6 +182,8 @@ document.addEventListener("DOMContentLoaded", function () {
             mobileView.appendChild(card);
         });
 
+        
+
         // Modal megnyitása
         document.querySelectorAll(".edit-btn").forEach(button => {
             button.addEventListener("click", function () {
@@ -201,6 +204,8 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
 
+
+        
         // Modal bezárása
         document.getElementById("closeUserSettingsMenuModal").addEventListener("click", function () {
             document.getElementById("editModal").classList.add("hidden");
@@ -311,7 +316,7 @@ modal.addEventListener('click', (e) => {
 
 
 
-
+/*
 
 // Adatok szerkesztése "ceruza ikonnal"
 document.addEventListener("DOMContentLoaded", function () {
@@ -343,7 +348,10 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteUser(selectedUserId); // Külön függvény meghívása
     });
 });
+*/
 
+
+/*
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-btn").forEach((button) => {
       button.addEventListener("click", function (event) {
@@ -374,8 +382,13 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   });
-  
+  */
 
+
+
+
+
+  /*
   document.addEventListener("DOMContentLoaded", function () {
     const editModal = document.getElementById("editModal");
     const saveChanges = document.getElementById("saveChanges");
@@ -536,6 +549,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+
+*/
+
+
 //Új alkalazott felvétele Modal logikája
 // Új alkalmazott hozzáadása (POST)
 // Az eseménykezelő a form submitjára
@@ -604,10 +621,7 @@ function addUser(userData) {
 
 
 
-userSettingsMenu.addEventListener('click', () => {
-    const userSettingsDropdownMenu = document.getElementById("userSettingsDropdownMenu") 
-    userSettingsDropdownMenu.classList.toggle('hidden');
-});
+
 
 
 
