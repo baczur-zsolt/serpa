@@ -1,1 +1,1 @@
-export const API_URL = "http://localhost/vizsgamunkaMVC/";
+export const API_URL = "http://localhost/serpa/";
