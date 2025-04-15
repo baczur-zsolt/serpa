@@ -1,140 +1,141 @@
 <?php
 
-include_once 'classes/autoloader.php';
+include_once "classes/autoloader.php";
 
 $router = new Router;
-$method = $_SERVER['REQUEST_METHOD'];
-$uri = $_SERVER['REQUEST_URI'];
+$method = $_SERVER["REQUEST_METHOD"];
+$uri = $_SERVER["REQUEST_URI"];
+$myURL = "/serpa";
 
 
 // Show pages
-$router->addRoute('GET', '/vizsgamunkaMVC/home', function(){
-    HomeController::main('homePage');
+$router->addRoute("GET", "$myURL/home", function(){
+    HomeController::main("homePage");
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/login', function(){
-    HomeController::main('login');
+$router->addRoute("GET", "$myURL/login", function(){
+    HomeController::main("login");
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/dashboard', function() {
+$router->addRoute("GET", "$myURL/dashboard", function() {
     AccessController::accessLevel(1);
     PageController::main();
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/sales', function() {
+$router->addRoute("GET", "$myURL/sales", function() {
     AccessController::accessLevel(1);
-    PageController::main('sales');
+    PageController::main("sales");
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/products', function() {
+$router->addRoute("GET", "$myURL/products", function() {
     AccessController::accessLevel(2);
-    PageController::main('products');
+    PageController::main("products");
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/partners', function() {
+$router->addRoute("GET", "$myURL/partners", function() {
     AccessController::accessLevel(2);
-    PageController::main('partners');
+    PageController::main("partners");
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/employees', function() {
+$router->addRoute("GET", "$myURL/employees", function() {
     AccessController::accessLevel(3);
-    PageController::main('employees');
+    PageController::main("employees");
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/statistics', function() {
+$router->addRoute("GET", "$myURL/statistics", function() {
     AccessController::accessLevel(3);
-    PageController::main('statistics');
+    PageController::main("statistics");
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/finances', function() {
+$router->addRoute("GET", "$myURL/finances", function() {
     AccessController::accessLevel(3);
-    PageController::main('finances');
+    PageController::main("finances");
 });
 
 
 //Show cards
-$router->addRoute('GET', '/vizsgamunkaMVC/cards', function() {
+$router->addRoute("GET", "$myURL/cards", function() {
     AccessController::accessLevel(1);
     CardController::main();
 });
 
 
 //Access management
-$router->addRoute('POST', '/vizsgamunkaMVC/login', function(){
+$router->addRoute("POST", "$myURL/login", function(){
     AccessController::login();
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/logout', function(){
+$router->addRoute("GET", "$myURL/logout", function(){
     AccessController::logout();
 });
 
 
 //JSON data request, response
 //User
-$router->addRoute('GET', '/vizsgamunkaMVC/username', function(){
+$router->addRoute("GET", "$myURL/username", function(){
     AccessController::accessLevel(1);
     UserController::getUserName();
 });
-$router->addRoute('GET', '/vizsgamunkaMVC/access_level', function(){
+$router->addRoute("GET", "$myURL/access_level", function(){
     AccessController::accessLevel(1);
     UserController::getUserAccessLevel();
 });
 //Sales
-$router->addRoute('GET', '/vizsgamunkaMVC/sale', function($id){
+$router->addRoute("GET", "$myURL/sale", function($id){
     AccessController::accessLevel(1);
     SaleController::getSale($id);
 });
-$router->addRoute('POST', '/vizsgamunkaMVC/sale', function(){
+$router->addRoute("POST", "$myURL/sale", function(){
     AccessController::accessLevel(1);
     SaleController::setSale();
 });
-$router->addRoute('PUT', '/vizsgamunkaMVC/sale', function($id){
+$router->addRoute("PUT", "$myURL/sale", function($id){
     AccessController::accessLevel(1);
     SaleController::updateSale($id);
 });
-$router->addRoute('DELETE', '/vizsgamunkaMVC/sale', function($id){
+$router->addRoute("DELETE", "$myURL/sale", function($id){
     AccessController::accessLevel(1);
     SaleController::deleteSale($id);
 });
 //Products
-$router->addRoute('GET', '/vizsgamunkaMVC/product', function($id){
+$router->addRoute("GET", "$myURL/product", function($id){
     AccessController::accessLevel(2);
     ProductController::getProduct($id);
 });
-$router->addRoute('POST', '/vizsgamunkaMVC/product', function(){
+$router->addRoute("POST", "$myURL/product", function(){
     AccessController::accessLevel(2);
     ProductController::setProduct();
 });
-$router->addRoute('PUT', '/vizsgamunkaMVC/product', function($id){
+$router->addRoute("PUT", "$myURL/product", function($id){
     AccessController::accessLevel(2);
     ProductController::updateProduct($id);
 });
-$router->addRoute('DELETE', '/vizsgamunkaMVC/product', function($id){
+$router->addRoute("DELETE", "$myURL/product", function($id){
     AccessController::accessLevel(2);
     ProductController::deleteProduct($id);
 });
 //Partners
-$router->addRoute('GET', '/vizsgamunkaMVC/partner', function($id){
+$router->addRoute("GET", "$myURL/partner", function($id){
     AccessController::accessLevel(2);
     PartnerController::getPartner($id);
 });
-$router->addRoute('POST', '/vizsgamunkaMVC/partner', function(){
+$router->addRoute("POST", "$myURL/partner", function(){
     AccessController::accessLevel(2);
     PartnerController::setPartner();
 });
-$router->addRoute('PUT', '/vizsgamunkaMVC/partner', function($id){
+$router->addRoute("PUT", "$myURL/partner", function($id){
     AccessController::accessLevel(2);
     PartnerController::updatePartner($id);
 });
-$router->addRoute('DELETE', '/vizsgamunkaMVC/partner', function($id){
+$router->addRoute("DELETE", "$myURL/partner", function($id){
     AccessController::accessLevel(2);
     PartnerController::deletePartner($id);
 });
 //Eployees
-$router->addRoute('GET', '/vizsgamunkaMVC/employee', function($id){
+$router->addRoute("GET", "$myURL/employee", function($id){
     AccessController::accessLevel(3);
     EmployeeController::getEmployee($id);
 });
-$router->addRoute('POST', '/vizsgamunkaMVC/employee', function(){
+$router->addRoute("POST", "$myURL/employee", function(){
     AccessController::accessLevel(3);
     EmployeeController::setEmployee();
 });
-$router->addRoute('PUT', '/vizsgamunkaMVC/employee', function($id){
+$router->addRoute("PUT", "$myURL/employee", function($id){
     AccessController::accessLevel(3);
     EmployeeController::updateEmployee($id);
 });
-$router->addRoute('DELETE', '/vizsgamunkaMVC/employee', function($id){
+$router->addRoute("DELETE", "$myURL/employee", function($id){
     AccessController::accessLevel(3);
     EmployeeController::deleteEmployee($id);
 });
