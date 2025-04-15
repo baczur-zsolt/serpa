@@ -69,28 +69,33 @@ import { API_URL } from './config.js';
 
 
 // Név beírása jobb felső sarokba
-document.addEventListener("DOMContentLoaded", function(){
-    
-  const namespace=document.getElementById('namespace');
-
-  function loadPage(){
+document.addEventListener("DOMContentLoaded", function() {
+    const namespace = document.getElementById('namespace');
+    const seller = document.getElementById('seller');
+  
+    function loadPage() {
       fetch(`${API_URL}username`)
-      .then(response=>{
+        .then(response => {
           if (!response.ok) {
-              throw new Error("Nem sikerült a lekérdezés!");
+            throw new Error("Nem sikerült a lekérdezés!");
           }
           return response.json();
-      })
-      .then(data=>{
-          namespace.innerHTML=data[0]['last_name'] + " " + data[0]['first_name'] ;
-      })
-      .catch((error) => {
+        })
+        .then(data => {
+          const fullName = data[0]['last_name'] + " " + data[0]['first_name'];
+          if (namespace) namespace.innerHTML = fullName;
+          if (seller) seller.value = fullName;
+        })
+        .catch((error) => {
           alert(error);
-      })           
-  }
-
-  loadPage();
-});
+        });
+    }
+  
+    // Csak akkor futtassuk le, ha legalább az egyik elem létezik
+    if (namespace || seller) {
+      loadPage();
+    }
+  });
 
 document.addEventListener("DOMContentLoaded", function() {
     const accessLevelElement = document.getElementById('access_level');
