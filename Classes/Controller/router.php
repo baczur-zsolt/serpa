@@ -4,10 +4,11 @@ class Router{
 protected $routes = [];
 
 public function addRoute(string $method, string $uri, $closure){
+    
     $this->routes[$method][$uri]=$closure;
 }
 public function matchRoute(string $method, string $uri){
-
+    
     $exp=explode('/', $uri);
     $url="/".$exp[1]."/".$exp[2];
     

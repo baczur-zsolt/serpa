@@ -18,27 +18,27 @@ class cardModel {
 
         // Alap kártyák
         $cards = [
-            ['name' => 'Összes eladás','button' => 'Értékesítés', 'value'  => self::getSalesCount(),'URL' => '/vizsgamunkaMVC/sales', 'icon' => $icons['sale']],
-            ['name' => 'Összes termék','button' => 'Termékek', 'value' => self::getProductCount(), 'icon' => $icons['product'],'URL' => '/vizsgamunkaMVC/products'],
+            ['name' => 'Összes eladás','button' => 'Értékesítés', 'value'  => self::getSalesCount(),'URL' => $GLOBALS['myURL'].'/sales', 'icon' => $icons['sale']],
+            ['name' => 'Összes termék','button' => 'Termékek', 'value' => self::getProductCount(), 'icon' => $icons['product'],'URL' => $GLOBALS['myURL'].'/products'],
         ];
 
         if ($accessLevel === 2) {
-            $cards[] = ['name' => 'Partnerek', 'button' => 'Partnerek', 'value' => self::getPartnerCount(),'URL' => '/vizsgamunkaMVC/partners', 'icon' => $icons['partner']];
+            $cards[] = ['name' => 'Partnerek', 'button' => 'Partnerek', 'value' => self::getPartnerCount(),'URL' => $GLOBALS['myURL'].'/partners', 'icon' => $icons['partner']];
         }
 
         if ($accessLevel === 3) {
-            $cards[] = ['name' => 'Partnerek','button' => 'Partnerek', 'value' => self::getPartnerCount(),'URL' => '/vizsgamunkaMVC/partners', 'icon' => $icons['partner']];
-            $cards[] = ['name' => 'Alkalmazottak','button' => 'Alkalmazottak', 'value' => self::getEmployeeCount(),'URL' => '/vizsgamunkaMVC/employees', 'icon' => $icons['staff']];
+            $cards[] = ['name' => 'Partnerek','button' => 'Partnerek', 'value' => self::getPartnerCount(),'URL' => $GLOBALS['myURL'].'/partners', 'icon' => $icons['partner']];
+            $cards[] = ['name' => 'Alkalmazottak','button' => 'Alkalmazottak', 'value' => self::getEmployeeCount(),'URL' => $GLOBALS['myURL']."/employees", 'icon' => $icons['staff']];
         }
 
         if ($accessLevel === 4) {
-            $cards[] = ['name' => 'Partnerek','button' => 'Partnerek', 'value' => self::getPartnerCount(),'URL' => '/vizsgamunkaMVC/partners', 'icon' => $icons['partner']];
+            $cards[] = ['name' => 'Partnerek','button' => 'Partnerek', 'value' => self::getPartnerCount(),'URL' => $GLOBALS['myURL'].'/partners', 'icon' => $icons['partner']];
             
-            $cards[] = ['name' => 'Alkalmazottak','button' => 'Alkalmazottak', 'value' => self::getEmployeeCount(),'URL' => '/vizsgamunkaMVC/employees', 'icon' => $icons['staff']];
+            $cards[] = ['name' => 'Alkalmazottak','button' => 'Alkalmazottak', 'value' => self::getEmployeeCount(),'URL' => $GLOBALS['myURL'].'/employees', 'icon' => $icons['staff']];
             /*
             $cards[] = ['name' => 'Statisztika', 'value' => self::getStatisticsCount(), 'icon' => $icons['profit']];
             */
-            $cards[] = ['name' => 'Pénzügy','button' => 'Pénzügyek', 'value' => self::getFinanceSum(),'URL' => '/vizsgamunkaMVC/finances', 'icon' => $icons['payouts']];
+            $cards[] = ['name' => 'Pénzügy','button' => 'Pénzügyek', 'value' => self::getFinanceSum(),'URL' => $GLOBALS['myURL'].'/finances', 'icon' => $icons['payouts']];
             
         }
         
