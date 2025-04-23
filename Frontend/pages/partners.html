@@ -14,39 +14,119 @@
 
 <body class="font-[Poppins] bg-gray-50">
     <div class="flex flex-col lg:flex-row">
-
-  </div>
-
+    </div>
   <!-- Main content area -->
+
 
 
     <!-- Main Content -->
 
+    <!-- Main modal -->
+<div id="crud-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-6xl max-h-full">
+    
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg border border-gray-200 shadow-md m-5">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 rounded-t dark:border-gray-600 border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-900">
+                    Új értékesítés készítése
+                </h3>
+                <button id="closeModal" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-blue-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span  class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <form id="applyNewStaffForm" class="p-4 md:p-5">
+              <div class="flex flex-wrap gap-4">
+                <div class="w-full md:w-[48%]">
+                  <label for="product_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Termék neve</label>
+                  <input type="text" name="product_name" id="product_name"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
+                    placeholder="Pl.: STIHL Láncfűrész" required>
+                  <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                </div>
+              
+                <div class="w-full md:w-[48%]">
+                  <label for="quantity" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Mennyiség</label>
+                  <input type="number" name="quantity" id="quantity"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
+                    placeholder="Pl.: 10" required>
+                  <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                </div>
+              
+                <div class="w-full md:w-[48%]">
+                  <label for="purchase_price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Beszerzési ár</label>
+                  <input type="number" name="purchase_price" id="purchase_price"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
+                    placeholder="Pl.: 1000" required>
+                  <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                </div>
+              
+                <div class="w-full md:w-[48%]">
+                  <label for="selling_price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Eladási ár</label>
+                  <input type="number" name="selling_price" id="selling_price"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
+                    placeholder="Pl.: 1500" required>
+                  <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                </div>
+              </div>
+                  
+                  
 
+                 
+
+                  
+
+
+
+        
+              
+                <button id="applyNewStaff" type="submit" class="mt-5 text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 active:scale-95 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700">
+                    <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+                    Termék felvétele
+                </button>
+            </form>
+        </div>
+    </div>
+</div> 
+
+<!-- Táblázat feltöltése -->
     
     <div id="overlay" class="hidden absolute inset-0 bg-black/50 z-10"></div>
     
-     <div id="addNewEmployee" class="mr-5 flex justify-end">
-      <button id="openModal" type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 active:scale-95  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700">
-        <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
-        Termék felvétele
+    <div id="addNewEmployee" class="mr-5 flex justify-end">
+      <button id="openModal" type="button"
+        class="flex items-center justify-center gap-2 text-white bg-blue-700 hover:bg-blue-800 transition-all duration-100 active:translate-y-0.5 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700"
+      >
+        <svg class="w-5 h-5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd"
+            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+            clip-rule="evenodd" />
+        </svg>
+        <span class="pointer-events-none">Termék felvétele</span>
       </button>
-        
-      </div>
+    </div>
       <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5">
         <!-- Asztali nézet: Táblázat -->
         <div class="hidden md:block">
             <table id="employeesTable" class="w-full border-collapse bg-white text-left text-sm text-gray-500">
                 <thead class="bg-gray-50">
-                    <tr>
-                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Név</th>
-                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Email</th>
-                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Státusz</th>
-                        <th class="w-3/12 px-6 py-4 font-medium text-gray-900">Irányítószám</th>
-                        <th class="w-10/12 px-6 py-4 font-medium text-gray-900">Lakhely</th>
-                        <th class="w-10/12 px-6 py-4 font-medium text-gray-900">utca</th>
-                        <th class="w-10/12 px-6 py-4 font-medium text-gray-900">házszám</th>
-                        <th class="w-10/12 px-6 py-4 font-medium text-gray-900">Pecsét</th>
+                    <tr>  
+                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Partner neve</th>
+                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Partner email címe</th>
+                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Partner adószáma</th>
+                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Partner típusa (m.sz./cég)</th>
+                        
+                        <th class="w-10/12 px-6 py-4 font-medium text-gray-900">Partner irányítószáma</th>
+                        <th class="w-10/12 px-6 py-4 font-medium text-gray-900">Partner városa</th>
+                        <th class="w-10/12 px-6 py-4 font-medium text-gray-900">Partner utca</th>
+                        <th class="w-10/12 px-6 py-4 font-medium text-gray-900">Partner házszám</th>
+                        <th class="w-10/12 px-6 py-4 font-medium text-gray-900">Múveletek</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -60,7 +140,6 @@
             <!-- Dinamikusan betöltött kártyák -->
         </div>
     </div>
-    
 
     <div id="pagination" class="flex justify-center">
       <span id="pageInfo"></span>
@@ -85,10 +164,9 @@
 
 
 
-    
 
 
-  <!--Felhasználó törlése Modal
+  <!--Felhasználó törlése Modal-->
   <div id="userDeleteModaloverlay" class="hidden absolute inset-0 bg-black/50 z-10"></div>
   <div id="userDeleteModal" tabindex="-1" class="hidden flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full ">
       <div class="relative p-4 w-full max-w-md max-h-full">
@@ -112,27 +190,26 @@
           </div>
       </div>
   </div>
-  -->
+  
 
-    <!--User Data Edit Modal -->
+    <!--Felhasználó adatainak módosítása Modal -->
 <div id="editModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
   <div class="bg-white rounded-lg p-6 w-96">
     <h2 class="text-xl font-semibold mb-4">Adatok szerkesztése</h2>
     
-    <label class="block text-sm font-medium text-gray-700">Termék neve:</label>
-    <input type="text" id="editProductName" class="w-full p-2 border rounded mb-2" />
+    <label for="editName" class="block text-sm font-medium text-gray-700">Termék neve:</label>
+    <input type="text" id="editName" class="w-full p-2 border rounded mb-2" />
+
+    <label for="editEmail" class="block text-sm font-medium text-gray-700">Mennyiség:</label>
+    <input type="text" id="editEmail" class="w-full p-2 border rounded mb-2" />
+
+    <label for="editPosition" class="block text-sm font-medium text-gray-700">Beszerzési ár:</label>
+    <input type="text" id="editPosition" class="w-full p-2 border rounded mb-2" />
+
+    <label for="editStatus" class="block text-sm font-medium text-gray-700">Eladási ár:</label>
+    <input type="text" id="editStatus" class="w-full p-2 border rounded mb-2" />
 
     
-
-    <label class="block text-sm font-medium text-gray-700">Mennyiség:</label>
-    <input type="tel" id="editProductNumber" class="w-full p-2 border rounded mb-2" />
-
-    <label class="block text-sm font-medium text-gray-700">Vétel ár:</label>
-    <input type="text" id="editPurchasePrice" class="w-full p-2 border rounded mb-2" />
-
-    <label class="block text-sm font-medium text-gray-700">Eladási ár:</label>
-    <input type="text" id="editSalePrice" class="w-full p-2 border rounded mb-2" />
-
 
     <div class="flex justify-end gap-2">
       <button id="closeUserSettingsMenuModal" class="bg-gray-500 text-white px-4 py-2 rounded">Mégse</button>
@@ -141,96 +218,15 @@
   </div>
 </div>
     
-    
-    <!--Pagination-->
 
-
-
-
-
-
-    
-
-
-
-
-<!-- Main modal -->
-<div id="crud-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-  <div class="relative p-4 w-full max-w-6xl max-h-full">
-    
-        <!-- Modal content -->
-        <div class="relative bg-white rounded-lg border border-gray-200 shadow-md m-5">
-            <!-- Modal header -->
-            <div class="flex items-center justify-between p-4 md:p-5 rounded-t dark:border-gray-600 border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-900">
-                    Új termék hozzáadása
-                </h3>
-                <button id="closeModal" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-blue-600 dark:hover:text-white" data-modal-toggle="crud-modal">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                    </svg>
-                    <span  class="sr-only">Close modal</span>
-                </button>
-            </div>
-            <!-- Modal body -->
-            <form class="p-4 md:p-5">
-                <div class="grid gap-4 mb-4 grid-cols-2">
-
-
-                  
-                  <div class="col-span-2 sm:col-span-1">
-                    <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Termék neve</label>
-                    <input type="text" name="newproductname" id="new_product_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
-                    placeholder="pl.: BOSCH fűnyíró" required="">
-                </div>
-
-                <div class="col-span-2 sm:col-span-1">
-                  <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Mennyiség</label>
-                  <input type="text" name="newproductamount" id="new_product_amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
-                  placeholder="pl.: 10" required="">
-              </div>
-
-
-              
-
-                    
-                  <div class="col-span-2 sm:col-span-1" >
-                    <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Vétel ár</label>
-                    <input type="tel" name="phoneNumber" id="new_product_purchaseprice" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="pl.: 10000" required="">
-                </div>
-                <div class="col-span-2 sm:col-span-1" >
-                  <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Eladási ár</label>
-                  <input type="number" name="zipcode" id="new_product_saleprice" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="pl.: 17500" required="">
-              </div>
-                    
-             
-
-
-
-
-          
-
-
-
-        
-                </div>
-                <button id="applyNewProduct" type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 active:scale-95 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700">
-                    <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
-                    Termék hozzáadása
-                </button>
-            </form>
-        </div>
-    </div>
-</div> 
-
-
-    
+  
 <script type="module" src="./Frontend/js/topnavbar.js"></script>
-<!--
-<script src="../js/dashboardTest.js"></script>
-
--->
-
 <script type="module" src="./Frontend/js/partners.js"></script>
+
+
+
+
+
 </body>
 </html>
+

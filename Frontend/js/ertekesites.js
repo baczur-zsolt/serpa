@@ -2,7 +2,7 @@ import { API_URL } from './config.js';
 //Pagination
 
 const tableBody = document.querySelector("#employeesTable tbody");
-const rowsPerPage = 9;
+const rowsPerPage = 10;
 let currentPage = 1;
 let employeesData = [];
 let productsData = [];
@@ -128,17 +128,20 @@ function renderTable() {
           <td class="px-6 py-4">${user.sale_date}</td>
           <td class="px-6 py-4">
             <div class="flex justify-center gap-4">
+            <button class="pdfDownload-btn text-green-600 hover:text-green-800" data-id="${user.sale_ID}">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7"><path d="M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z"/></svg>
+      </button>
               <!-- Edit gomb -->
               <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.sale_ID}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
-                </svg>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
+                        </svg>
               </button>
               <!-- Delete gomb -->
               <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.sale_ID}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-                </svg>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                        </svg>
               </button>
             </div>
           </td>
@@ -187,12 +190,37 @@ function renderTable() {
             }
         });
 
+//PDF letöltés
+        document.querySelectorAll('.pdfDownload-btn').forEach(button => {
+            button.addEventListener('click', function() {
+              const saleID = this.getAttribute('data-id');
+          
+              // Itt lekérheted az adott sorhoz tartozó adatokat (pl. product, quantity, price, stb.)
+              // Ezután generálhatod a PDF-et és letöltheted
+          
+              const doc = new jsPDF();
+          
+              // Példa adat
+              const productName = "Termék neve"; // Itt adhatod hozzá az adatokat, amik szükségesek
+              const quantity = "Mennyiség";
+              const price = "Ár";
+          
+              doc.setFontSize(16);
+              doc.text("PDF generálás: " + productName, 20, 20);
+              doc.setFontSize(12);
+              doc.text(`Mennyiség: ${quantity}`, 20, 30);
+              doc.text(`Ár: ${price}`, 20, 40);
+          
+              // PDF letöltés
+              doc.save(`sale_${saleID}.pdf`);
+            });
+          });
+
 function openEditModal(item) {
     // Feltételezzük, hogy minden input elem ID-ja megfelelő
     document.getElementById("editName").value = item.product_name;
     document.getElementById("editEmail").value = item.quantity_sale;
     document.getElementById("editStatus").value = item.total_price;
-    document.getElementById("editPosition").value = item.sale_date;
 
     // Mentéshez szükség lesz az ID-ra is, amit külön el kell tárolni
     document.getElementById("saveChanges").dataset.id = item.sale_ID;
@@ -227,6 +255,17 @@ document.getElementById("saveChanges").addEventListener("click", async function 
         const index = employeesData.findIndex(emp => emp.sale_ID == id);
         employeesData[index] = { ...employeesData[index], ...updatedData };
         renderTable();
+         // PDF generálása
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text("PDF generálás: " + updatedData.product_name, 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Mennyiség: ${updatedData.quantity_sale}`, 20, 30);
+        doc.text(`Ár: ${updatedData.total_price}`, 20, 40);
+        doc.text(`Dátum: ${updatedData.sale_date}`, 20, 50);
+
+        // PDF letöltése
+        doc.save(`sale_${id}.pdf`);
         document.getElementById("editModal").classList.add("hidden");
     } else {
         alert("Hiba a frissítés során!");
@@ -590,7 +629,7 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
     event.preventDefault();  // Megakadályozza, hogy a form alapértelmezetten újratöltse az oldalt
 
     
-
+    /*
     const fullName = document.getElementById('newstaff_name').value; // Ha egyetlen mezőben van a teljes név
     const nameParts = fullName.split(" "); // A szóköz alapján szétválasztjuk (feltételezve, hogy csak két rész van, de ha több, akkor jobban kell kezelni)
     
@@ -606,7 +645,7 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
 
     // Hívjuk meg az addUser funkciót, hogy elküldje az adatokat
 
-
+*/
     addUser(userData);
 
     document.getElementById('newstaff_name').value = "";
@@ -674,8 +713,9 @@ document.addEventListener("DOMContentLoaded", function () {
   
     // Partner betöltés
     Promise.all([
-      fetch("http://localhost/vizsgamunkaMVC/sale"),
-      fetch("http://localhost/vizsgamunkaMVC/partner"),
+      fetch(`${API_URL}sale`),
+      fetch(`${API_URL}partner`),
+      fetch(`${API_URL}product`),
     ])
       .then(([saleRes, partnerRes]) =>
         Promise.all([saleRes.json(), partnerRes.json()])
@@ -725,7 +765,7 @@ document.addEventListener("DOMContentLoaded", function () {
   
     // Termékek betöltése egyszer
     if (!window.productDataLoaded) {
-      fetch("http://localhost/vizsgamunkaMVC/product")
+      fetch(`${API_URL}product`)
         .then((res) => res.json())
         .then((productData) => {
           window.productData = productData;
@@ -761,24 +801,40 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
   
-      fillDropdown(options, selectedProduct, productInput, window.productData);
+      fillDropdown(options, selectedProduct, productInput, window.productData, button);
     }
   
-    function fillDropdown(options, selectedProduct, productInput, data) {
+    function fillDropdown(options, selectedProduct, productInput, data, button) {
       options.innerHTML = "";
-      data.sort((a, b) => a.product_name.localeCompare(b.product_name)).forEach((product) => {
-        const li = document.createElement("li");
-        li.textContent = product.product_name;
-        li.setAttribute("data-value", product.product_ID);
-        li.className = "px-4 py-2 cursor-pointer hover:bg-blue-100";
-        li.addEventListener("click", function () {
-          selectedProduct.textContent = product.product_name;
-          productInput.value = product.product_ID;
-          options.classList.add("hidden");
+      data
+        .sort((a, b) => a.product_name.localeCompare(b.product_name))
+        .forEach((product) => {
+          const li = document.createElement("li");
+          li.textContent = product.product_name;
+          li.setAttribute("data-value", product.product_ID);
+          li.className = "px-4 py-2 cursor-pointer hover:bg-blue-100";
+  
+          li.addEventListener("click", function () {
+            selectedProduct.textContent = product.product_name;
+            productInput.value = product.product_ID;
+            options.classList.add("hidden");
+          
+            const fullRow = button.closest(".productRow");
+            const priceInput = fullRow.querySelector('.productUnitPrice');
+          
+            console.log("Kiválasztott termék:", product.product_name);
+            console.log("Ár:", product.product_profit_price);
+            console.log("Talált input:", priceInput);
+          
+            if (priceInput && product.product_profit_price !== undefined) {
+              priceInput.value = product.product_profit_price;
+            }
+          });
+  
+          options.appendChild(li);
         });
-        options.appendChild(li);
-      });
     }
+
   
     // Új terméksor hozzáadása
     addProductButton.addEventListener("click", function () {
@@ -786,7 +842,7 @@ document.addEventListener("DOMContentLoaded", function () {
       newRow.className = "flex flex-col sm:flex-row gap-4 w-full";
   
       newRow.innerHTML = `
-        <div class="flex-1 relative">
+        <div class="flex-1 relative productRow">
           <label class="block mt-2 mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Termék neve</label>
           <button type="button" class="productDropdownBtn w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg px-4 py-2.5 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 relative">
             <span class="selectedProduct">Válassz terméket</span>
@@ -810,8 +866,8 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
   
         <div class="flex-1">
-          <label class="block mt-2 mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Eladási ár</label>
-          <input type="number" name="price[]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="Eladási ár" required>
+          <label class="block mt-2 mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Egységár</label>
+          <input type="number" name="price[]" class="productUnitPrice  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="Egységár" disabled>
           <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
         </div>
       `;

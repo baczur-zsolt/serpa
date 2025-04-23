@@ -81,13 +81,13 @@
 
                   <div class="col-span-2 sm:col-span-1" >
                     <label for="newstaff_phone_number" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Telefonszám</label>
-                    <input type="tel" name="phoneNumber" id="newstaff_phone_number" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott telefonszáma" required>
+                    <input type="tel" name="phoneNumber" oninput="validateLength(this)" id="newstaff_phone_number" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott telefonszáma" required>
                     <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
 
                   <div class="col-span-2 sm:col-span-1" >
                   <label for="newstaff_address_zipcode" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Irányítószám</label>
-                  <input type="number" name="zipcode" id="newstaff_address_zipcode" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott irányítószáma" required>
+                  <input type="number" name="zipcode" oninput="validateLength(this)" id="newstaff_address_zipcode" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott irányítószáma" required>
                   <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                 </div>
                     
@@ -108,7 +108,7 @@
 
                 <div class="col-span-2 sm:col-span-1" >
                   <label for="newstaff_address_housenumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Házszám</label>
-                  <input type="number" name="house_number" id="newstaff_address_housenumber" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none   bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott címe" required>
+                  <input type="number" name="house_number"  oninput="validateLength(this)" id="newstaff_address_housenumber" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none   bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott címe" required>
                   <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                 </div>
 
@@ -141,21 +141,17 @@
 
         <table id="employeesTable" class="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead class="bg-gray-50">
-            <tr>
-              <th class="w-1/12 px-6 py-3 font-medium text-gray-900">Felhasználó</th>
-              <th class="w-1/12 px-6 py-3 font-medium text-gray-900">Név</th>
-              <th class="w-1/12 px-6 py-3 font-medium text-gray-900">Státusz</th>
-              
-              
-              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Beosztás</th>
-              
-              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Telefonszám</th>
-              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Irányítószám</th>
-              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Város</th>
-              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Közterület neve</th>
-              <th class="w-1/12 px-6 py-4 font-medium text-gray-900">Házszám</th>
-              <th class="w-1/12 px-6 py-4 font-medium text-gray-900"></th>
-            </tr>
+            <tr>  
+              <th class="w-2/12 px-6 py-3 font-medium text-gray-900 text-center">Név</th>
+      <th class="w-1/12 px-6 py-3 font-medium text-gray-900 text-center">Státusz</th>
+      <th class="w-1/12 px-6 py-3 font-medium text-gray-900 text-center">Beosztás</th>
+      <th class="w-1/12 px-6 py-3 font-medium text-gray-900 text-center">Telefonszám</th>
+      <th class="w-1/12 px-6 py-4 font-medium text-gray-900 text-center">Irányítószám</th>
+      <th class="w-1/12 px-6 py-4 font-medium text-gray-900 text-center">Város</th>
+      <th class="w-1/12 px-6 py-4 font-medium text-gray-900 text-center">Utca</th> <!-- nagyobb szélesség -->
+      <th class="w-1/12 px-6 py-4 font-medium text-gray-900 text-center">Házszám</th>
+      <th class="w-1/12 px-6 py-4 font-medium text-gray-900 text-center">Műveletek</th>
+          </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
             <!-- Ide kerülnek a dinamikusan betöltött sorok -->
@@ -269,6 +265,7 @@
 
     <label for="editHouse" class="block text-sm font-medium text-gray-700">Házszám:</label>
     <input type="text" id="editHouse" class="w-full p-2 border rounded mb-4" />
+    
 
     <div class="flex justify-end gap-2">
       <button id="closeUserSettingsMenuModal" class="bg-gray-500 text-white px-4 py-2 rounded">Mégse</button>
@@ -280,6 +277,29 @@
 
   
 <script type="module" src="./Frontend/js/topnavbar.js"></script>
-<script type="module" src="./Frontend/js/employe.js"></script>
+<script type="module" src="./Frontend/js/employees.js"></script>
+<script>
+  function validateLength(input) {
+    let maxLength;
+    
+    // Irányítószám (max 4 szám)
+    if (input.id === "newstaff_address_zipcode") {
+      maxLength = 6;
+    }
+    // Házszám (max 3 szám)
+    else if (input.id === "newstaff_address_housenumber") {
+      maxLength = 3;
+    }
+    // Telefonszám (max 15 szám)
+    else if (input.id === "newstaff_phone_number") {
+      maxLength = 15;
+    }
+
+    // Ha a szám hosszabb, mint a megengedett, töröljük a többit
+    if (input.value.length > maxLength) {
+      input.value = input.value.slice(0, maxLength);
+    }
+  }
+</script>
 </body>
 </html>

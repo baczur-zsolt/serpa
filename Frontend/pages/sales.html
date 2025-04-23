@@ -41,7 +41,7 @@
             </div>
             <!-- Modal body -->
             <form id="applyNewStaffForm" class="p-4 md:p-5">
-                <div class="flex flex-wrap gap-4 mb-4">
+                <div class="productRow  flex flex-wrap gap-4 mb-4">
 
                   <div class="flex-1">
                     <label for="seller" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Eladó</label>
@@ -114,10 +114,10 @@
                     </div>
                   
                     <div class="flex-1">
-                      <label for="newstaff_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Eladási ár</label>
-                      <input type="number" name="price" id="newstaff_status"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Eladási ár" required>
+                      <label for="newstaff_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Egységár</label>
+                      <input type="text" name="price[]" id="newstaff_status"
+                        class="productUnitPrice  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="Egységár" disabled>
                       <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                     </div>
                     
@@ -134,7 +134,7 @@
 
         
               </div>
-              <div id="productRows">
+              <div id="productRows"">
                 <!-- Dinamikusan hozzáadott mezők itt -->
               </div>
               <div class="mb-4">
@@ -142,6 +142,7 @@
                   + Termék felvétele
                 </button>
               </div>
+             
                 <button id="applyNewStaff" type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 active:scale-95 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700">
                     <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
                     Eladás felvétele
@@ -152,7 +153,8 @@
 </div> 
 
 <!-- Táblázat feltöltése -->
-    
+
+
     <div id="overlay" class="hidden absolute inset-0 bg-black/50 z-10"></div>
     
     <div id="addNewEmployee" class="mr-5 flex justify-end">
@@ -165,6 +167,7 @@
             d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
             clip-rule="evenodd" />
         </svg>
+        
         <span class="pointer-events-none">Eladás felvétele</span>
       </button>
     </div>
@@ -258,8 +261,7 @@
     <label for="editStatus" class="block text-sm font-medium text-gray-700">Eladási ár:</label>
     <input type="text" id="editStatus" class="w-full p-2 border rounded mb-2" />
 
-    <label for="editPosition" class="block text-sm font-medium text-gray-700">Eladás ideje:</label>
-    <input type="datetime-local" id="editPosition" class="w-full p-2 border rounded mb-2" />
+    
 
     <div class="flex justify-end gap-2">
       <button id="closeUserSettingsMenuModal" class="bg-gray-500 text-white px-4 py-2 rounded">Mégse</button>
@@ -274,7 +276,41 @@
 <script type="module" src="./Frontend/js/ertekesites.js"></script>
 
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// jsPDF betöltése
+const { jsPDF } = window.jspdf;
 
+document.getElementById("applyNewStaff").addEventListener("click", function (e) {
+  e.preventDefault();
+
+  // A form adatok összegyűjtése
+  const seller = document.getElementById("seller").value;
+  const customer = document.getElementById("selectedCustomer").innerText;
+  const direction = document.querySelector('input[name="direction"]:checked').value;
+  const products = Array.from(document.querySelectorAll(".product_ID"))
+    .map(input => input.value);
+  const quantity = document.getElementById("newstaff_email").value;
+  const price = document.getElementById("newstaff_status").value;
+
+  // jsPDF objektum létrehozása
+  const doc = new jsPDF();
+
+  // Dokumentum tartalma
+  doc.setFontSize(16);
+  doc.text("Új értékesítés", 20, 20);
+  doc.setFontSize(12);
+  doc.text(`Eladó: ${seller}`, 20, 30);
+  doc.text(`Vevő: ${customer}`, 20, 40);
+  doc.text(`Számla típusa: ${direction === "outgoing" ? "Kimenő" : "Bejövő"}`, 20, 50);
+  doc.text(`Termékek: ${products.join(", ")}`, 20, 60);
+  doc.text(`Mennyiség: ${quantity}`, 20, 70);
+  doc.text(`Eladási ár: ${price}`, 20, 80);
+
+
+});
+
+</script>
 
 
 </body>
