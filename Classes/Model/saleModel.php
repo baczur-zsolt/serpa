@@ -24,13 +24,14 @@ class SaleModel{
         if($json==null)$json = file_get_contents('php://input');       //"php://input" is a read-only stream that allows you to read raw data from the request body
         $data = json_decode($json, true);               //Decoding json data returns an ARRAY if the parameter is TRUE, an OBJECT if it is FALSE
         
-        if(isset($data['staff_ID']) && isset($data['customer_ID']) && isset($data['product_ID']) && isset($data['quantity_sale'])
-        && is_int($data['staff_ID']) && is_int($data['customer_ID']) && is_int($data['product_ID']) && is_int($data['quantity_sale'])){
+        if(isset($data['staff_ID']) && isset($data['customer_ID']) && isset($data['product_ID']) && isset($data['quantity_sale']) && isset($data['bill_number'])
+        && is_int($data['staff_ID']) && is_int($data['customer_ID']) && is_int($data['product_ID']) && is_int($data['quantity_sale']) && is_string($data['bill_number'])) {
             
             $values=$data['staff_ID'].","
             .$data['customer_ID'].","
             .$data['product_ID'].","
-            .$data['quantity_sale'];
+            .$data['quantity_sale'].","
+            .$data['bill_number'];
         }else{
             http_response_code(406);
             $response = ([
@@ -39,7 +40,7 @@ class SaleModel{
             ]);
             return $response;
         }
-        $columns='staff_ID,customer_ID,product_ID,quantity_sale';
+        $columns='staff_ID,customer_ID,product_ID,quantity_sale,bill_number';
         
         $values=implode(",", array($values));                                               //Convert to string 
         Db::Insert('tbl_sale', $columns, $values);                                          //Call the insert function with columns and values
@@ -55,7 +56,8 @@ class SaleModel{
         $col_val=array();
         if(!$data==null){
             foreach ($data as $x => $y) {
-                if(($x=='staff_ID' || $x=='customer_ID' || $x=='product_ID' || $x=='quantity_sale') && is_int($y)){
+                if($x=='staff_ID' && is_int($y) || $x=='customer_ID' && is_int($y) || $x=='product_ID' && is_int($y) || 
+                $x=='quantity_sale' && is_int($y) || $x=='bill_number' && is_string($y)){
                     array_push($col_val, "$x=$y");                  //Compiles the data from the received array into a new array by key-value pair
                 };
             };
@@ -86,7 +88,8 @@ class SaleModel{
                 "staff_ID"=>$data[0]['staff_ID'],
                 "customer_ID"=>$data[0]['customer_ID'],
                 "product_ID"=>$data[0]['product_ID'],
-                "quantity_sale"=>$data[0]['quantity_sale']*-1
+                "quantity_sale"=>$data[0]['quantity_sale']*-1,
+                "bill_number"=>$data[0]['bill_number']
         );
 
         $response=self::setSaleFromJSON(json_encode($request));

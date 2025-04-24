@@ -18,20 +18,25 @@ class ProductModel{
         $json = file_get_contents('php://input');       //"php://input" is a read-only stream that allows you to read raw data from the request body
         $data = json_decode($json, true);               //Decoding json data returns an ARRAY if the parameter is TRUE, an OBJECT if it is FALSE
         
-        if(isset($data['product_number']) && isset($data['product_name']) && isset($data['product_price']) 
-        && isset($data['product_profit_price']) && isset($data['stock_number']) && isset($data['status'])
-        && is_string($data['product_number']) && is_string($data['product_name']) && is_int($data['product_price']) 
-        && is_int($data['product_profit_price']) && is_int($data['stock_number']) && is_bool($data['status'])){    
+        if(isset($data['product_name']) && isset($data['product_price']) && isset($data['product_profit_price']) 
+        && isset($data['stock_number']) && isset($data['status'])
+        && is_string($data['product_name']) && is_int($data['product_price']) && is_int($data['product_profit_price']) 
+        && is_int($data['stock_number']) && is_bool($data['status'])){    
             
-            $values='"'.$data['product_number'].'","'
-            .$data['product_name'].'",'
+            $values='"'.$data['product_name'].'",'
             .$data['product_price'].','
             .$data['product_profit_price'].','
             .$data['stock_number'].','
             .(int)$data['status'];
             
+            $product_number='';
             $brand_ID='';
             $category_ID='';
+
+            if(isset($data['product_number']) && is_string($data['product_number'])){
+                $values.=',"'.$data['product_number'].'"';
+                $product_number=',product_number';
+            };
             if(isset($data['brand_ID']) && is_int($data['brand_ID'])){
                 $values.=','.$data['brand_ID'];
                 $brand_ID=',brand_ID';
@@ -48,7 +53,7 @@ class ProductModel{
             ]);
             return $response;
         }
-        $columns='product_number,product_name,product_price,product_profit_price,stock_number,status'.$brand_ID.$category_ID;
+        $columns='product_name,product_price,product_profit_price,stock_number,status'.$product_number.$brand_ID.$category_ID;
         
         $values=implode(",", array($values));                                               //Convert to string 
         Db::Insert('tbl_product', $columns, $values);                                          //Call the insert function with columns and values
@@ -90,11 +95,10 @@ class ProductModel{
         }
     }
     public static function deleteProductById($id){
-        Db::SetFKChecks(0);
         $where='product_ID='.$id;
-        $rows=Db::Delete('tbl_product', $where);       
-        Db::SetFKChecks(1);
-        $response='Deleted '.$rows.' rows';
+        $columns_values= 'status=0';
+        $rows=Db::Update('tbl_product', $columns_values, $where);
+        $response='Updated '.$rows.' rows';
         return $response;
     }
 }
