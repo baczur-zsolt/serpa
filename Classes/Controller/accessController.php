@@ -33,7 +33,7 @@ class AccessController{
         }
         session_unset();
         session_destroy();
-        header("Location: home");           //Redirect to the home page
+        header("Location: ".$GLOBALS['myURL']."/home");           //Redirect to the home page
     }
     public static function validate($data){     //Validation of incoming data
         $data = trim($data);                    //Removes whitespace and other predefined characters

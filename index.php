@@ -1,6 +1,7 @@
 <?php
 
 include_once "classes/autoloader.php";
+require_once('tcpdf/tcpdf.php');
 
 $router = new Router;
 $method = $_SERVER["REQUEST_METHOD"];
@@ -139,7 +140,11 @@ $router->addRoute("DELETE", "$myURL/employee", function($id){
     AccessController::accessLevel(3);
     EmployeeController::deleteEmployee($id);
 });
-
+//Invoice
+$router->addRoute("GET", "$myURL/invoice", function($in){
+    AccessController::accessLevel(1);
+    InvoiceController::getInvoice($in);
+});
 
 $router->matchRoute($method, $uri);
 ?>
