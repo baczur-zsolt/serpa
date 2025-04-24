@@ -156,10 +156,10 @@ function renderTable() {
         card.className = "bg-white shadow-md rounded-lg p-4 border border-gray-200";
         card.innerHTML = `
             <div class="flex justify-between">
-                <h3 class="text-lg font-semibold text-gray-900">${productName}</h3>
+                <h3 class="text-lg font-semibold text-gray-900">${product.last_name + ' ' + product.first_name}</h3>
                 <div class="flex gap-2">
                     <!-- Mobil nézet: ugyanaz a gomb, mint a táblázatban -->
-                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.product_ID}">
+                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${product.email}">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
                         </svg>
@@ -171,9 +171,12 @@ function renderTable() {
                     </button>
                 </div>
             </div>
-            <p class="text-sm text-gray-500">Mennyiség: ${product.stock_number}</p>
-            <p class="text-sm text-gray-500">Beszerzési ár: ${product.product_price}</p>
-            <p class="text-sm text-gray-500">Eladási ár: ${product.product_profit_price}</p>
+            <p class="text-sm text-gray-500">Adószám: ${product.tax_number}</p>
+            <p class="text_sm">${product.status == 1 ? "Cég" : "Magánszemély"}</p>
+            <p class="text-sm text-gray-500">Irányítószám: ${product.zipcode}</p>
+            <p class="text-sm text-gray-500">Város: ${product.address_city}</p>
+            <p class="text-sm text-gray-500">utca: ${product.address_street}</p>
+            <p class="text-sm text-gray-500">Házszám: ${product.address_number}</p>
         `;
         mobileView.appendChild(card); // Kártyák hozzáadása a mobil nézethez
     });
@@ -613,39 +616,38 @@ document.addEventListener("DOMContentLoaded", function () {
 // Az eseménykezelő a form submitjára
 
 document.getElementById('applyNewStaff').addEventListener('click', function(event) {
-    event.preventDefault();  // Megakadályozza, hogy a form alapértelmezetten újratöltse az oldalt
+    event.preventDefault(); // Ne küldje el az űrlapot alapértelmezetten
 
-    
+    const fullName = document.getElementById('newstaff_name').value.trim();
+    const nameParts = fullName.split(" ");
+    const first_name = nameParts[0];
+    const last_name = nameParts.slice(1).join(" ") || "";
 
-    const fullName = document.getElementById('product_name').value; // Ha egyetlen mezőben van a teljes név
-    const nameParts = fullName.split(" "); // A szóköz alapján szétválasztjuk (feltételezve, hogy csak két rész van, de ha több, akkor jobban kell kezelni)
-    
-    // Ha van első és utolsó név
-    const first_name = nameParts[0]; 
-    const last_name = nameParts[1] || ""; // Ha nincs utolsó név, akkor üres stringet adunk vissza
-    
     const userData = {
         first_name: first_name,
         last_name: last_name,
-        quantity: document.getElementById('quantity').value,
-        purchase_price: document.getElementById('purchase_price').value,
-        selling_price: document.getElementById('selling_price').value
+        email: document.getElementById('newstaff_email').value,
+        tax_number: document.getElementById('newstaff_phone_number').value,
+        type: document.getElementById('newstaff_status').value,
+        address: {
+            zipcode: document.getElementById('newstaff_address_zipcode').value,
+            city: document.getElementById('newstaff_address_city').value,
+            street: document.getElementById('newstaff_address_street').value,
+            house_number: document.getElementById('newstaff_address_housenumber').value
+        }
     };
 
-    // Hívjuk meg az addUser funkciót, hogy elküldje az adatokat
-
-
+    // Küldés a saját függvényedbe
     addUser(userData);
 
-    document.getElementById('product_name').value = "";
-    document.getElementById('quantity').value = "";
-    
+    // Űrlap mezők ürítése
+    document.getElementById('applyNewStaffForm').reset();
 });
 
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
 function addUser(userData) {
-    fetch(`${API_URL}product`, {
+    fetch(`${API_URL}partner`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

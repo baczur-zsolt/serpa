@@ -625,33 +625,80 @@ document.addEventListener("DOMContentLoaded", function () {
 // Új alkalmazott hozzáadása (POST)
 // Az eseménykezelő a form submitjára
 
-document.getElementById('applyNewStaff').addEventListener('click', function(event) {
-    event.preventDefault();  // Megakadályozza, hogy a form alapértelmezetten újratöltse az oldalt
+document.getElementById('applyNewStaff').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-    
-    /*
-    const fullName = document.getElementById('newstaff_name').value; // Ha egyetlen mezőben van a teljes név
-    const nameParts = fullName.split(" "); // A szóköz alapján szétválasztjuk (feltételezve, hogy csak két rész van, de ha több, akkor jobban kell kezelni)
-    
-    // Ha van első és utolsó név
-    const first_name = nameParts[0]; 
-    const last_name = nameParts[1] || ""; // Ha nincs utolsó név, akkor üres stringet adunk vissza
-    
-    const userData = {
-        first_name: first_name,
-        last_name: last_name,
-        email: document.getElementById('newstaff_email').value
-    };
+    const form = e.target;
+    const formData = new FormData(form);
 
-    // Hívjuk meg az addUser funkciót, hogy elküldje az adatokat
+    // Egységárak külön kinyerése, ha disabled (pl. readonly ármezők)
+    const priceInputs = form.querySelectorAll('.productUnitPrice');
+    priceInputs.forEach(input => {
+        formData.append('price[]', input.value);
+    });
 
-*/
-    addUser(userData);
+    // Eladó ID (staff_ID) JS-ből hozzáadva
+    const sellerID = getStaffIDSomehow(); // Cseréld ki valódi elmentett ID-re
+    formData.append('staff_ID', sellerID);
 
-    document.getElementById('newstaff_name').value = "";
-    document.getElementById('newstaff_email').value = "";
-    
+    try {
+        const response = await fetch(`${API_URL}invoice`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Hálózati vagy szerverhiba: ' + response.status);
+        }
+
+        const result = await response.json(); // A backend JSON-t ad vissza
+
+        // 🧾 Táblázat frissítése (a JSON kulcsokat a backend válasza szerint módosítsd!)
+        const tbody = document.querySelector('#invoiceTableBody');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${result.invoiceNumber}</td>
+            <td>${result.invoiceType}</td>
+            <td>${result.invoiceDate}</td>
+            <td>${result.customer}</td>
+            <td>${result.totalAmount} Ft</td>
+        `;
+        tbody.appendChild(row);
+
+        // 📄 PDF letöltés (ha URL van megadva)
+        if (result.pdf_url) {
+            const pdfRes = await fetch(result.pdf_url);
+            const blob = await pdfRes.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'szamla.pdf';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 📄 VAGY: PDF letöltés base64 formátumból (ha így jön)
+        else if (result.pdf_base64) {
+            const byteCharacters = atob(result.pdf_base64);
+            const byteNumbers = Array.from(byteCharacters, c => c.charCodeAt(0));
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'szamla.pdf';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+    } catch (error) {
+        console.error("Hiba történt:", error);
+        alert("Hiba történt a számla létrehozása során.");
+    }
 });
+
+
 
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
