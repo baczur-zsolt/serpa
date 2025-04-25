@@ -406,6 +406,46 @@ modal.addEventListener('click', (e) => {
     });
 
 
+// Gombok és a modal kiválasztása
+const openBuyingModal = document.getElementById('openBuyingModal');
+const closeBuyingModal = document.getElementById('closeBuyingModal');
+const buyingModal = document.getElementById('buying-crud-modal');
+const BuyingOverlay = document.getElementById('BuyingOverlay');
+const apllyNewBuying = document.getElementById('apllyNewBuying');
+
+
+// Modal megnyitása
+openBuyingModal.addEventListener('click', () => {
+    buyingModal.classList.remove('hidden'); // Modal láthatóvá tétele
+    buyingModal.classList.add('flex'); // Modal láthatóvá tétele
+    BuyingOverlay.classList.remove('hidden');
+    
+    
+});
+
+// Modal bezárása
+closeBuyingModal.addEventListener('click', () => {
+    buyingModal.classList.add('hidden'); // Modal elrejtése
+    BuyingOverlay.classList.add('hidden');
+    
+});
+
+// Bezárás, ha a felhasználó a háttérre kattint
+buyingModal.addEventListener('click', (e) => {
+    if (e.target === buyingModal) {
+        buyingModal.classList.add('hidden');
+        BuyingOverlay.classList.add('hidden');
+    }
+});
+
+
+
+    applyNewStaff.addEventListener("click", function () {
+        buyingModal.classList.add("hidden");
+        BuyingOverlay.classList.add('hidden');
+        
+    });
+
 
 
 
