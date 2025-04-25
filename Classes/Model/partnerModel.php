@@ -18,19 +18,35 @@ class PartnerModel{
         $json = file_get_contents('php://input');       //"php://input" is a read-only stream that allows you to read raw data from the request body
         $data = json_decode($json, true);               //Decoding json data returns an ARRAY if the parameter is TRUE, an OBJECT if it is FALSE
         
-        if(isset($data['first_name']) && isset($data['last_name']) && isset($data['email']) && isset($data['status']) && isset($data['zipcode']) 
+        if(isset($data['first_name']) && isset($data['last_name']) && isset($data['status']) && isset($data['zipcode']) 
         && isset($data['address_city']) && isset($data['address_street']) && isset($data['address_number'])
-        && is_string($data['first_name']) && is_string($data['last_name']) && is_string($data['email']) && is_bool($data['status']) 
+        && is_string($data['first_name']) && is_string($data['last_name']) && is_bool($data['status']) 
         && is_string($data['zipcode']) && is_string($data['address_city']) && is_string($data['address_street']) && is_string($data['address_number'])){    
             
             $values='"'.$data['first_name'].'","'
-            .$data['last_name'].'","'
-            .$data['email'].'",'
+            .$data['last_name'].'",'
             .(int)$data['status'].',"'
             .$data['zipcode'].'","'
             .$data['address_city'].'","'
             .$data['address_street'].'","'
             .$data['address_number'].'"';
+            
+            $email='';
+            $tax_number='';
+            $comment='';
+
+            if(isset($data['email']) && is_string($data['email'])){
+                $values.=',"'.$data['email'].'"';
+                $email=',email';
+            };
+            if(isset($data['tax_number']) && is_string($data['tax_number'])){
+                $values.=',"'.$data['tax_number'].'"';
+                $tax_number=',tax_number';
+            };
+            if(isset($data['comment']) && is_string($data['comment'])){
+                $values.=',"'.$data['comment'].'"';
+                $comment=',comment';
+            };
             
         }else{
             http_response_code(406);
@@ -40,7 +56,7 @@ class PartnerModel{
             ]);
             return $response;
         }
-        $columns='first_name,last_name,email,status,zipcode,address_city,address_street,address_number';
+        $columns='first_name,last_name,status,zipcode,address_city,address_street,address_number'.$email.$tax_number.$comment;
         
         $values=implode(",", array($values));                                               //Convert to string 
         Db::Insert('tbl_customer', $columns, $values);                                          //Call the insert function with columns and values
@@ -56,9 +72,9 @@ class PartnerModel{
         $col_val=array();
         if(!$data==null){
             foreach ($data as $x => $y) {
-                if($x=='first_name' && is_string($y) || $x=='last_name' && is_string($y) || $x=='email' && is_string($y)
+                if($x=='first_name' && is_string($y) || $x=='last_name' && is_string($y) || $x=='email' && is_string($y) || $x=='tax_number' && is_string($y)
                 || $x=='status' && is_bool($y) || $x=='zipcode' && is_string($y) || $x=='address_city' && is_string($y) 
-                || $x=='address_street' && is_string($y) || $x=='address_number' && is_string($y)){
+                || $x=='address_street' && is_string($y) || $x=='address_number' && is_string($y) || $x=='comment' && is_string($y)){
                     if (is_bool($y)) $y=(int)$y;
                     if (is_string($y)) $y='"'.$y.'"';
                     array_push($col_val, "$x=$y");                  //Compiles the data from the received array into a new array by key-value pair
