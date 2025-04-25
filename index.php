@@ -89,6 +89,23 @@ $router->addRoute("DELETE", "$myURL/sale", function($id){
     AccessController::accessLevel(1);
     SaleController::deleteSale($id);
 });
+//Buy
+$router->addRoute("GET", "$myURL/buy", function($id){
+    AccessController::accessLevel(1);
+    BuyController::getBuy($id);
+});
+$router->addRoute("POST", "$myURL/buy", function(){
+    AccessController::accessLevel(1);
+    BuyController::setBuy();
+});
+$router->addRoute("PUT", "$myURL/buy", function($id){
+    AccessController::accessLevel(1);
+    BuyController::updateBuy($id);
+});
+$router->addRoute("DELETE", "$myURL/buy", function($id){
+    AccessController::accessLevel(1);
+    BuyController::deleteBuy($id);
+});
 //Products
 $router->addRoute("GET", "$myURL/product", function($id){
     AccessController::accessLevel(2);
