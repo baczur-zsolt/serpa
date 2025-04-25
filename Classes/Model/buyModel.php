@@ -1,12 +1,12 @@
 <?php
 
-class SaleModel{
+class BuyModel{
     
-    public static function getSaleById($id=null){       //Returns the "tbl_sale" table data based on the "id" request
+    public static function getBuyById($id=null){       //Returns the "tbl_sale" table data based on the "id" request
 
-        if(!$id==null)$id='sale_ID='.$id;
+        if(!$id==null)$id='buy_ID='.$id;
 
-        $response=Db::Select("tbl_sale", "*", $id);     //Querying the "tbl_sale" table with "id"
+        $response=Db::Select("tbl_buy", "*", $id);     //Querying the "tbl_sale" table with "id"
         
         for($i=0; $i<count($response); $i++){
             $productId='product_ID='.$response[$i]['product_ID'];
@@ -19,29 +19,20 @@ class SaleModel{
         }
         return $response;
     }
-    public static function setSaleFromJSON($json=null){           //Inserts the received data into table
+    public static function setBuyFromJSON($json=null){           //Inserts the received data into table
 
         if($json==null)$json = file_get_contents('php://input');       //"php://input" is a read-only stream that allows you to read raw data from the request body
         $data_in = json_decode($json, true);               //Decoding json data returns an ARRAY if the parameter is TRUE, an OBJECT if it is FALSE
         
-        $b_n = Db::Select("tbl_sale", "MAX(bill_number)");
         foreach($data_in as $data){
-            if(isset($data['staff_ID']) && isset($data['customer_ID']) && isset($data['product_ID']) && isset($data['quantity_sale'])
-            && is_int($data['staff_ID']) && is_int($data['customer_ID']) && is_int($data['product_ID']) && is_int($data['quantity_sale'])) {
+            if(isset($data['staff_ID']) && isset($data['customer_ID']) && isset($data['product_ID']) && isset($data['quantity_buy']) && isset($data['bill_number'])
+            && is_int($data['staff_ID']) && is_int($data['customer_ID']) && is_int($data['product_ID']) && is_int($data['quantity_buy']) && is_string($data['bill_number'])) {
                 
-                
-                $number = explode("-", $b_n[0]["MAX(bill_number)"]);
-                $num=$number[2]+1;
-
-                while(strlen($num)<6) $num="0".$num;
-
-                $bill_number = $number[0]."-".$number[1]."-".$num;
-
                 $values=$data['staff_ID'].","
                 .$data['customer_ID'].","
                 .$data['product_ID'].","
-                .$data['quantity_sale'].",'"
-                .$bill_number."'";
+                .$data['quantity_buy'].",'"
+                .$data['bill_number']."'";
             }else{
                 http_response_code(406);
                 $response = ([
@@ -51,17 +42,17 @@ class SaleModel{
                 return $response;
             }
            
-            $columns='staff_ID,customer_ID,product_ID,quantity_sale,bill_number';
+            $columns='staff_ID,customer_ID,product_ID,quantity_buy,bill_number';
             
             $values=implode(",", array($values));                                               //Convert to string 
-            Db::Insert('tbl_sale', $columns, $values);                                          //Call the insert function with columns and values
-            $last_insert_id=Db::Select('tbl_sale', 'last_insert_id()')[0]['last_insert_id()'];  //Gets the "id" of the last row inserted into the "tbl_sale" table
-            $response=Db::Select('tbl_sale', '*','sale_ID='.$last_insert_id);                   //Retrieves the entire row based on "id"
+            Db::Insert('tbl_buy', $columns, $values);                                          //Call the insert function with columns and values
+            $last_insert_id=Db::Select('tbl_buy', 'last_insert_id()')[0]['last_insert_id()'];  //Gets the "id" of the last row inserted into the "tbl_sale" table
+            $response=Db::Select('tbl_buy', '*','buy_ID='.$last_insert_id);                   //Retrieves the entire row based on "id"
         }
         http_response_code(201);
-        return $response;
+        return $data_in;
     }
-    public static function updateSaleFromJSON($id){         //Updates the table data with the received data
+    public static function updateBuyFromJSON($id){         //Updates the table data with the received data
 
         $json = file_get_contents('php://input');           //"php://input" is a read-only stream that allows you to read raw data from the request body
         $data = json_decode($json, true);                   //Decoding json data returns an ARRAY if the parameter is TRUE, an OBJECT if it is FALSE
@@ -89,13 +80,13 @@ class SaleModel{
             return $response;
         }
     }
-    public static function deleteSaleById($id){
+    public static function deleteBuyById($id){
         // Db::SetFKChecks(0);
         // $where='sale_ID='.$id;
         // $rows=Db::Delete('tbl_sale', $where);       
         // Db::SetFKChecks(1);
         // $response='Deleted '.$rows.' rows';
-        $data=self::getSaleById($id);
+        $data=self::getBuyById($id);
         $request=array(
                 "staff_ID"=>$data[0]['staff_ID'],
                 "customer_ID"=>$data[0]['customer_ID'],
@@ -104,7 +95,7 @@ class SaleModel{
                 "bill_number"=>$data[0]['bill_number']
         );
 
-        $response=self::setSaleFromJSON(json_encode($request));
+        $response=self::setBuyFromJSON(json_encode($request));
         return $response;
     }
 }
