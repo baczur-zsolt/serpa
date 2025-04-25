@@ -625,7 +625,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // Új alkalmazott hozzáadása (POST)
 // Az eseménykezelő a form submitjára
 
-document.getElementById('applyNewStaff').addEventListener('submit', async (e) => {
+document.getElementById('applyNewStaffForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const form = e.target;
@@ -641,69 +641,30 @@ document.getElementById('applyNewStaff').addEventListener('submit', async (e) =>
     const sellerID = getStaffIDSomehow(); // Cseréld ki valódi elmentett ID-re
     formData.append('staff_ID', sellerID);
 
+    // A felhasználó adatait elküldjük az addUser függvénnyel
+    const userData = {
+        sellerID: sellerID,  // Az eladó ID-ja
+        products: formData.getAll('product_ID[]'),  // A termékek listája
+        quantities: formData.getAll('quantity[]'),  // Mennyiségek
+        prices: formData.getAll('price[]')  // Árlisták
+    };
+
     try {
-        const response = await fetch(`${API_URL}invoice`, {
-            method: 'POST',
-            body: formData
-        });
+        // Felhasználó hozzáadása
+        await addUser(userData); // addUser meghívása, hogy a felhasználót hozzáadja
 
-        if (!response.ok) {
-            throw new Error('Hálózati vagy szerverhiba: ' + response.status);
-        }
-
-        const result = await response.json(); // A backend JSON-t ad vissza
-
-        // 🧾 Táblázat frissítése (a JSON kulcsokat a backend válasza szerint módosítsd!)
-        const tbody = document.querySelector('#invoiceTableBody');
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${result.invoiceNumber}</td>
-            <td>${result.invoiceType}</td>
-            <td>${result.invoiceDate}</td>
-            <td>${result.customer}</td>
-            <td>${result.totalAmount} Ft</td>
-        `;
-        tbody.appendChild(row);
-
-        // 📄 PDF letöltés (ha URL van megadva)
-        if (result.pdf_url) {
-            const pdfRes = await fetch(result.pdf_url);
-            const blob = await pdfRes.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'szamla.pdf';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // 📄 VAGY: PDF letöltés base64 formátumból (ha így jön)
-        else if (result.pdf_base64) {
-            const byteCharacters = atob(result.pdf_base64);
-            const byteNumbers = Array.from(byteCharacters, c => c.charCodeAt(0));
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: 'application/pdf' });
-
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'szamla.pdf';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
+        // Amikor a felhasználó sikeresen hozzáadásra került, egy üzenet megjelenítése
+        alert('Felhasználó sikeresen hozzáadva!');
+        
     } catch (error) {
         console.error("Hiba történt:", error);
-        alert("Hiba történt a számla létrehozása során.");
+        alert("Hiba történt a felhasználó hozzáadásakor.");
     }
 });
 
-
-
 // Az addUser függvény, amely elküldi a POST kérést
-//'../../backend/api.php?endpoint=staff'
 function addUser(userData) {
-    fetch(`${API_URL}sale`, {
+    return fetch(`${API_URL}sale`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -720,8 +681,9 @@ function addUser(userData) {
         console.log("Backend válasz:", data);
         
         if (data && data.id) {  // Ellenőrizzük, hogy van-e releváns adat
-            employeesData.unshift(data);  // Új adat hozzáadása
-            renderTable();  // Táblázat frissítése
+            // Ha szükséges, itt dolgozhatsz a felhasználói adatokkal
+            // employeesData.unshift(data);  // Új adat hozzáadása
+            // renderTable();  // Táblázat frissítése
         } else {
             alert("Hiba történt a módosítás során! Hibás vagy hiányzó adatok.");
         }
