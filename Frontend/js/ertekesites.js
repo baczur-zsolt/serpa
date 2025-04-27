@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 Promise.all([
     fetch(`${API_URL}sale`), // Sale adatok
-    fetch(`${API_URL}product`) // Product adatok
+    fetch(`${API_URL}partner`) // Product adatok
   ])
     .then(([saleRes, productRes]) => {
       // Válaszok JSON formátumban
@@ -100,82 +100,197 @@ Promise.all([
     });
     
 // 🔹 Táblázat frissítése az aktuális oldallal
-function renderTable() {
-    tableBody.innerHTML = "";  // Táblázat ürítése
+function renderDesktopView() {
+  tableBody.innerHTML = "";  // Táblázat ürítése
+  mobileView.innerHTML = ""; // Mobil nézet elrejtése (opcionális)
 
-    let start = (currentPage - 1) * rowsPerPage;
-    let end = start + rowsPerPage;
-    let paginatedItems = employeesData.slice(start, end);
+  let start = (currentPage - 1) * rowsPerPage;
+  let end = start + rowsPerPage;
+  let paginatedItems = employeesData.slice(start, end);
 
-    paginatedItems.forEach(user => {
-        // A termék információk hozzáadása
-        const product = productsData.find(product => product.product_ID === user.product_ID);
-        const productName = product ? product.product_name : "N/A"; // Ha nincs találat, "N/A" jelenik meg
-    
-        let row = document.createElement("tr");
-        row.classList.add("hover:bg-gray-100");
-        row.id = user.sale_ID;  // A data-id hozzáadása a sorhoz
-    
-        row.innerHTML = `
-
-        
-          <td class="hidden">${user.id}</td>
-          <td class="px-6 py-4">${productName}</td>
-          
-          
-          <td class="px-6 py-4">${user.quantity_sale}</td>
-          <td class="px-6 py-4">${user.total_price}</td>
-          <td class="px-6 py-4">${user.sale_date}</td>
-          <td class="px-6 py-4">
-            <div class="flex justify-center gap-4">
-            <button class="pdfDownload-btn text-green-600 hover:text-green-800" data-id="${user.sale_ID}">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7"><path d="M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z"/></svg>
-      </button>
-              <!-- Edit gomb -->
-              <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.sale_ID}">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
-                        </svg>
-              </button>
-              <!-- Delete gomb -->
-              <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.sale_ID}">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-                        </svg>
-              </button>
-            </div>
-          </td>
-        `;
-        tableBody.appendChild(row);
+  paginatedItems.forEach(user => {
+      const customer = productsData.find(p => p.customer_ID === user.customer_ID);
+      const customerName = customer ? `${customer.last_name} ${customer.first_name}` : "N/A";
+      const customerStatus = customer 
+          ? (customer.status === 0 ? "Vásárló" : "Eladó") 
+          : "N/A";
       
+      let row = document.createElement("tr");
+      row.classList.add("hover:bg-gray-100");
+      row.id = user.sale_ID;
 
-        // 📌 Mobil verzióhoz tartozó kártya nézet (használjuk ugyanazokat a gombokat)
-        const card = document.createElement("div");
-        card.className = "bg-white shadow-md rounded-lg p-4 border border-gray-200";
-        card.innerHTML = `
-            <div class="flex justify-between">
-                
-                <h3 class="text-lg font-semibold text-gray-900">${user.product_name}</h3>
-                <div class="flex gap-2">
-                    <!-- Mobil nézet: ugyanaz a gomb, mint a táblázatban -->
-                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.sale_ID}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
-                        </svg>
-                    </button>
-                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.sale_ID}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <p class="text-sm text-gray-500">Mennyiség: ${user.quantity_sale}</p>
-            <p class="text-sm text-gray-500">Vétel ár: ${user.total_price}</p>
-            <p class="text-sm text-gray-500">Eladási ár: ${user.sale_date}</p>
-        `;
-        mobileView.appendChild(card);
-    });
+      row.innerHTML = `
+          <td class="hidden">${user.id}</td>
+          <td class="px-6 py-4">${user.bill_number}</td>
+          <td class="px-6 py-4">${customerStatus}</td>
+          <td class="px-6 py-4">${user.sale_date}</td>
+          <td class="px-6 py-4">${customerName}</td>
+          <td class="px-6 py-4">${user.total_price + " HUF"}</td>
+          <td class="px-6 py-4">
+              <div class="flex justify-center gap-4">
+                  <button class="view-btn desktop-view-btn" view-bill="${user.bill_number}">
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7"><path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"/></svg>
+                  </button>
+                  <button class="download-btn desktop-download-btn" data-bill="${user.bill_number}">
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7"><path d="M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z"/></svg>
+                  </button>
+                  <button class="edit-btn desktop-edit-btn text-blue-600 hover:text-blue-800"" data-id="${user.sale_ID}">
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>
+                  </button>
+                  <button class="delete-btn desktop-delete-btn text-red-600 hover:text-red-800"" data-id="${user.sale_ID}">
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ff6666"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z"/></svg>
+                  </button>
+              </div>
+          </td>
+      `;
+      tableBody.appendChild(row);
+  });
+}
+
+function renderMobileView() {
+  mobileView.innerHTML = ""; // Mobil nézet ürítése
+  tableBody.innerHTML = "";  // Táblázat elrejtése (opcionális)
+
+  let start = (currentPage - 1) * rowsPerPage;
+  let end = start + rowsPerPage;
+  let paginatedItems = employeesData.slice(start, end);
+
+  paginatedItems.forEach(user => {
+      const customer = productsData.find(p => p.customer_ID === user.customer_ID);
+      const customerName = customer ? `${customer.last_name} ${customer.first_name}` : "N/A";
+      const customerStatus = customer 
+          ? (customer.status === 0 ? "Vásárló" : "Eladó") 
+          : "N/A";
+      
+      const card = document.createElement("div");
+      card.className = "bg-white shadow-md rounded-lg p-4 border border-gray-200";
+      card.innerHTML = `
+          <div class="flex justify-between">
+              <h3 class="text-lg font-semibold text-gray-900">${user.bill_number}</h3>
+              <div class="flex gap-2">
+                  <button class="view-btn mobile-view-btn" view-bill="${user.bill_number}">
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7"><path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"/></svg>
+                  </button>
+                  <button class="download-btn mobile-download-btn" data-bill="${user.bill_number}">
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7"><path d="M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z"/></svg>
+                  </button>
+                  <button class="edit-btn mobile-edit-btn text-blue-600 hover:text-blue-800""  data-id="${user.sale_ID}">
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>
+                  </button>
+                  <button class="delete-btn mobile-delete-btn text-red-600 hover:text-red-800"" data-id="${user.sale_ID}">
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ff6666"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z"/></svg>
+                  </button>
+              </div>
+          </div>
+          <p class="text-sm text-gray-500">Típus: ${customerStatus}</p>
+          <p class="text-sm text-gray-500">Számla dátuma: ${user.sale_date}</p>
+          <p class="text-sm text-gray-500">Partner: ${customerName}</p>
+          <p class="text-sm text-gray-500">Összeg: ${user.total_price + " HUF"}</p>
+      `;
+      mobileView.appendChild(card);
+  });
+}
+
+function renderTable() {
+  if (window.innerWidth <= 768) {
+      renderMobileView();
+  } else {
+      renderDesktopView();
+  }
+}
+
+
+Promise.all([
+  fetch(`${API_URL}sale`),
+  fetch(`${API_URL}partner`)
+])
+.then(([saleRes, productRes]) => {
+  return Promise.all([saleRes.json(), productRes.json()]);
+})
+.then(([saleData, productData]) => {
+  employeesData = saleData;
+  productsData = productData;
+  renderTable(); // Itt már a módosított renderTable hívódik
+})
+.catch(error => {
+  console.error("Hiba a letöltésnél:", error);
+});
+
+// ablak átméretezés figyelő
+window.addEventListener('resize', () => {
+  renderTable();
+});
+
+//Event delegation a különböző gombokhoz
+document.addEventListener('click', function(event) {
+  // Letöltés gombok
+  const downloadBtn = event.target.closest('.download-btn');
+  if (downloadBtn) {
+      const billNumber = downloadBtn.getAttribute('data-bill');
+      downloadInvoice(billNumber);
+      return;
+  }
+
+  // Megtekintés gombok
+  const viewBtn = event.target.closest('.view-btn');
+  if (viewBtn) {
+      const billNumber = viewBtn.getAttribute('view-bill');
+      const formattedBillNumber = billNumber.slice(8);
+      const url = `http://localhost/serpa/invoice/${formattedBillNumber}`;
+      window.open(url, '_blank');
+      return;
+  }
+
+  // Szerkesztés gombok
+  const editBtn = event.target.closest('.edit-btn');
+  if (editBtn) {
+      const saleId = editBtn.getAttribute('data-id');
+      // Itt hívd meg a szerkesztés függvényed
+      editSale(saleId);
+      return;
+  }
+
+  // Törlés gombok
+  const deleteBtn = event.target.closest('.delete-btn');
+  if (deleteBtn) {
+      const saleId = deleteBtn.getAttribute('data-id');
+      // Itt hívd meg a törlés függvényed
+      deleteSale(saleId);
+      return;
+  }
+});
+
+// Letöltő függvény
+function downloadInvoice(billNumber) {
+  if (!billNumber) {
+      console.error("Hiba: billNumber nincs megadva");
+      return;
+  }
+
+  const formattedBillNumber = billNumber.slice(8);
+  const url = `${API_URL}invoice/${formattedBillNumber}`;
+
+  fetch(url)
+      .then(response => {
+          if (!response.ok) {
+              throw new Error(`Hiba a számla letöltésekor: ${response.statusText}`);
+          }
+          return response.blob();
+      })
+      .then(blob => {
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = downloadUrl;
+          a.download = `szamla_${formattedBillNumber}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(downloadUrl);
+      })
+      .catch(error => {
+          console.error("Hiba:", error);
+      });
+
 
 
         // Event delegation a táblázat soraiban
@@ -371,39 +486,106 @@ const modal = document.getElementById('crud-modal');
 const overlay = document.getElementById('overlay');
 const userDeleteModal = document.getElementById('userDeleteModal');
 const applyNewStaff = document.getElementById('applyNewStaff');
-
+const applyNewStaffForm = document.getElementById('applyNewStaffForm');
 
 // Modal megnyitása
 openModal.addEventListener('click', () => {
-    modal.classList.remove('hidden'); // Modal láthatóvá tétele
-    modal.classList.add('flex'); // Modal láthatóvá tétele
-    overlay.classList.remove('hidden');
-    
-    
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  overlay.classList.remove('hidden');
 });
 
 // Modal bezárása
 closeModal.addEventListener('click', () => {
-    modal.classList.add('hidden'); // Modal elrejtése
-    overlay.classList.add('hidden');
-    
+  modal.classList.add('hidden');
+  overlay.classList.add('hidden');
 });
 
-// Bezárás, ha a felhasználó a háttérre kattint
+// Bezárás, ha háttérre kattint
 modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-        modal.classList.add('hidden');
-        overlay.classList.add('hidden');
+  if (e.target === modal) {
+    modal.classList.add('hidden');
+    overlay.classList.add('hidden');
+  }
+});
+
+// Form submit kezelés
+applyNewStaffForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const form = e.target;
+  const formData = new FormData(form);
+
+  // Eladó és Vevő adatok
+  const sellerID = formData.get('staff_ID');
+  const customerID = formData.get('customer_ID');
+  const productIDs = formData.getAll('product_ID[]');
+  const quantities = formData.getAll('quantity[]');
+  const prices = formData.getAll('price[]');
+
+  // Hibák törlése induláskor
+  const errorMessages = form.querySelectorAll('.error-message');
+  errorMessages.forEach(error => error.remove());
+
+  const allInputs = form.querySelectorAll('input, select');
+  allInputs.forEach(input => {
+    input.classList.remove('border-red-500');
+  });
+
+  let formIsValid = true;
+
+  // Vevő ellenőrzése
+  const customerSelect = document.getElementById('customer_ID');
+
+  if (!customerSelect || !customerSelect.value) {
+    showError(customerSelect, 'Kötelező kiválasztani egy vevőt!');
+    isValid = false;
+  }
+
+  // Termékek ellenőrzése
+  const productInputs = form.querySelectorAll('input[name="product_ID[]"]');
+  productInputs.forEach(input => {
+    if (!input.value.trim()) {
+      showError(input, 'Kötelező megadni a terméket!');
+      formIsValid = false;
     }
+  });
+
+  // Mennyiségek ellenőrzése
+  const quantityInputs = document.querySelectorAll('input[name="quantity[]"]');
+quantityInputs.forEach((input) => {
+  if (!input.value) {
+    showError(input, 'Kötelező mező!');
+    isValid = false;
+  }
+});
+
+  if (!formIsValid) {
+    return; // Nem megy tovább, ha hiba van
+  }
+
+  // Ha minden jó, bezárjuk a modalt és elküldjük az adatokat
+  const userData = {
+    sellerID: sellerID,
+    customerID: customerID,
+    products: productIDs,
+    quantities: quantities,
+    prices: prices
+  };
+
+  try {
+    await addUser(userData);
+    alert('Felhasználó sikeresen hozzáadva!');
+    modal.classList.add('hidden'); // Modal bezárása csak siker esetén
+    overlay.classList.add('hidden');
+  } catch (err) {
+    console.error(err);
+    alert('Hiba történt a felhasználó hozzáadásakor.');
+  }
 });
 
 
 
-    applyNewStaff.addEventListener("click", function () {
-        modal.classList.add("hidden");
-        overlay.classList.add('hidden');
-        
-    });
 
 
 // Gombok és a modal kiválasztása
@@ -664,43 +846,92 @@ document.addEventListener("DOMContentLoaded", function () {
 //Új alkalazott felvétele Modal logikája
 // Új alkalmazott hozzáadása (POST)
 // Az eseménykezelő a form submitjára
-
-document.getElementById('applyNewStaffForm').addEventListener('submit', async (e) => {
+document.getElementById('applyNewStaffForm')
+  .addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const form = e.target;
     const formData = new FormData(form);
 
-    // Egységárak külön kinyerése, ha disabled (pl. readonly ármezők)
-    const priceInputs = form.querySelectorAll('.productUnitPrice');
-    priceInputs.forEach(input => {
-        formData.append('price[]', input.value);
+    // Eladó ID kinyerése
+    const sellerID = formData.get('staff_ID');
+    const customerID = formData.get('customer_ID');
+    const productIDs = formData.getAll('product_ID[]');
+    const quantities = formData.getAll('quantity[]');
+    const prices = formData.getAll('price[]');
+
+    // Hibák törlése induláskor
+    const errorMessages = form.querySelectorAll('.error-message');
+    errorMessages.forEach(error => error.remove());
+
+    const allInputs = form.querySelectorAll('input, select');
+    allInputs.forEach(input => {
+      input.classList.remove('border-red-500');
     });
 
-    // Eladó ID (staff_ID) JS-ből hozzáadva
-    const sellerID = getStaffIDSomehow(); // Cseréld ki valódi elmentett ID-re
-    formData.append('staff_ID', sellerID);
+    let formIsValid = true;
+    
 
-    // A felhasználó adatait elküldjük az addUser függvénnyel
+   // Termékek ellenőrzése
+   const customerInputs = form.querySelectorAll('input[name="customer_ID[]"]');
+   customerInputs.forEach(input => {
+     if (!input.value.trim()) {
+       showError(input, 'Kötelező megadni a terméket!!!');
+       formIsValid = false;
+     }
+   });
+
+
+
+    // Termékek ellenőrzése
+    const productInputs = form.querySelectorAll('input[name="product_ID[]"]');
+    productInputs.forEach(input => {
+      if (!input.value.trim()) {
+        showError(input, 'Kötelező megadni a terméket!!!');
+        formIsValid = false;
+      }
+    });
+
+    // Mennyiségek ellenőrzése
+    const quantityInputs = form.querySelectorAll('input[name="quantity[]"]');
+    quantityInputs.forEach(input => {
+      if (!input.value.trim() || parseInt(input.value) <= 0) {
+        showError(input, 'Kötelező megadni helyes mennyiséget!');
+        formIsValid = false;
+      }
+    });
+
+    if (!formIsValid) {
+      return; // Nem küldjük el, ha hiba van
+    }
+
     const userData = {
-        sellerID: sellerID,  // Az eladó ID-ja
-        products: formData.getAll('product_ID[]'),  // A termékek listája
-        quantities: formData.getAll('quantity[]'),  // Mennyiségek
-        prices: formData.getAll('price[]')  // Árlisták
+      sellerID: sellerID,
+      customerID: customerID,
+      products: productIDs,
+      quantities: quantities,
+      prices: prices
     };
 
     try {
-        // Felhasználó hozzáadása
-        await addUser(userData); // addUser meghívása, hogy a felhasználót hozzáadja
-
-        // Amikor a felhasználó sikeresen hozzáadásra került, egy üzenet megjelenítése
-        alert('Felhasználó sikeresen hozzáadva!');
-        
-    } catch (error) {
-        console.error("Hiba történt:", error);
-        alert("Hiba történt a felhasználó hozzáadásakor.");
+      await addUser(userData);
+      alert('Felhasználó sikeresen hozzáadva!');
+    } catch (err) {
+      console.error(err);
+      alert('Hiba történt a felhasználó hozzáadásakor.');
     }
-});
+  });
+
+function showError(input, message) {
+  input.classList.add('border', 'border-red-500');
+
+  const error = document.createElement('p');
+  error.textContent = message;
+  error.classList.add('text-red-500', 'text-sm', 'mt-1', 'error-message');
+
+  input.parentNode.appendChild(error);
+}
+
+
 
 // Az addUser függvény, amely elküldi a POST kérést
 function addUser(userData) {
@@ -806,6 +1037,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Hiba az adatok betöltésekor:", error);
       });
   });
+  
 
 
   document.addEventListener("DOMContentLoaded", function () {

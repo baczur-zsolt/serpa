@@ -99,7 +99,7 @@
                   
                     <div class="flex-1">
                       <label for="newstaff_email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Mennyiség</label>
-                      <input type="number" name="newstaff_email" id="newstaff_email"
+                      <input type="number" name="newstaff_email" id="quantity[]"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
                         placeholder="Mennyiség" required>
                       <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
@@ -296,7 +296,7 @@
             clip-rule="evenodd" />
         </svg>
         
-        <span class="pointer-events-none">Eladás felvétele</span>
+        <span class="pointer-events-none">Kimenő eladás felvétele</span>
       </button>
 
       <button id="openBuyingModal" type="button"
@@ -309,7 +309,7 @@
             clip-rule="evenodd" />
         </svg>
         
-        <span class="pointer-events-none">Eladás felvétele</span>
+        <span class="pointer-events-none">Bevételezés</span>
       </button>
       
     </div>
@@ -319,10 +319,11 @@
             <table id="employeesTable" class="w-full border-collapse bg-white text-left text-sm text-gray-500">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Termék neve</th>
-                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Mennyiség</th>
-                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Eladási ár</th>
-                        <th class="w-3/12 px-6 py-4 font-medium text-gray-900">Eladás ideje</th>
+                        <th class="w-2/12 px-6 py-3 font-medium text-gray-900">Számla</th>
+                        <th class="w-2/12 px-6 py-3 font-medium text-gray-900">Típus</th>
+                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Számla dátuma</th>
+                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Partner</th>
+                        <th class="w-5/12 px-6 py-4 font-medium text-gray-900">Összeg</th>
                         <th class="w-10/12 px-6 py-4 font-medium text-gray-900">Műveletek</th>
                     </tr>
                 </thead>
