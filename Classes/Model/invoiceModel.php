@@ -12,7 +12,11 @@
                                     LEFT JOIN tbl_product ON tbl_sale.product_ID=tbl_product.product_ID
                                     LEFT JOIN tbl_category ON tbl_product.category_ID=tbl_category.category_ID
                                     LEFT JOIN tbl_brand ON tbl_product.brand_ID=tbl_brand.brand_ID",
-         "tbl_sale.*, CONCAT(tbl_staff.last_name,' ',tbl_staff.first_name) as staff_name, tbl_product.*, tbl_category.*, tbl_brand.*", $in);
+                                    "tbl_sale.*, CONCAT(tbl_staff.last_name,' ',tbl_staff.first_name) as staff_name, tbl_product.*, tbl_category.*, tbl_brand.*", $in);
+        if($mySale==null){
+            http_response_code(404);
+            exit;
+        }
         $cus_id='customer_ID='.$mySale[0]["customer_ID"];
         $customer=Db::Select("tbl_customer", "*", $cus_id);
         $myCompany=Db::Select("tbl_mycompany", "*");
@@ -154,7 +158,8 @@
 
 
         //Close and output PDF document
-        $pdf->Output($mySale[0]['bill_number'].'.pdf', 'I');
+        $pdfName=str_replace("-", "_", $mySale[0]['bill_number']);
+        $pdf->Output($pdfName.'.pdf', 'I');
 
         //============================================================+
         // END OF FILE
@@ -252,7 +257,7 @@ class MYPDF extends TCPDF {
         $this->Image($image_file, 28, 269, '', 5, 'JPG', '', 'T', false, 300, '', false, false, 0, false, false, false);
         $this->MultiCell(180, '', '<hr width="100%" size="2">'
                         , 0, 'L', 0, 1, 15, 268, true, 0, true, true, 3, 'T', true);
-        $this->MultiCell(90, 10, 'Készűlt a'
+        $this->MultiCell(90, 10, 'Készült a'
                         , 0, 'L', 0, 1, 15, 270, true, 0, true, true, 3, 'T', true);
         $this->MultiCell(90, 10, 'ERP rendszerével.'
                         , 0, 'C', 0, 1, 15, 270, true, 0, true, true, 3, 'T', true);

@@ -2,7 +2,7 @@
 
 class Db{
     private static $servername = "localhost";
-    private static $database ="cms_20250411";
+    private static $database ="cms_20250412";
     private static $username = "root";
     private static $password = "";
     private static $pdo = null;
