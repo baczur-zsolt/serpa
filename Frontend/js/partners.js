@@ -126,7 +126,7 @@ function renderTable() {
             <td class="px-6 py-4">${product.email}</td>
             <td class="px-6 py-4">${product.tax_number}</td>
             <td class="px-6 py-4">
-  ${product.status == 1 ? "Cég" : "Magánszemély"}
+  ${product.status == 1 ? "Beszállító" : "Magánszemély"}
 </td>
             <td class="px-6 py-4">${product.zipcode}</td>
             <td class="px-6 py-4">${product.address_city}</td>
@@ -172,7 +172,7 @@ function renderTable() {
                 </div>
             </div>
             <p class="text-sm text-gray-500">Adószám: ${product.tax_number}</p>
-            <p class="text_sm">${product.status == 1 ? "Cég" : "Magánszemély"}</p>
+            <p class="text_sm">${product.status == 1 ? "Beszállító" : "Magánszemély"}</p>
             <p class="text-sm text-gray-500">Irányítószám: ${product.zipcode}</p>
             <p class="text-sm text-gray-500">Város: ${product.address_city}</p>
             <p class="text-sm text-gray-500">utca: ${product.address_street}</p>

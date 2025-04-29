@@ -732,9 +732,7 @@ document.addEventListener("DOMContentLoaded", function () {
         dropdownOptions.innerHTML = "";
   
         partnerData
-
-        //a vevők ABC sorrendbe helyezése a legördülő menüben
-
+  .filter(partner => partner.status === 0)
   .sort((a, b) => {
     const nameA = (a.name || `${a.last_name} ${a.first_name}`).toLowerCase();
     const nameB = (b.name || `${b.last_name} ${b.first_name}`).toLowerCase();
