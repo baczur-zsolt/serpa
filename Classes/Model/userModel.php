@@ -8,7 +8,7 @@ class UserModel{
         }
         if(isset($_SESSION['staff_ID'])){
             $id=$_SESSION['staff_ID'];
-            $response=Db::Select("tbl_staff", "first_name,last_name", "staff_id=$id");
+            $response=Db::Select("tbl_staff", "staff_ID,first_name,last_name", "staff_id=$id");
         }else{
             http_response_code(401);
             $response=null;
