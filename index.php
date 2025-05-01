@@ -157,6 +157,11 @@ $router->addRoute("DELETE", "$myURL/employee", function($id){
     AccessController::accessLevel(3);
     EmployeeController::deleteEmployee($id);
 });
+//Finance
+$router->addRoute("GET", "$myURL/finance", function($id){
+    AccessController::accessLevel(3);
+    FinanceController::getFinance($id);
+});
 //Invoice
 $router->addRoute("GET", "$myURL/invoice", function($in){
     AccessController::accessLevel(1);
