@@ -101,6 +101,7 @@ Promise.all([
     
 // 🔹 Táblázat frissítése az aktuális oldallal
 function renderTable() {
+    productsData.sort((a, b) => b.product_ID - a.product_ID);
     tableBody.innerHTML = "";  // Táblázat ürítése
     mobileView.innerHTML = ""; // Mobil verzió ürítése, hogy ne duplázódjanak a kártyák
 
@@ -188,9 +189,9 @@ document.getElementById("saveChanges").addEventListener("click", async function 
     const id = this.dataset.id;
     const updatedData = {
         product_name: document.getElementById("editName").value,
-        stock_number: document.getElementById("editEmail").value,
-        product_price: document.getElementById("editPosition").value,
-        product_profit_price: document.getElementById("editStatus").value
+        stock_number: parseInt(document.getElementById("editEmail").value),
+        product_price: parseInt(document.getElementById("editPosition").value),
+        product_profit_price: parseInt(document.getElementById("editStatus").value)
     };
     
 
@@ -200,10 +201,6 @@ document.getElementById("saveChanges").addEventListener("click", async function 
         body: JSON.stringify(updatedData)
         
     });
-    console.log(updatedData);
-    console.log("stock_number:", document.getElementById("editEmail").value);
-console.log("product_price:", document.getElementById("editPosition").value);
-console.log("product_profit_price:", document.getElementById("editStatus").value);
     if (response.ok) {
         const index = productsData.findIndex(emp => emp.product_ID == id);
         productsData[index] = { ...productsData[index], ...updatedData };
@@ -213,7 +210,7 @@ console.log("product_profit_price:", document.getElementById("editStatus").value
         alert("Hiba a frissítés során!");
     }
     document.getElementById("editEmail").addEventListener("input", function () {
-        console.log("editEmail változott:", this.value);
+        
     });
 });
 
@@ -641,13 +638,22 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
 
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
-function addUser(userData) {
+function addUser() {
+    // Az input mezőkből olvassuk ki az adatokat
+    const productData = {
+        product_name: document.getElementById('product_name').value,          // input mező: 'product_name'
+        product_price: parseInt(document.getElementById('purchase_price').value, 10),  // input mező: 'product_price', integer
+        product_profit_price: parseInt(document.getElementById('selling_price').value, 10),  // input mező: 'product_profit_price', integer
+        stock_number: parseInt(document.getElementById('quantity').value, 10),  // input mező: 'stock_number', integer
+        status: true  // fixen true, ahogy kérted
+    };
+
     fetch(`${API_URL}product`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(productData)  // A felépített adatot küldjük
     })
     .then(response => {
         if (!response.ok) {
@@ -657,19 +663,19 @@ function addUser(userData) {
     })
     .then(data => {
         console.log("Backend válasz:", data);
-        
-        if (data && data.id) {  // Ellenőrizzük, hogy van-e releváns adat
-            employeesData.unshift(data);  // Új adat hozzáadása
-            renderTable();  // Táblázat frissítése
+
+        // Ha sikeres beszúrás, új terméket hozzáadunk a listához
+        if (data && data.length > 0) {
+            productsData.unshift(data[0]);  // pl. productsData a termékek listája
+            renderTable();  // táblázat frissítése
         } else {
-            alert("Hiba történt a módosítás során! Hibás vagy hiányzó adatok.");
+            alert("Hiba történt a termék hozzáadásakor! Ellenőrizd az adatokat.");
         }
     })
     .catch(error => {
-        console.error('Hiba történt a felhasználó hozzáadásakor:', error);
-        alert("Hiba történt a felhasználó hozzáadásakor. Kérlek, próbáld újra.");
+        console.error('Hiba történt a termék hozzáadásakor:', error);
+        alert("Hiba történt a termék hozzáadásakor. Kérlek, próbáld újra.");
     });
 }
-
 
 
