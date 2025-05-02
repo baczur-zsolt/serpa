@@ -90,7 +90,7 @@ Promise.all([
     .then(([saleData, productData]) => {
       // Adatok eltárolása
       employeesData = saleData;
-      productsData = productData;
+      productsData = productData.filter(product => product.status === 1);
   
       // Táblázat renderelése
       renderTable();
@@ -264,12 +264,15 @@ if (!window.mobileViewHandlerAdded) {
 async function deleteSale(id) {
     if (!confirm("Biztosan törölni szeretnéd ezt a terméket?")) return;
 
-    const response = await fetch(`${API_URL}sale/${id}`, {
+    const response = await fetch(`${API_URL}product/${id}`, {
         method: "DELETE"
     });
 
     if (response.ok) {
-        employeesData = employeesData.filter(emp => emp.product_ID != id);
+        // 🔄 Frissítjük a terméklistát, hogy ne tartalmazza a törölt elemet
+        productsData = productsData.filter(product => product.product_ID != id);
+
+        // 🔁 Újrarendereljük a táblázatot
         renderTable();
     } else {
         alert("Hiba a törlés során!");
