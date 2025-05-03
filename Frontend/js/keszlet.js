@@ -359,15 +359,23 @@ openModal.addEventListener('click', () => {
     modal.classList.remove('hidden'); // Modal láthatóvá tétele
     modal.classList.add('flex'); // Modal láthatóvá tétele
     overlay.classList.remove('hidden');
-    
+    document.body.classList.add('overflow-hidden');
     
 });
 
 // Modal bezárása
-closeModal.addEventListener('click', () => {
-    modal.classList.add('hidden'); // Modal elrejtése
-    overlay.classList.add('hidden');
-    
+document.getElementById('closeModal').addEventListener('click', function () {
+    modal.classList.add("hidden");
+    overlay.classList.add("hidden");
+
+    // Hibaüzenetek törlése
+    document.querySelectorAll('.error-message').forEach(el => el.remove());
+
+    // Mezők törlése
+    ['product_name', 'quantity', 'purchase_price', 'selling_price'].forEach(id => {
+        document.getElementById(id).value = "";
+    });
+    document.body.classList.remove('overflow-hidden');
 });
 
 // Bezárás, ha a felhasználó a háttérre kattint
@@ -378,13 +386,71 @@ modal.addEventListener('click', (e) => {
     }
 });
 
+applyNewStaff.addEventListener("click", function (event) {
+    event.preventDefault();
+
+    // Töröljük az előző hibaüzeneteket
+    document.querySelectorAll('.error-message').forEach(el => el.remove());
 
 
-    applyNewStaff.addEventListener("click", function () {
-        modal.classList.add("hidden");
-        overlay.classList.add('hidden');
-        
+    let isValid = true;
+
+    const fields = [
+        { id: 'product_name', name: 'Név' },
+        { id: 'quantity', name: 'Mennyiség' },
+        { id: 'purchase_price', name: 'Beszerzési ár' },
+        { id: 'selling_price', name: 'Eladási ár' }
+    ];
+
+    fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (!input.value.trim()) {
+            isValid = false;
+
+            if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('error-message')) {
+                const errorP = document.createElement('p');
+                errorP.classList.add('error-message');
+                errorP.style.color = 'red';
+                errorP.style.fontSize = '0.9em';
+                errorP.textContent = 'Mező kitöltése kötelező';
+                input.insertAdjacentElement('afterend', errorP);
+            }
+        }
     });
+
+    if (!isValid) return; // Ha hiba van, ne menjen tovább és NE zárja be a modált
+
+    // ✅ Csak itt zárjuk be, ha minden mező jó
+    modal.classList.add("hidden");
+    overlay.classList.add("hidden");
+
+    // Elküldés
+    const fullName = document.getElementById('product_name').value;
+    const nameParts = fullName.trim().split(" ");
+    const first_name = nameParts[0];
+    const last_name = nameParts[1] || "";
+
+    const userData = {
+        first_name,
+        last_name,
+        quantity: document.getElementById('quantity').value,
+        purchase_price: document.getElementById('purchase_price').value,
+        selling_price: document.getElementById('selling_price').value
+    };
+
+    addUser(userData);
+
+    // Mezők törlése
+    fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        input.value = "";
+    
+        const next = input.nextElementSibling;
+        if (next && next.classList.contains('error-message')) {
+            next.remove(); // töröljük a hozzá tartozó hibaüzenetet
+        }
+    });
+});
 
 
 
@@ -606,35 +672,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // Új alkalmazott hozzáadása (POST)
 // Az eseménykezelő a form submitjára
 
-document.getElementById('applyNewStaff').addEventListener('click', function(event) {
-    event.preventDefault();  // Megakadályozza, hogy a form alapértelmezetten újratöltse az oldalt
 
-    
-
-    const fullName = document.getElementById('product_name').value; // Ha egyetlen mezőben van a teljes név
-    const nameParts = fullName.split(" "); // A szóköz alapján szétválasztjuk (feltételezve, hogy csak két rész van, de ha több, akkor jobban kell kezelni)
-    
-    // Ha van első és utolsó név
-    const first_name = nameParts[0]; 
-    const last_name = nameParts[1] || ""; // Ha nincs utolsó név, akkor üres stringet adunk vissza
-    
-    const userData = {
-        first_name: first_name,
-        last_name: last_name,
-        quantity: document.getElementById('quantity').value,
-        purchase_price: document.getElementById('purchase_price').value,
-        selling_price: document.getElementById('selling_price').value
-    };
-
-    // Hívjuk meg az addUser funkciót, hogy elküldje az adatokat
-
-
-    addUser(userData);
-
-    document.getElementById('product_name').value = "";
-    document.getElementById('quantity').value = "";
-    
-});
 
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
