@@ -5,7 +5,7 @@ const tableBody = document.querySelector("#employeesTable tbody");
 const rowsPerPage = 10;
 let currentPage = 1;
 let employeesData = [];
-let productsData = [];
+let partnersData = [];
 
 //Felhasználók adatainak lekérése
 //
@@ -90,10 +90,16 @@ Promise.all([
     .then(([saleData, productData]) => {
       // Adatok eltárolása
       employeesData = saleData;
-      productsData = productData;
+      partnersData = productData;
   
-      // Táblázat renderelése
-      renderTable();
+      // Táblázat renderelése // új adat a tömb elejére
+
+// Rendezés dátum (stamp) alapján – legújabb előre
+partnersData.sort((a, b) => new Date(b.stamp) - new Date(a.stamp));
+
+renderTable();
+console.log(employeesData.map(e => e.stamp));
+console.log("Első elem:", employeesData[0]);
     })
     .catch(error => {
       console.error("Hiba a letöltésnél:", error);
@@ -106,11 +112,11 @@ function renderTable() {
 
     let start = (currentPage - 1) * rowsPerPage;
     let end = start + rowsPerPage;
-    let paginatedItems = productsData.slice(start, end);
+    let paginatedItems = partnersData.slice(start, end);
 
     paginatedItems.forEach(user => {
         // A termék információk hozzáadása
-        const product = productsData.find(product => product.customer_ID === user.customer_ID);
+        const product = partnersData.find(product => product.customer_ID === user.customer_ID);
         if (!product) {
             console.warn("Hiányzó termék az alábbi product_ID alapján:", user.customer_ID);
         }
@@ -214,8 +220,8 @@ document.getElementById("saveChanges").addEventListener("click", async function 
 console.log("product_price:", document.getElementById("editPosition").value);
 console.log("product_profit_price:", document.getElementById("editStatus").value);
     if (response.ok) {
-        const index = productsData.findIndex(emp => emp.product_ID == id);
-        productsData[index] = { ...productsData[index], ...updatedData };
+        const index = partnersData.findIndex(emp => emp.customer_ID == id);
+        partnersData[index] = { ...partnersData[index], ...updatedData };
         renderTable();
         document.getElementById("editModal").classList.add("hidden");
     } else {
@@ -231,15 +237,19 @@ console.log("product_profit_price:", document.getElementById("editStatus").value
 if (!window.mobileViewHandlerAdded) {
     mobileView.addEventListener("click", function(e) {
         if (e.target.closest(".edit-btn")) {
-            const id = e.target.closest(".edit-btn").dataset.id;
-            const item = productsData.find(emp => emp.product_ID == id);
+            const id = e.target.closest("tr").id;
+const item = partnersData.find(emp => emp.customer_ID == id);
+            console.log("EDIT ITEM:", item);
+            if (!item) {
+                console.log("Nincs átadott partner!");
+            }
             openEditModal(item);
         } else if (e.target.closest(".delete-btn")) {
             const id = e.target.closest(".delete-btn").dataset.id;
             deleteSale(id);
         }
     });
-    window.mobileViewHandlerAdded = true; // jelölés, hogy már hozzád lett adva
+    window.mobileViewHandlerAdded = true;
 }
 
         
@@ -252,22 +262,27 @@ if (!window.mobileViewHandlerAdded) {
         });
     }
 
-    function openEditModal(item) {
-        console.log("EDIT ITEM:", item);
+    function openEditModal(partner) {
+        console.log("EDIT PARTNER:", partner);
     
-        const product = productsData.find(prod => prod.product_ID == item.product_ID);
+        if (!partner) {
+            console.warn("Nincs átadott partner!");
+            return;
+        }
     
-        // Feltételezzük, hogy minden input elem ID-ja megfelelő
-        document.getElementById("editName").value = product?.product_name || "";
-        document.getElementById("editEmail").value = product?.stock_number || "";
-        document.getElementById("editPosition").value = product?.product_price || "";
-        document.getElementById("editStatus").value = product?.product_profit_price || "";
+        // Input mezők feltöltése partner adataival
+        document.getElementById("editName").value = partner.first_name || "";
+        document.getElementById("editEmail").value = partner.email || "";
+        document.getElementById("editPosition").value = partner.tax_number || "";
+        document.getElementById("editStatus").value = partner.phone || "";
     
-        // Mentéshez szükség lesz az ID-ra is, amit külön el kell tárolni
-        document.getElementById("saveChanges").dataset.id = item.product_ID;
+        // Elmentjük az ID-t, hogy tudjuk, mit frissítsünk
+        document.getElementById("saveChanges").dataset.id = partner.customer_ID;
     
+        // Modal megjelenítése
         document.getElementById("editModal").classList.remove("hidden");
     }
+    
 
 // Törlés
 async function deleteSale(id) {
@@ -289,7 +304,9 @@ async function deleteSale(id) {
 tableBody.addEventListener("click", function(e) {
     if (e.target.closest(".edit-btn")) {
         const id = e.target.closest(".edit-btn").dataset.id;
-        const item = productsData.find(emp => emp.product_ID == id);
+        console.log("Kattintott ID:", id);
+        const item = partnersData.find(emp => emp.product_ID == id);
+        console.log("partnersData:", partnersData);
         openEditModal(item);
     } else if (e.target.closest(".delete-btn")) {
         const id = e.target.closest(".delete-btn").dataset.id;
@@ -298,7 +315,7 @@ tableBody.addEventListener("click", function(e) {
 });
 
 function generatePageNumbers() {
-    const totalPages = Math.ceil(productsData.length / rowsPerPage);
+    const totalPages = Math.ceil(partnersData.length / rowsPerPage);
     const pageNumbersDiv = document.getElementById("pageNumbers");
 
     pageNumbersDiv.innerHTML = ""; // Clear page numbers
@@ -368,7 +385,7 @@ openModal.addEventListener('click', () => {
     modal.classList.remove('hidden'); // Modal láthatóvá tétele
     modal.classList.add('flex'); // Modal láthatóvá tétele
     overlay.classList.remove('hidden');
-    
+    document.body.classList.add('overflow-hidden');
     
 });
 
@@ -389,11 +406,7 @@ modal.addEventListener('click', (e) => {
 
 
 
-    applyNewStaff.addEventListener("click", function () {
-        modal.classList.add("hidden");
-        overlay.classList.add('hidden');
-        
-    });
+
 
 
 
@@ -618,34 +631,83 @@ document.addEventListener("DOMContentLoaded", function () {
 document.getElementById('applyNewStaff').addEventListener('click', function(event) {
     event.preventDefault(); // Ne küldje el az űrlapot alapértelmezetten
 
+    const requiredFields = [
+        'newstaff_name',
+        'newstaff_email',
+        'newstaff_phone_number',
+        'newstaff_address_zipcode',
+        'newstaff_address_city',
+        'newstaff_address_street',
+        'newstaff_address_housenumber',
+        'newstaff_status' // Új mező hozzáadása a validáláshoz
+    ];
+
+    let formIsValid = true;
+
+    requiredFields.forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        const errorSpan = input.parentElement.querySelector('.error-message'); // Itt keresünk a parent elemen belül
+
+        if (fieldId === 'newstaff_status') {
+            // Ha select mezőt validálunk
+            if (input.value === '' || input.value === 'Válasszon típust') {
+                errorSpan.classList.remove('hidden'); // Hibajelzés megjelenítése
+                formIsValid = false;
+            } else {
+                errorSpan.classList.add('hidden'); // Hibajelzés elrejtése
+            }
+        } else {
+            // Ha nem select, akkor a megszokott validálás
+            if (!input.value.trim()) {
+                errorSpan.classList.remove('hidden'); // Hibajelzés megjelenítése
+                formIsValid = false;
+            } else {
+                errorSpan.classList.add('hidden'); // Hibajelzés elrejtése
+            }
+        }
+    });
+
+    if (!formIsValid) {
+        return; // Ne folytassa a beküldést, ha a form nem érvényes
+    }
+
     const fullName = document.getElementById('newstaff_name').value.trim();
     const nameParts = fullName.split(" ");
     const first_name = nameParts[0];
     const last_name = nameParts.slice(1).join(" ") || "";
+
+    // Státusz kiválasztása
+    const status = document.getElementById('newstaff_status').value === 'Vevő' ? true : false;
 
     const userData = {
         first_name: first_name,
         last_name: last_name,
         email: document.getElementById('newstaff_email').value,
         tax_number: document.getElementById('newstaff_phone_number').value,
-        type: document.getElementById('newstaff_status').value,
-        address: {
-            zipcode: document.getElementById('newstaff_address_zipcode').value,
-            city: document.getElementById('newstaff_address_city').value,
-            street: document.getElementById('newstaff_address_street').value,
-            house_number: document.getElementById('newstaff_address_housenumber').value
-        }
+        status: status, // A kiválasztott státusz beállítása
+        zipcode: document.getElementById('newstaff_address_zipcode').value,
+        address_city: document.getElementById('newstaff_address_city').value,
+        address_street: document.getElementById('newstaff_address_street').value,
+        address_number: document.getElementById('newstaff_address_housenumber').value
     };
 
-    // Küldés a saját függvényedbe
-    addUser(userData);
+    // Hívjuk az addUser függvényt, hogy elküldjük az adatokat
+    addUser(userData); 
 
-    // Űrlap mezők ürítése
+    // űrlap ürítése
     document.getElementById('applyNewStaffForm').reset();
+
+    // Ha minden mező érvényes, akkor zárjuk be a modalt és az overlayt
+    if (formIsValid) {
+        const modal = document.getElementById('crud-modal');
+        const overlay = document.getElementById('overlay');
+        modal.classList.add("hidden");
+        overlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden'); // Görgetés visszaállítása
+    }
 });
 
-// Az addUser függvény, amely elküldi a POST kérést
-//'../../backend/api.php?endpoint=staff'
+
 function addUser(userData) {
     fetch(`${API_URL}partner`, {
         method: 'POST',
@@ -662,12 +724,18 @@ function addUser(userData) {
     })
     .then(data => {
         console.log("Backend válasz:", data);
-        
-        if (data && data.id) {  // Ellenőrizzük, hogy van-e releváns adat
-            employeesData.unshift(data);  // Új adat hozzáadása
-            renderTable();  // Táblázat frissítése
+
+        // Ha az új felhasználó sikeresen létrejött
+        const newUser = Array.isArray(data) ? data[0] : data;
+
+        if (newUser?.customer_ID) {
+            // Hozzáadjuk az új felhasználót a listához
+            partnersData.unshift(newUser); // új felhasználó a lista elejére
+
+            // Újra rendereljük a táblázatot, hogy az új adat azonnal megjelenjen
+            renderTable();
         } else {
-            alert("Hiba történt a módosítás során! Hibás vagy hiányzó adatok.");
+            alert("Hiba történt a felhasználó hozzáadásakor! Ellenőrizd az adatokat.");
         }
     })
     .catch(error => {
@@ -675,6 +743,9 @@ function addUser(userData) {
         alert("Hiba történt a felhasználó hozzáadásakor. Kérlek, próbáld újra.");
     });
 }
+
+
+
 
 
 

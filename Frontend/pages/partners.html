@@ -49,29 +49,31 @@
                         <label for="newstaff_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Név</label>
                         <input type="text" name="name" id="newstaff_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
                         placeholder="Partner neve" required>
-                        <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                        <span class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                       </div>
     
                       <div class="col-span-2 sm:col-span-1">
                         <label for="newstaff_email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">E-mail</label>
                         <input type="email" name="email" id="newstaff_email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
                         placeholder="Partner e-mail címe" required>
-                        <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                        <span class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                       </div>
     
 
                       <div class="col-span-2 sm:col-span-1" >
                         <label for="newstaff_phone_number" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Adószám</label>
                         <input type="tel" name="phoneNumber" oninput="validateLength(this)" id="newstaff_phone_number" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Partner adószáma" required>
-                        <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                        <span class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                       </div>
     
                       <div class="col-span-2 sm:col-span-1">
                         <label for="newstaff_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Típusa</label>
                         <select id="newstaff_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                          <option value="Aktív">Vevő</option>
+                          <option value="" disabled selected>Válasszon típust</option>
+                          <option value="Aktív">Magánszemély</option>
                           <option value="Inaktív">Beszállító</option>
                         </select>
+                        <span class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                       </div>
     
                       
@@ -81,19 +83,19 @@
                       <div class="col-span-2 sm:col-span-1" >
                       <label for="newstaff_address_zipcode" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Irányítószám</label>
                       <input type="number" name="zipcode" oninput="validateLength(this)" id="newstaff_address_zipcode" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Partner irányítószáma" required>
-                      <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                      <span class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                     </div>
                         
                     <div class="col-span-2 sm:col-span-1" >
                       <label for="newstaff_address_city" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Város</label>
                       <input type="text" name="city" id="newstaff_address_city" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Partner lakhelye" required>
-                      <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                      <span class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                     </div>
     
                     <div class="col-span-2 sm:col-span-1" >
                       <label for="newstaff_address_street" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Közterület neve</label>
                       <input type="text" name="street" id="newstaff_address_street" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Partner címe" required>
-                      <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                      <span class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                     </div>
     
     
@@ -102,7 +104,7 @@
                     <div class="col-span-2 sm:col-span-1" >
                       <label for="newstaff_address_housenumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Házszám</label>
                       <input type="number" name="house_number"  oninput="validateLength(this)" id="newstaff_address_housenumber" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none   bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Partner címe" required>
-                      <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                      <span class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                     </div>
     
     
@@ -137,7 +139,7 @@
     </div>
       <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5">
         <!-- Asztali nézet: Táblázat -->
-        <div class="hidden md:block">
+        <div class="hidden xl:block overflow-x-auto">
             <table id="employeesTable" class="w-full border-collapse bg-white text-left text-sm text-gray-500">
                 <thead class="bg-gray-50">
                     <tr>  
@@ -160,7 +162,7 @@
         </div>
     
         <!-- Mobil nézet: Kártya formátum -->
-        <div id="mobileView" class="md:hidden space-y-4">
+        <div id="mobileView" class="xl:hidden space-y-4">
             <!-- Dinamikusan betöltött kártyák -->
         </div>
     </div>
