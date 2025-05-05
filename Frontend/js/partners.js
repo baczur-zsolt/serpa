@@ -32,8 +32,8 @@ Promise.all([
 partnersData.sort((a, b) => new Date(b.stamp) - new Date(a.stamp));
 
 renderTable();
-console.log(employeesData.map(e => e.stamp));
-console.log("Első elem:", employeesData[0]);
+console.log(partnersData.map(e => e.stamp));
+console.log("Első elem:", partnersData[0]);
     })
     .catch(error => {
       console.error("Hiba a letöltésnél:", error);
@@ -61,7 +61,7 @@ function renderTable() {
 
         row.innerHTML = `
             <td class="hidden">${user.id}</td>
-            <td class="px-6 py-4">${product.last_name + ' ' + product.first_name}</td>
+            <td class="px-6 py-4">${product.first_name + ' ' + product.last_name}</td>
             <td class="px-6 py-4">${product.email}</td>
             <td class="px-6 py-4">${product.tax_number}</td>
             <td class="px-6 py-4">${product.status == 1 ? "Beszállító" : "Magánszemély"}</td>
@@ -92,7 +92,7 @@ function renderTable() {
         card.setAttribute("data-id", user.customer_ID);  // A data-id hozzáadása a kártyához
         card.innerHTML = `
             <div class="flex justify-between">
-                <h3 class="text-lg font-semibold text-gray-900">${product.last_name + ' ' + product.first_name}</h3>
+                <h3 class="text-lg font-semibold text-gray-900">${product.first_name + ' ' + product.last_name}</h3>
                 <div class="flex gap-2">
                     <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.customer_ID}">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
@@ -502,17 +502,16 @@ if (partner) {
     });
 
     // MOBIL nézethez
-    if (!window.mobileViewHandlerAdded) {
-        mobileView.addEventListener("click", function(e) {
-            const editBtn = e.target.closest(".edit-btn");
-            if (editBtn) {
-                const id = editBtn.dataset.id;
-                const partner = partnersData.find(emp => emp.customer_ID == id);
+    mobileView.addEventListener("click", function(e) {
+        const editBtn = e.target.closest(".edit-btn");
+        if (editBtn) {
+            const id = editBtn.dataset.id;
+            const partner = partnersData.find(emp => emp.customer_ID == id);
+            if (partner) {
                 openEditModal(partner);
             }
-        });
-        window.mobileViewHandlerAdded = true;
-    }
+        }
+    });
 
     function openEditModal(partner) {
         if (!partner) {
