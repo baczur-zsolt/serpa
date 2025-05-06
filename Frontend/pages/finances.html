@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./Frontend/css/output.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+</head>
+
+<body class="font-[Poppins] bg-gray-50">
+
+
+
+  <!-- Felső számok -->
+  <div class="m-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+    <div class="bg-white rounded-xl shadow p-4">
+
+
+      <h2 class="text-gray-700 text-sm font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7"><path d="M200-320v-200q0-17 11.5-28.5T240-560q17 0 28.5 11.5T280-520v200q0 17-11.5 28.5T240-280q-17 0-28.5-11.5T200-320Zm240 0v-200q0-17 11.5-28.5T480-560q17 0 28.5 11.5T520-520v200q0 17-11.5 28.5T480-280q-17 0-28.5-11.5T440-320ZM120-120q-17 0-28.5-11.5T80-160q0-17 11.5-28.5T120-200h720q17 0 28.5 11.5T880-160q0 17-11.5 28.5T840-120H120Zm560-200v-200q0-17 11.5-28.5T720-560q17 0 28.5 11.5T760-520v200q0 17-11.5 28.5T720-280q-17 0-28.5-11.5T680-320Zm160-320H116q-15 0-25.5-10.5T80-676v-22q0-11 5.5-19t14.5-13l344-172q17-8 36-8t36 8l342 171q11 5 16.5 15t5.5 21v15q0 17-11.5 28.5T840-640Zm-582-80h444-444Zm0 0h444L480-830 258-720Z"/></svg> 
+        Profit
+      </h2>
+      <p id="egyenlegFt" class="text-lg font-bold" style="color: rgb(25, 29, 25);"></p>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4">
+        <h2 class="text-gray-700 text-sm font-bold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7">
+              <path d="M481-120q-17 0-28.5-11.5T441-160v-46q-45-10-79-35t-55-70q-7-14-.5-29.5T330-363q14-6 29 .5t23 21.5q17 30 43 45.5t64 15.5q41 0 69.5-18.5T587-356q0-35-22-55.5T463-458q-86-27-118-64.5T313-614q0-65 42-101t86-41v-44q0-17 11.5-28.5T481-840q17 0 28.5 11.5T521-800v44q38 6 66 24.5t46 45.5q9 13 3.5 29T614-634q-14 6-29 .5T557-653q-13-14-30.5-21.5T483-682q-44 0-67 19.5T393-614q0 33 30 52t104 40q69 20 104.5 63.5T667-358q0 71-42 108t-104 46v44q0 17-11.5 28.5T481-120Z"/>
+            </svg>
+            Profit
+          </h2>
+      <p id="profitFt" class="text-lg font-bold" style="color: rgba(102, 204, 102, 1);"></p>
+      <p id="profitPercent" class="text-sm text-gray-500"></p>
+    </div>
+
+  </div>
+
+  <!-- 3 fő grafikon: Egyesített, Bevételek, Kiadások -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 m-5">
+    <div class="bg-white rounded-xl shadow p-4">
+      <h2 class="text-lg font-medium mb-2 text-gray-700">Egyesített bevétel & kiadás</h2>
+      <canvas id="incomeExpenseLineChart" class="w-full h-64"></canvas>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-4">
+      <h2 class="text-lg font-medium mb-2 text-gray-700">Bevétel (oszlopdiagram)</h2>
+      <canvas id="incomeBarChart" class="w-full h-64"></canvas>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-4">
+      <h2 class="text-lg font-medium mb-2 text-gray-700">Kiadás (oszlopdiagram)</h2>
+      <canvas id="expenseBarChart" class="w-full h-64"></canvas>
+    </div>
+  </div>
+
+  <!-- Heti, havi, éves kimutatás -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 m-5">
+    <div class="bg-white rounded-xl shadow p-4">
+      <h2 class="text-lg font-medium mb-2 text-gray-700">Heti kimutatás</h2>
+      <canvas id="weeklyChart" class="w-full h-64"></canvas>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-4">
+      <h2 class="text-lg font-medium mb-2 text-gray-700">Havi kimutatás</h2>
+      <canvas id="monthlyChart" class="w-full h-64"></canvas>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-4">
+      <h2 class="text-lg font-medium mb-2 text-gray-700">Éves kimutatás</h2>
+      <canvas id="yearlyChart" class="w-full h-64"></canvas>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-1 gap-8 m-5">
+
+    <!-- Balance Over Time -->
+    <div class="bg-white rounded-2xl shadow p-4">
+      <h2 class="text-xl font-semibold mb-4"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7"><path d="M108-255q-12-12-11.5-28.5T108-311l211-214q23-23 57-23t57 23l103 104 208-206h-64q-17 0-28.5-11.5T640-667q0-17 11.5-28.5T680-707h160q17 0 28.5 11.5T880-667v160q0 17-11.5 28.5T840-467q-17 0-28.5-11.5T800-507v-64L593-364q-23 23-57 23t-57-23L376-467 164-255q-11 11-28 11t-28-11Z"/></svg>
+         Egyenleg időbeli változása</h2>
+      <canvas id="balanceChart"></canvas>
+    </div>
+
+
+
+
+  <!-- Egyenleg változás -->
+  <div id="balanceChange30Days" class="m-5 font-bold"></div>
+
+  <script type="module" src="./Frontend/js/topnavbar.js"></script>
+  <script type="module" src="./Frontend/js/finances.js"></script>
+
+</body>
+
+</html>

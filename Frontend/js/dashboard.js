@@ -27,9 +27,7 @@ import { API_URL } from './config.js';
                                         ${card.name}
                                     </h6>
                                     <span class="text-xl font-semibold">${card.value}</span>
-                                    <span class="inline-block px-2 py-px ml-2 text-xs text-green-500 bg-green-100 rounded-md">
-                                        +3.32%
-                                    </span>
+                                    
                                 </div>
                                 <div>
                                     <span>${card.icon}</span>
