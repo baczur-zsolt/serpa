@@ -30,7 +30,7 @@
             <!-- Modal header -->
             <div class="flex items-center justify-between p-4 md:p-5 rounded-t dark:border-gray-600 border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-900">
-                    Új értékesítés készítése
+                    Kimenő eladás készítése
                 </h3>
                 <button id="closeModal" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-blue-600 dark:hover:text-white" data-modal-toggle="crud-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -45,7 +45,7 @@
 
                   <div class="flex-1">
                     <label for="seller" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Eladó</label>
-                    <input type="text" name="seller" id="seller" disabled class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500" placeholder="Termék neve" required>
+                    <input type="text" name="staff_ID" id="seller" readonly class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500" placeholder="Termék neve" required>
                     <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
                 
@@ -54,7 +54,7 @@
                   
                     <button id="customerDropdownBtn" type="button"
                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg px-4 py-2.5 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 relative">
-                      <span id="selectedCustomer">Válassz vevőt</span>
+                      <span class="selectedCustomer" id="selectedCustomer">Válassz ügyfelet</span>
                       <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
                         viewBox="0 0 24 24">
                         <path d="M19 9l-7 7-7-7" />
@@ -67,18 +67,10 @@
                     </ul>
                   
                     <input type="hidden" name="customer_ID" id="customer_ID" required>
-                    <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                    
                   </div>
                 
-                  <div class="flex-1">
-                    <label class="block text-sm font-medium text-gray-900 dark:text-gray-900">Számla típusa</label>
-                    <div class="flex flex-row gap-4 items-center h-full">
-                      <input type="radio" name="direction" value="outgoing" class="accent-blue-500">
-                      <span>Kimenő</span>
-                      <input type="radio" name="direction" value="incoming" class="accent-blue-500">
-                      <span>Bejövő</span>
-                    </div>
-                  </div>
+                  
                 
                   
                   
@@ -101,7 +93,140 @@
                         <!-- JS betölti -->
                       </ul>
                     
-                      <input type="hidden" name="product_ID[]" class="product_ID" required>
+                      <input type="hidden" name="product_ID" class="product_ID" required>
+                      
+                    </div>
+                  
+                    <div class="flex-1">
+                      <label for="newstaff_email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Mennyiség</label>
+                      <input type="number" name="quantity" id="quantity"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
+                        placeholder="Mennyiség" required>
+                      
+                    </div>
+                  
+                    <div class="flex-1">
+                      <label for="newstaff_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Egységár</label>
+                      <input type="text" name="price[]" id="newstaff_status"
+                        class="productUnitPrice  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="Egységár" readonly>
+                      
+                    </div>
+                    
+                    
+                  </div> 
+                  
+                  
+
+                 
+
+                  
+
+
+
+        
+              </div>
+              <div id="productRows"">
+                <!-- Dinamikusan hozzáadott mezők itt -->
+              </div>
+              <div class="mb-4">
+                <button type="button" id="addProductRow" class="text-sm mt-5 text-blue-700 hover:underline mt-2">
+                  + Termék felvétele
+                </button>
+              </div>
+             
+                <button id="applyNewStaff" type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 active:scale-95 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700">
+                    <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+                    Eladás felvétele
+                </button>
+            </form>
+        </div>
+    </div>
+</div> 
+
+
+
+<!-- BEVÉTELEZÉS -->
+
+<div id="buying-crud-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-6xl max-h-full">
+    
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg border border-gray-200 shadow-md m-5">
+            <!-- Modal header -->
+            <div class="flex items-center justify-between p-4 md:p-5 rounded-t dark:border-gray-600 border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-900">
+                    Bevételezés felvétele
+                </h3>
+                <button id="closeBuyingModal" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-blue-600 dark:hover:text-white" data-modal-toggle="crud-modal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span  class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <form id="buyingForm" class="p-4 md:p-5">
+                <div class="productRow  flex flex-wrap gap-4 mb-4">
+
+                  <div class="flex-1">
+                    <label for="seller" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Bevételezés rögzítője</label>
+                    <input type="text" name="seller" id="seller" disabled class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"  required>
+                    <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                  </div>
+                
+
+                  <div class="flex-1">
+                    <label for="bill_number" class="block mb-2 text-sm font-medium text-gray-900">Számlaszám</label>
+<input type="text" name="bill_number" id="bill_number" class="bill_number_input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5" required>
+                    <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                  </div>
+
+                  <div class="flex-1 relative">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Beszállító</label>
+                  
+                    <button id="selectedSupplier" type="button"
+                      class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg px-4 py-2.5 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 relative">
+                      <span>Válassz beszállítót</span>
+                      <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  
+                    <ul id="supplierOptions"
+                      class="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md text-sm hidden max-h-60 overflow-auto">
+                      <!-- JS betölti -->
+                    </ul>
+                  
+                    <input type="hidden" name="supplier_ID" id="supplier_ID">
+                    <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                  </div>
+                
+                  
+                
+                  
+                  
+                  
+                  <div class="flex flex-col sm:flex-row gap-4 w-full">
+                    <div class="flex-1 relative">
+                      <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Termék neve</label>
+                    
+                      <button type="button"
+                        class="productDropdownBtn w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg px-4 py-2.5 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 relative">
+                        <span class="selectedProduct">Válassz terméket</span>
+                        <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" fill="none"
+                          stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    
+                      <ul
+                        class="productOptions absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md text-sm hidden max-h-60 overflow-auto">
+                        <!-- JS betölti -->
+                      </ul>
+                    
+                      <input type="hidden" name="product_ID" class="product_ID" required>
                       <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                     </div>
                   
@@ -143,7 +268,7 @@
                 </button>
               </div>
              
-                <button id="applyNewStaff" type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 active:scale-95 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700">
+                <button id="submitBuyingForm" type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 active:scale-95 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700">
                     <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
                     Eladás felvétele
                 </button>
@@ -152,10 +277,12 @@
     </div>
 </div> 
 
+
 <!-- Táblázat feltöltése -->
 
 
     <div id="overlay" class="hidden absolute inset-0 bg-black/50 z-10"></div>
+    <div id="BuyingOverlay" class="hidden absolute inset-0 bg-black/50 z-10"></div>
     
     <div id="addNewEmployee" class="mr-5 flex justify-end">
       <button id="openModal" type="button"
@@ -170,6 +297,20 @@
         
         <span class="pointer-events-none">Eladás felvétele</span>
       </button>
+
+      <button id="openBuyingModal" type="button"
+        class="flex items-center justify-center ml-2 gap-2 text-white bg-blue-700 hover:bg-blue-800 transition-all duration-100 active:translate-y-0.5 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700"
+      >
+        <svg class="w-5 h-5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd"
+            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+            clip-rule="evenodd" />
+        </svg>
+        
+        <span class="pointer-events-none">Bevételezés</span>
+      </button>
+      
     </div>
       <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5">
         <!-- Asztali nézet: Táblázat -->
@@ -177,10 +318,11 @@
             <table id="employeesTable" class="w-full border-collapse bg-white text-left text-sm text-gray-500">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Termék neve</th>
-                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Mennyiség</th>
-                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Eladási ár</th>
-                        <th class="w-3/12 px-6 py-4 font-medium text-gray-900">Eladás ideje</th>
+                        <th class="w-2/12 px-6 py-3 font-medium text-gray-900">Számla</th>
+                        <th class="w-2/12 px-6 py-3 font-medium text-gray-900">Típus</th>
+                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Számla dátuma</th>
+                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Partner</th>
+                        <th class="w-5/12 px-6 py-4 font-medium text-gray-900">Összeg</th>
                         <th class="w-10/12 px-6 py-4 font-medium text-gray-900">Műveletek</th>
                     </tr>
                 </thead>
@@ -277,40 +419,7 @@
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-// jsPDF betöltése
-const { jsPDF } = window.jspdf;
 
-document.getElementById("applyNewStaff").addEventListener("click", function (e) {
-  e.preventDefault();
-
-  // A form adatok összegyűjtése
-  const seller = document.getElementById("seller").value;
-  const customer = document.getElementById("selectedCustomer").innerText;
-  const direction = document.querySelector('input[name="direction"]:checked').value;
-  const products = Array.from(document.querySelectorAll(".product_ID"))
-    .map(input => input.value);
-  const quantity = document.getElementById("newstaff_email").value;
-  const price = document.getElementById("newstaff_status").value;
-
-  // jsPDF objektum létrehozása
-  const doc = new jsPDF();
-
-  // Dokumentum tartalma
-  doc.setFontSize(16);
-  doc.text("Új értékesítés", 20, 20);
-  doc.setFontSize(12);
-  doc.text(`Eladó: ${seller}`, 20, 30);
-  doc.text(`Vevő: ${customer}`, 20, 40);
-  doc.text(`Számla típusa: ${direction === "outgoing" ? "Kimenő" : "Bejövő"}`, 20, 50);
-  doc.text(`Termékek: ${products.join(", ")}`, 20, 60);
-  doc.text(`Mennyiség: ${quantity}`, 20, 70);
-  doc.text(`Eladási ár: ${price}`, 20, 80);
-
-
-});
-
-</script>
 
 
 </body>
