@@ -157,7 +157,7 @@ function renderTable() {
         card.innerHTML = `
             <div class="flex justify-between">
                 
-                <h3 class="text-lg font-semibold text-gray-900">${user.product_name}</h3>
+                <h3 class="text-lg font-semibold text-gray-900">${user.last_name + " " + user.first_name}</h3>
                 <div class="flex gap-2">
                     <!-- Mobil nézet: ugyanaz a gomb, mint a táblázatban -->
                     <button class="edit-btn text-blue-600 hover:text-blue-800" data-id="${user.sale_ID}">
@@ -172,9 +172,13 @@ function renderTable() {
                     </button>
                 </div>
             </div>
-            <p class="text-sm text-gray-500">Mennyiség: ${user.quantity_sale}</p>
-            <p class="text-sm text-gray-500">Vétel ár: ${user.total_price}</p>
-            <p class="text-sm text-gray-500">Eladási ár: ${user.sale_date}</p>
+            <p class="text-sm text-gray-500">Státusz: ${user.status}</p>
+            <p class="text-sm text-gray-500">Beosztás: ${user.job_position}</p>
+            <p class="text-sm text-gray-500">Telefonszám: ${user.phone_number}</p>
+            <p class="text-sm text-gray-500">Irányítószám: ${user.zipcode}</p>
+            <p class="text-sm text-gray-500">Város: ${user.address_city}</p>
+            <p class="text-sm text-gray-500">Utca: ${user.address_street}</p>
+            <p class="text-sm text-gray-500">Házszám: ${user.address_number}</p>
         `;
         mobileView.appendChild(card);
     });
