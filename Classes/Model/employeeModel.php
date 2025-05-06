@@ -24,7 +24,15 @@ class EmployeeModel{
         && is_string($data['first_name']) && is_string($data['last_name']) && is_string($data['birthdate']) && is_string($data['job_position']) && is_int($data['access_level']) 
         && is_string($data['zipcode']) && is_string($data['address_city']) && is_string($data['address_street']) && is_string($data['address_number']) && is_string($data['phone_number'])
         && is_int($data['superbrutto']) && is_bool($data['status']) && is_string($data['email']) && is_string($data['password'])){    
-            
+            if(self::issetEmail($data['email'])){
+                http_response_code(406);
+                $response = ([
+                    "response" => "error",
+                    "message" => "Létező e-mail cím!"
+
+                ]);
+                return $response;
+            };   
             $values='"'.$data['first_name'].'","'
             .$data['last_name'].'","'
             .$data['birthdate'].'","'
@@ -88,6 +96,17 @@ class EmployeeModel{
                          array_push($col_val, "$x=$y");                  //Compiles the data from the received array into a new array by key-value pair
                     }
                     if($x=='email' || $x=='password'){
+                        if($x=='email'){
+                            if(self::issetEmail($data[$x])){
+                                http_response_code(406);
+                                $response = ([
+                                    "response" => "error",
+                                    "message" => "Létező e-mail cím!"
+   
+                                ]);
+                                return $response;
+                            };
+                        }
                         if($x=='password'){
                             $y="'".hash('sha256', $data[$x], false)."'";
                         }
@@ -132,6 +151,19 @@ class EmployeeModel{
         Db::SetFKChecks(1);
         $response='Deleted '.$rows.' rows';
         return $response;
+    }
+    public static function issetEmail($emailIn){
+        $emails=Db::Select("tbl_enter", "tbl_enter.email");
+        $res=true;
+        foreach($emails as $es){
+            if(implode($es)==$emailIn){
+                $res = true;
+                break;
+            }else{
+                $res = false;
+            }
+        }
+        return $res;
     }
 }
 ?>
