@@ -90,7 +90,7 @@ Promise.all([
     .then(([saleData, productData]) => {
       // Adatok eltárolása
       employeesData = saleData;
-      productsData = productData;
+      productsData = productData.filter(product => product.status === 1);
   
       // Táblázat renderelése
       renderTable();
@@ -101,6 +101,7 @@ Promise.all([
     
 // 🔹 Táblázat frissítése az aktuális oldallal
 function renderTable() {
+    productsData.sort((a, b) => b.product_ID - a.product_ID);
     tableBody.innerHTML = "";  // Táblázat ürítése
     mobileView.innerHTML = ""; // Mobil verzió ürítése, hogy ne duplázódjanak a kártyák
 
@@ -188,9 +189,9 @@ document.getElementById("saveChanges").addEventListener("click", async function 
     const id = this.dataset.id;
     const updatedData = {
         product_name: document.getElementById("editName").value,
-        stock_number: document.getElementById("editEmail").value,
-        product_price: document.getElementById("editPosition").value,
-        product_profit_price: document.getElementById("editStatus").value
+        stock_number: parseInt(document.getElementById("editEmail").value),
+        product_price: parseInt(document.getElementById("editPosition").value),
+        product_profit_price: parseInt(document.getElementById("editStatus").value)
     };
     
 
@@ -200,10 +201,6 @@ document.getElementById("saveChanges").addEventListener("click", async function 
         body: JSON.stringify(updatedData)
         
     });
-    console.log(updatedData);
-    console.log("stock_number:", document.getElementById("editEmail").value);
-console.log("product_price:", document.getElementById("editPosition").value);
-console.log("product_profit_price:", document.getElementById("editStatus").value);
     if (response.ok) {
         const index = productsData.findIndex(emp => emp.product_ID == id);
         productsData[index] = { ...productsData[index], ...updatedData };
@@ -213,7 +210,7 @@ console.log("product_profit_price:", document.getElementById("editStatus").value
         alert("Hiba a frissítés során!");
     }
     document.getElementById("editEmail").addEventListener("input", function () {
-        console.log("editEmail változott:", this.value);
+        
     });
 });
 
@@ -264,12 +261,15 @@ if (!window.mobileViewHandlerAdded) {
 async function deleteSale(id) {
     if (!confirm("Biztosan törölni szeretnéd ezt a terméket?")) return;
 
-    const response = await fetch(`${API_URL}sale/${id}`, {
+    const response = await fetch(`${API_URL}product/${id}`, {
         method: "DELETE"
     });
 
     if (response.ok) {
-        employeesData = employeesData.filter(emp => emp.product_ID != id);
+        // 🔄 Frissítjük a terméklistát, hogy ne tartalmazza a törölt elemet
+        productsData = productsData.filter(product => product.product_ID != id);
+
+        // 🔁 Újrarendereljük a táblázatot
         renderTable();
     } else {
         alert("Hiba a törlés során!");
@@ -359,15 +359,23 @@ openModal.addEventListener('click', () => {
     modal.classList.remove('hidden'); // Modal láthatóvá tétele
     modal.classList.add('flex'); // Modal láthatóvá tétele
     overlay.classList.remove('hidden');
-    
+    document.body.classList.add('overflow-hidden');
     
 });
 
 // Modal bezárása
-closeModal.addEventListener('click', () => {
-    modal.classList.add('hidden'); // Modal elrejtése
-    overlay.classList.add('hidden');
-    
+document.getElementById('closeModal').addEventListener('click', function () {
+    modal.classList.add("hidden");
+    overlay.classList.add("hidden");
+
+    // Hibaüzenetek törlése
+    document.querySelectorAll('.error-message').forEach(el => el.remove());
+
+    // Mezők törlése
+    ['product_name', 'quantity', 'purchase_price', 'selling_price'].forEach(id => {
+        document.getElementById(id).value = "";
+    });
+    document.body.classList.remove('overflow-hidden');
 });
 
 // Bezárás, ha a felhasználó a háttérre kattint
@@ -378,13 +386,71 @@ modal.addEventListener('click', (e) => {
     }
 });
 
+applyNewStaff.addEventListener("click", function (event) {
+    event.preventDefault();
+
+    // Töröljük az előző hibaüzeneteket
+    document.querySelectorAll('.error-message').forEach(el => el.remove());
 
 
-    applyNewStaff.addEventListener("click", function () {
-        modal.classList.add("hidden");
-        overlay.classList.add('hidden');
-        
+    let isValid = true;
+
+    const fields = [
+        { id: 'product_name', name: 'Név' },
+        { id: 'quantity', name: 'Mennyiség' },
+        { id: 'purchase_price', name: 'Beszerzési ár' },
+        { id: 'selling_price', name: 'Eladási ár' }
+    ];
+
+    fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (!input.value.trim()) {
+            isValid = false;
+
+            if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('error-message')) {
+                const errorP = document.createElement('p');
+                errorP.classList.add('error-message');
+                errorP.style.color = 'red';
+                errorP.style.fontSize = '0.9em';
+                errorP.textContent = 'Mező kitöltése kötelező';
+                input.insertAdjacentElement('afterend', errorP);
+            }
+        }
     });
+
+    if (!isValid) return; // Ha hiba van, ne menjen tovább és NE zárja be a modált
+
+    // ✅ Csak itt zárjuk be, ha minden mező jó
+    modal.classList.add("hidden");
+    overlay.classList.add("hidden");
+
+    // Elküldés
+    const fullName = document.getElementById('product_name').value;
+    const nameParts = fullName.trim().split(" ");
+    const first_name = nameParts[0];
+    const last_name = nameParts[1] || "";
+
+    const userData = {
+        first_name,
+        last_name,
+        quantity: document.getElementById('quantity').value,
+        purchase_price: document.getElementById('purchase_price').value,
+        selling_price: document.getElementById('selling_price').value
+    };
+
+    addUser(userData);
+
+    // Mezők törlése
+    fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        input.value = "";
+    
+        const next = input.nextElementSibling;
+        if (next && next.classList.contains('error-message')) {
+            next.remove(); // töröljük a hozzá tartozó hibaüzenetet
+        }
+    });
+});
 
 
 
@@ -606,45 +672,26 @@ document.addEventListener("DOMContentLoaded", function () {
 // Új alkalmazott hozzáadása (POST)
 // Az eseménykezelő a form submitjára
 
-document.getElementById('applyNewStaff').addEventListener('click', function(event) {
-    event.preventDefault();  // Megakadályozza, hogy a form alapértelmezetten újratöltse az oldalt
 
-    
-
-    const fullName = document.getElementById('product_name').value; // Ha egyetlen mezőben van a teljes név
-    const nameParts = fullName.split(" "); // A szóköz alapján szétválasztjuk (feltételezve, hogy csak két rész van, de ha több, akkor jobban kell kezelni)
-    
-    // Ha van első és utolsó név
-    const first_name = nameParts[0]; 
-    const last_name = nameParts[1] || ""; // Ha nincs utolsó név, akkor üres stringet adunk vissza
-    
-    const userData = {
-        first_name: first_name,
-        last_name: last_name,
-        quantity: document.getElementById('quantity').value,
-        purchase_price: document.getElementById('purchase_price').value,
-        selling_price: document.getElementById('selling_price').value
-    };
-
-    // Hívjuk meg az addUser funkciót, hogy elküldje az adatokat
-
-
-    addUser(userData);
-
-    document.getElementById('product_name').value = "";
-    document.getElementById('quantity').value = "";
-    
-});
 
 // Az addUser függvény, amely elküldi a POST kérést
 //'../../backend/api.php?endpoint=staff'
-function addUser(userData) {
+function addUser() {
+    // Az input mezőkből olvassuk ki az adatokat
+    const productData = {
+        product_name: document.getElementById('product_name').value,          // input mező: 'product_name'
+        product_price: parseInt(document.getElementById('purchase_price').value, 10),  // input mező: 'product_price', integer
+        product_profit_price: parseInt(document.getElementById('selling_price').value, 10),  // input mező: 'product_profit_price', integer
+        stock_number: parseInt(document.getElementById('quantity').value, 10),  // input mező: 'stock_number', integer
+        status: true  // fixen true, ahogy kérted
+    };
+
     fetch(`${API_URL}product`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(productData)  // A felépített adatot küldjük
     })
     .then(response => {
         if (!response.ok) {
@@ -654,19 +701,19 @@ function addUser(userData) {
     })
     .then(data => {
         console.log("Backend válasz:", data);
-        
-        if (data && data.id) {  // Ellenőrizzük, hogy van-e releváns adat
-            employeesData.unshift(data);  // Új adat hozzáadása
-            renderTable();  // Táblázat frissítése
+
+        // Ha sikeres beszúrás, új terméket hozzáadunk a listához
+        if (data && data.length > 0) {
+            productsData.unshift(data[0]);  // pl. productsData a termékek listája
+            renderTable();  // táblázat frissítése
         } else {
-            alert("Hiba történt a módosítás során! Hibás vagy hiányzó adatok.");
+            alert("Hiba történt a termék hozzáadásakor! Ellenőrizd az adatokat.");
         }
     })
     .catch(error => {
-        console.error('Hiba történt a felhasználó hozzáadásakor:', error);
-        alert("Hiba történt a felhasználó hozzáadásakor. Kérlek, próbáld újra.");
+        console.error('Hiba történt a termék hozzáadásakor:', error);
+        alert("Hiba történt a termék hozzáadásakor. Kérlek, próbáld újra.");
     });
 }
-
 
 
