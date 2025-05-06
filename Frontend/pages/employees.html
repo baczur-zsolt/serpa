@@ -49,58 +49,60 @@
                     <label for="newstaff_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Név</label>
                     <input type="text" name="name" id="newstaff_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
                     placeholder="Alalmazott neve" required>
-                    <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                    <span id="error_name" class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
 
                   <div class="col-span-2 sm:col-span-1">
                     <label for="newstaff_email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Email</label>
                     <input type="email" name="email" id="newstaff_email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
-                    placeholder="Alalmazott neve" required>
-                    <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                    placeholder="Alalmazott e-mail címe" required>
+                    <span id="error_email"class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
-
 
                   <div class="col-span-2 sm:col-span-1">
-                    <label for="newstaff_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Beosztás</label>
-                    <select id="newstaff_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                      <option value="Aktív">Aktív</option>
-                      <option value="Inaktív">Inaktív</option>
-                    </select>
+                    <label for="newstaff_birthdate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Email</label>
+                    <input type="date" name="newstaff_birthdate" id="newstaff_birthdate" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
+                    placeholder="Alalmazott e-mail címe" required>
+                    <span id="error_birthdate"class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
+
+
+                
 
                   <div class="col-span-2 sm:col-span-1">
                       <label for="newstaff_access_level" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Beosztás</label>
-                      <select id="newstaff_access_level" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                      <select id="newstaff_access_level" name="access_level" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500">
                           <option selected="" >Válasszon</option>
-                          <option value="administrator">Adminisztátor</option>
-                          <option value="seniorSalesman">Vezető Eladó</option>
-                          <option value="manager">Vezető</option>
-                          <option value="salesman">Eladó</option>
+                          <option value="4">Adminisztrátor</option>
+                          <option value="3">Vezető</option>
+                          <option value="2">Vezető Eladó</option>
+                          <option value="1">Eladó</option>
                       </select>
+                      <span id="error_position" class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
 
                   <div class="col-span-2 sm:col-span-1" >
                     <label for="newstaff_phone_number" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Telefonszám</label>
                     <input type="tel" name="phoneNumber" oninput="validateLength(this)" id="newstaff_phone_number" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott telefonszáma" required>
-                    <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                    <span id="error_phonenumber" class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
 
                   <div class="col-span-2 sm:col-span-1" >
                   <label for="newstaff_address_zipcode" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Irányítószám</label>
                   <input type="number" name="zipcode" oninput="validateLength(this)" id="newstaff_address_zipcode" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott irányítószáma" required>
-                  <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                  <span id="error_zipcode" class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                 </div>
                     
                 <div class="col-span-2 sm:col-span-1" >
                   <label for="newstaff_address_city" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Város</label>
                   <input type="text" name="city" id="newstaff_address_city" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott lakhelye" required>
-                  <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                  <span id="error_city" class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                 </div>
 
                 <div class="col-span-2 sm:col-span-1" >
                   <label for="newstaff_address_street" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Közterület neve</label>
-                  <input type="text" name="street" id="newstaff_address_street" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott címe" required>
-                  <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                  <input type="text" name="street" id="newstaff_address_street" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="utca, tér stb." required>
+                  <span id="error_street" class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                 </div>
 
 
@@ -108,8 +110,14 @@
 
                 <div class="col-span-2 sm:col-span-1" >
                   <label for="newstaff_address_housenumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Házszám</label>
-                  <input type="number" name="house_number"  oninput="validateLength(this)" id="newstaff_address_housenumber" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none   bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott címe" required>
-                  <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                  <input type="number" name="house_number"  oninput="validateLength(this)" id="newstaff_address_housenumber" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none   bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="pl.: 86" required>
+                  <span id="error_housenumber" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                </div>
+
+                <div class="col-span-2 sm:col-span-1" >
+                  <label for="newstaff_superbrutto" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Szuperbruttó</label>
+                  <input type="number" name="superbrutto" id="newstaff_superbrutto" class="[appearance:textfield]  [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none   bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Alkalmazott bére" required>
+                  <span id="error_superbrutto" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                 </div>
 
 
