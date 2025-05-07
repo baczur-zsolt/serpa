@@ -1,0 +1,223 @@
+!DOKUMENTÁCIÓ!
+Ez a végső adatbázishoz tartozó dokumentáció.
+
+
+Az adatbazis neve: 
+cms_db
+
+
+A táblák nevei:
+angolul:			magyarul: + rövid leírás.
+
+tbl_customers			vásárlók (adatai)
+tbl_staff			személyzet (adatai)
+ tbl_enter			belépés (személyzet ből kiszervezett, ahhoz tartozó tábla, email és password adatokkal)
+ tbl_qualification		képzettség (személyzet ből kiszervezett, ahhoz tartozó normalizációs tábla, értékei: Alapfok, Középfok, Felsőfok
+ tbl_mycompany                  A cég amely használja az erp szoftvert. (cég adatai)
+tbl_product			termékek (adatai, darabszáma)
+ tbl_brand			termékek márkái (termékek ből kiszervezett, ahhoz tartozó normalizációs tábla) pl: Bosch, Minőségi elektronikai termékek.
+ tbl_category			termékek kategóriáo (termékek ből kiszervezett, ahhoz tartozó normalizációs tábla) pl: fűnyíró, fűkasza, traktor stb.
+tbl_buy                         vásárlás (vásárlás tarnzakció rögzítése): melyik személyzet, melyik termékből, mennyit rendelt, mekkora összegben. [Cég által rendelt termékek digitális számlái]				
+tbl_sale			eladás   (aladás tarnzakció rögzítése):melyik vásárló, melyik személyzet, melyik termékből, mennyit vásárolt, mekkora összegben. [Ez reprezentálja a vásárlónak kiállított digitális számlát]
+tbl_finance			pénzügy (pénz mennyiség nyílvántartása (forgótőke))
+tbl_constant                    többi táblához nem kapcsolódó tábla, egyéb adatok tárolsára, pl: ÁFA mértéke, perszuperbrutto értéke.
+
+
+triggerek: esemény hatására, automatikusan lefutnak és kiszámítják majd adattal letárolják a megfelelő mezőket. (6 db)
+1.    tbl_sale tábla: total_price származtatott mezőjének számítása és fizikai letárolása. (calculate_total_price_on_insert_sale)
+2.    tbl_buy tábla:  total_price származtatott mezőjének számítása és fizikai letárolása. (calculate_total_price_on_insert_buy )
+3.-4. tbl_product tábla: stock_number mezőjének, updatelése és fizikai letárolása.         (update_stock_on_insert_buy)		(update_stock_on_insert_sale )
+5.-6. tbl_finance tábla: balance származtatott mezőjének számítása és fizikai letárolása.  (update_balance_on_insert_sale)	(update_balance_on_insert_buy)
+
+
+ 			
+=========================================================================================================
+TECHNIKAI KIVITELEZÉS:
+
+.txt file-ok:
+1.:
+Minden file-t becsomagolva feltöltök.
+
+2.A:
+2A_tablak_letrehozasa.txt 
+A frissen megnyitott XAMPP -Shell-ben, (!)
+file-ban levő, utasításokat kell kimásolni és futtatni 
+ezzel létrehozza az adatbázist + üres táblákat, kulcsokkal, idegenkulcsokkal (függőségekkel).
+Kezdő adatokkal feltölti a táblákat.
+
+2.B:
+2B_triggerek.txt
+2_triggerek létrehozása:
+triggerek mentése a táblában.
+
+3.:
+3_tablak_feltoltese.txt
+Az előző lépést folytatva    	
+file-ban levő, utasításokat kell kimásolni és futtatni a táblák adatokkal való feltöltéséhez.
+
+4.:
+4_adatbazis_torlese.txt
+A frissen megnyitott XAMPP -Shell-ben, (!)
+file-ban levő, utasításokat kell kimásolni és futtatni az előbb létrehozott adatbázis (függvények és táblák, triggerek) törléséhez. (!)
+
+
+=========================================================================================================
+
+=========================================================================================================
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Néhány fontosabb logika: 
+a: tbl_staff, tbl_product és tbl_customers táblák kaptak egy status mezőt TINYINT típussal, 0 vagy 1 értékkel.
+1 (true) jelzi hogy a dolgozó, termék, vásárló aktív állományban van.
+0 (false) jelzi hogy a dolgozó, termék, vásárló 'törölt'. (ez csak logikai törlés, hogy megmaradjon az adatbázis konzisztenciája)
+
+tbl_customers tábla TINYINT típussal, 0 vagy 1 értékkel:
+jelzi hogy bejövő/kimennő számla e? (vétel/eladás)
+
+Nem törölhetünk az előbbi táblákból rekordokat, fizikailag. 
+a: tbl_sale tábla mivel az eladások digitális számlái, ezért a törlésük és módusításuk is törvényileg tilos!
+Törlés helyett sztornó-t használhatunk, ami egy 'negatív' eladás. (Tehát az áru visszavétele és a pénz visszaadása)
+a: tbl_buy tábla az általunk vásárolt termékek digitális számlái, ezért a törlésük és módusításuk is tilos.
+
+---------------------------------
+cms_20250409:
+tbl_mycompany egyetlen rekordjának mycompany_ID = 1; értéke, default bekerül a kapcsolt tbl_staff táblába, így azt nem kell lekezelni BACKEND/FRONTEND-el (lehet,de nem kell)
+
+
+---------------------------------
+cms_20250410:
+tábla: tbl_customer 		(mostantól ez a tábla a vásárlókat és a beszállítókat is tartalmazza, a status mező értékével jelezve. (status = 0  -- vasárló és status = 1  -- beszállító)
+mező: tbl_customer.status	(jelzi hogy vásárló e? -> tbl_sale-be fog kerülni a kulcsa eladáskor.  VAGY beszállító e? -> tbl_buy-ba fog bekerülni a kulcsa rendeléskor)
+status = 1  -- beszállító (tőle rendelhetünk)
+status = 0  -- vasárló    (neki adhatunk el )
+
+tbl_buy tábla:  megnőtt 1 idegenkulcs mezővel, ide kerül be rendeléskor a beszállító azonosítója (Elsődleges kulcsa)
+tbl_sale tábla: ebben a tekintetben változatlan. (Ez már eredetileg is tartalmazott egy ilyen mezőt.)
+
+tbl_buy tábla:  comment TEXT típusú mező -> bill_number VARCHAR(12) ra változott -- ez tartalmazza a számlaszámot, aminek egydinek kell lennie! [példa a generálására: 'B' + 'buy_ID' ]
+tbl_sale tábla: comment TEXT típusú mező -> bill_number VARCHAR(12) ra változott -- ez tartalmazza a számlaszámot, aminek egydinek kell lennie! [példa a generálására: 'S' + 'sale_ID']
+
+táblák feltöltése:
+A tbl_customer tábla feltöltésénél, 
+minden személy status=0 -át kapott (vásárló)
+minden cég status=1 -et kapott (beszállító)
+
+tbl_buy tábla:
+bill_number VARCHAR(12) mezője: még csak NULL értéket kapott (!) ezért ez hiányos (!)
+
+tbl_sale tábla: 
+bill_number VARCHAR(12) mezője: még csak NULL értéket kapott (!) ezért ez hiányos (!)
+
+megjegyzés: számlaszám/nyugtaszám követelmények:
+Számlaszám (sorszám) formátuma és karakterei:
+
+A számlaszám legfeljebb 12 karakter hosszú lehet.
+A számlaszám betűket és számokat is tartalmazhat, tehát nem csak számjegyekből áll.
+A számlaszám formátuma úgy van kialakítva, hogy az első része betűkből és/vagy számokból állhat, míg az utolsó 7 karakter csak szám lehet.
+
+
+---------------------------------
+cms_20250411:
+
+tbl_product.product_number mezőjének kitöltése mostantól nem kötelező. (termék cikkszáma)
+érdekesség: 
+cikkszám: egy adott termék modellt jelöl pl: Stiht XXM fűnyíró. mindnek a cikkszáma: STXXM-001 (egyedi) [ez van az adatbázisban, de nem kötelező a megadása]
+szériaszám: az adott termék modellen belül, minden egyes fűnyíró, egyedi szériaszámot kap, amely egy konkrét fűnyírót azonosít. (1000 db legyártott fűnyírónak mind egyedi szériaszáma van)[ez nincs az adatbázisban]
+
+tbl_sale.bill_number (eladott termék(ek) számlaszáma) -> VARCHAR(14) ra növelve, formátuma: 'SB-2025-000001'   -- azaz 14 karakter, amiből az utolsó 6 karkterrel, max: 999.999 db számlaszám készíthető. (a számlaszám utólagos törlése vagy módosítása, törvényileg tilos)
+
+tbl_buy.bill_number (megrendelt termék(ek) számlaszáma) -> VARCHAR(50) ra növelve. Random számlaszámok, kitöltése nem kötelező.
+
+táblák feltöltése:
+eladások:
+tbl_sale: 
+5db eladás, mind lefoglal egy számlát:
+'SB-2025-0000001',
+'SB-2025-0000002',
+'SB-2025-0000003',
+'SB-2025-0000004',
+'SB-2025-0000005',
+
+tbl_buy:
+5db vétel, mind lefoglal egy (random) bejövő számlát.
+
+
+---------------------------------
+cms_20250412:
+cégeknél a tbl_customer.first_name és tbl_customer.last_name mezők értéke megcserélve, hogy jól jelenjen meg.
+tbl_customer.comment  mezőbe pár a vásárlókhoz kerülhet megjegyzés.
+
+
+---------------------------------
+cms_20250413:
++ 22 db termék lett hozzáadva a tbl_product táblához.
+
+'Lengyel''Csilla''Eladó'access_level: 1 (eladó) 
+belépés: email      + 	password:             
+Lengyel@gmail.com   +   titok
+státusza : 0 lett (azaz inaktív, azaz logikailag törölve)
+
+a tbl_product tábla:
++------------+----------+-------------+----------------+-----------------------------------+---------------+----------------------+--------------+--------+
+| product_ID | brand_ID | category_ID | product_number | product_name                      | product_price | product_profit_price | stock_number | status |
++------------+----------+-------------+----------------+-----------------------------------+---------------+----------------------+--------------+--------+
+|          1 |        1 |           1 | FISK001        | Fiskars Benzines Fűnyíró          |      65000.00 |             90000.00 |           11 |      1 |
+|          2 |        2 |           1 | BOSCH001       | Bosch Elektromos Fűnyíró          |      30000.00 |             45000.00 |            8 |      1 |
+|          3 |        3 |           1 | HECHT001       | Hecht Fűnyíró 2000W               |      20000.00 |             50000.00 |           15 |      1 |
+|          4 |        4 |           2 | STIHL001       | Stihl Láncfűrész MS 180           |      40000.00 |             60000.00 |            6 |      1 |
+|          5 |        1 |           2 | FISK002        | Fiskars Kézi Fűrész               |       5000.00 |              8000.00 |           20 |      1 |
+|          6 |        2 |           3 | BOSCH002       | Bosch Akkus Fúró 18V              |      15000.00 |             22000.00 |           13 |      1 |
+|          7 |        3 |           3 | HECHT002       | Hecht Elektromos Fúró             |      10000.00 |             15000.00 |           18 |      1 |
+|          8 |        4 |           4 | STIHL002       | Stihl Benzines Fűkasza FS 55      |     135000.00 |            250000.00 |            7 |      1 |
+|          9 |        1 |           4 | FISK003        | Fiskars Fűkasza Kézi              |      18000.00 |             27000.00 |           10 |      1 |
+|         10 |        2 |           5 | BOSCH003       | Bosch Kerti Grill BBQ             |      25000.00 |             38000.00 |            7 |      1 |
+|         11 |        3 |           5 | HECHT003       | Hecht Hordozható Grill            |      15000.00 |             23000.00 |            9 |      1 |
+|         12 |        4 |           6 | STIHL003       | Stihl Permetező SG 20             |      20000.00 |             30000.00 |            4 |      1 |
+|         13 |        1 |           4 | FISK004        | Fiskars PowerCut Fűkasza          |      35000.00 |             52000.00 |           10 |      1 |
+|         14 |        1 |           4 | FISK005        | Fiskars Ergo Fűkasza              |      28000.00 |             42000.00 |           10 |      1 |
+|         15 |        1 |           4 | FISK006        | Fiskars Professional Fűkasza      |      45000.00 |             67000.00 |           10 |      1 |
+|         16 |        1 |           4 | FISK007        | Fiskars Light Fűkasza             |      22000.00 |             35000.00 |           10 |      1 |
+|         17 |        1 |           4 | FISK008        | Fiskars Xtreme Fűkasza            |      50000.00 |             75000.00 |           10 |      1 |
+|         18 |        2 |           4 | BOSCH004       | Bosch AKE 30 Fűkasza              |      40000.00 |             60000.00 |           10 |      1 |
+|         19 |        2 |           4 | BOSCH005       | Bosch AKE 40 Fűkasza              |      48000.00 |             72000.00 |           10 |      1 |
+|         20 |        2 |           4 | BOSCH006       | Bosch EasyCut Fűkasza             |      32000.00 |             49000.00 |           10 |      1 |
+|         21 |        2 |           4 | BOSCH007       | Bosch Professional Fűkasza        |      55000.00 |             82000.00 |           10 |      1 |
+|         22 |        2 |           4 | BOSCH008       | Bosch Cordless elektromos Fűkasza |      60000.00 |             90000.00 |           10 |      1 |
+|         23 |        3 |           4 | HECHT004       | Hecht 520 Fűkasza                 |      25000.00 |             38000.00 |           10 |      1 |
+|         24 |        3 |           4 | HECHT005       | Hecht 6200 Fűkasza                |      30000.00 |             45000.00 |           10 |      1 |
+|         25 |        3 |           4 | HECHT006       | Hecht XXL-720 Fűkasza             |      35000.00 |             52000.00 |           10 |      1 |
+|         26 |        3 |           4 | HECHT007       | Hecht Power-820 Fűkasza           |      40000.00 |             60000.00 |           10 |      1 |
+|         27 |        3 |           4 | HECHT008       | Hecht Super-9200 Fűkasza          |      45000.00 |             67000.00 |           10 |      1 |
+|         28 |        3 |           4 | HECHT009       | Hecht Mega-10020 Fűkasza          |      50000.00 |             75000.00 |           10 |      1 |
+|         29 |        4 |           4 | STIHL026       | Stihl Fűkasza FSA 38              |     120000.00 |            220000.00 |           10 |      1 |
+|         30 |        4 |           4 | STIHL027       | Stihl Fűkasza FS 50               |     130000.00 |            240000.00 |           10 |      1 |
+|         31 |        4 |           4 | STIHL028       | Stihl Fűkasza FSA 70 C-E          |     165000.00 |            285000.00 |           10 |      1 |
+|         32 |        4 |           4 | STIHL029       | Stihl Fűkasza FSA 91              |     185000.00 |            320000.00 |           10 |      1 |
+|         33 |        4 |           4 | STIHL030       | Stihl Fűkasza FS 131              |     210000.00 |            360000.00 |           10 |      1 |
+|         34 |        4 |           4 | STIHL031       | Stihl Fűkasza FSA 240             |     225000.00 |            385000.00 |           10 |      1 |
++------------+----------+-------------+----------------+-----------------------------------+---------------+----------------------+--------------+--------+
+
+tbl_staff tábla:
+SELECT * FROM tbl_staff \G
+SELECT * FROM tbl_staff ;
++----------+--------------+------------------+------------+-----------+------------+--------------+--------------+---------+--------------+----------------+----------------+--------------+-------------+--------+--------------------------------------------------------------+---------------------+
+| staff_ID | mycompany_ID | qualification_ID | first_name | last_name | birthdate  | job_position | access_level | zipcode | address_city | address_street | address_number | phone_number | superbrutto | status | comment                                                      | stamp               |
++----------+--------------+------------------+------------+-----------+------------+--------------+--------------+---------+--------------+----------------+----------------+--------------+-------------+--------+--------------------------------------------------------------+---------------------+
+|        1 |            1 |                3 | Admin      | Admin     | 1980-01-01 | Szuperadmin  |            4 | 1234    | Budapest     | Jázmin utca    | 1              | +36302221122 |  1000000.00 |      1 | Rendszergazda, tilos törölni!                                | 2025-05-04 21:38:05 |
+|        2 |            1 |                2 | Eszter     | Katona    | 1985-05-15 | Vezető       |            3 | 1234    | Budapest     | Rét utca       | 22             | +3623456789  |   500000.00 |      1 | Vezető: A fizikai bolt napi vezetése                         | 2025-05-04 21:41:20 |
+|        3 |            1 |                2 | Albert     | Halász    | 1990-10-20 | Vezető Eladó |            2 | 1034    | Budapest     | Erdő utca      | 34             | +36606567656 |   460000.00 |      1 | Vezető eladó: Eladás és Rendelés vezetése és egyéb feladatok | 2025-05-04 21:41:20 |
+|        4 |            1 |                2 | Vilmos     | Fekete    | 1992-03-25 | Vezető Eladó |            2 | 1048    | Budapest     | Fenyves utca   | 44             | +3660558901  |   480000.00 |      1 | Vezető eladó: Személyzet, Eladás és Rendelés vezetése        | 2025-05-04 21:41:20 |
+|        5 |            1 |                1 | Ilona      | Gál       | 1995-07-30 | Eladó        |            1 | 1234    | Budapest     | Mária utca     | 115            | +3606802012  |   400000.00 |      1 | Eladó: értékesítés                                           | 2025-05-04 21:41:20 |
+|        6 |            1 |                1 | Kata       | Kiss      | 1998-12-10 | Eladó        |            1 | 1212    | Budapest     | Czinege utca   | 6              | +3303673123  |   400000.00 |      1 | Eladó: értékesítés                                           | 2025-05-04 21:41:20 |
+|        7 |            1 |                2 | Ferenc     | Kocsis    | 1993-04-15 | Eladó        |            1 | 1018    | Budapest     | Akác utca      | 73             | +3630901234  |   440000.00 |      1 | Eladó és raktározás                                          | 2025-05-04 21:41:20 |
+|        8 |            1 |                1 | Csilla     | Lengyel   | 1996-09-05 | Eladó        |            1 | 1002    | Budapest     | Sas utca       | 8              | +3689044445  |   400000.00 |      0 | Eladó: értékesítés                                           | 2025-05-04 21:41:20 |
++----------+--------------+------------------+------------+-----------+------------+--------------+--------------+---------+--------------+----------------+----------------+--------------+-------------+--------+--------------------------------------------------------------+---------------------+
+
+
+---------------------------------
+cms_db:
+tbl_mycompany -ban kisebb változtatás.
+végső adatbázis.
+
+
+

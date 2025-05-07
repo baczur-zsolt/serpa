@@ -1,0 +1,179 @@
+
+-- termékek tábla tartalma:
+SELECT * FROM tbl_product;
+
+-- staff részleges adatok, több táblából: személyzet adatai:
+SELECT 
+    tbl_staff.staff_ID,
+    tbl_staff.last_name,
+    tbl_staff.job_position,
+    tbl_staff.access_level,
+    tbl_staff.superbrutto,
+    tbl_staff.status,
+    tbl_enter.email,
+    tbl_qualification.qualification
+FROM 
+    tbl_staff
+JOIN 
+    tbl_enter ON tbl_staff.staff_ID = tbl_enter.staff_ID
+JOIN 
+    tbl_qualification ON tbl_staff.qualification_ID = tbl_qualification.qualification_ID;
+
+
+-- Megmutatja, hogy melyik eladó mennyi bevételt generált az eladásokból.
+SELECT 
+    tbl_staff.staff_ID,
+    tbl_staff.first_name,
+    tbl_staff.last_name,
+    SUM(tbl_sale.total_price) AS total_sales_value
+FROM 
+    tbl_staff
+JOIN 
+    tbl_sale ON tbl_staff.staff_ID = tbl_sale.staff_ID
+GROUP BY 
+    tbl_staff.staff_ID,
+    tbl_staff.first_name,
+    tbl_staff.last_name
+ORDER BY 
+    total_sales_value DESC;
+
+
+-- Legnépszerűbb termékek mennyiségi eladások szerint:
+SELECT 
+    tbl_product.product_ID,
+    tbl_product.product_name,
+    tbl_brand.brand,
+    tbl_category.category,
+    SUM(tbl_sale.quantity_sale) AS total_quantity_sold
+FROM 
+    tbl_product
+JOIN 
+    tbl_sale ON tbl_product.product_ID = tbl_sale.product_ID
+JOIN 
+    tbl_brand ON tbl_product.brand_ID = tbl_brand.brand_ID
+JOIN 
+    tbl_category ON tbl_product.category_ID = tbl_category.category_ID
+GROUP BY 
+    tbl_product.product_ID,
+    tbl_product.product_name,
+    tbl_brand.brand,
+    tbl_category.category
+ORDER BY 
+    total_quantity_sold DESC
+LIMIT 5;
+
+
+-- Aktuális készlet értéke márkánként:
+SELECT 
+    tbl_brand.brand,
+    SUM(tbl_product.stock_number * tbl_product.product_price) AS total_inventory_value
+FROM 
+    tbl_product
+JOIN 
+    tbl_brand ON tbl_product.brand_ID = tbl_brand.brand_ID
+WHERE 
+    tbl_product.status = 1
+GROUP BY 
+    tbl_brand.brand
+ORDER BY 
+    total_inventory_value DESC;
+
+
+-- Vevők összes költése
+SELECT 
+    tbl_customer.customer_ID,
+    tbl_customer.first_name,
+    tbl_customer.last_name,
+    tbl_customer.email,
+    SUM(tbl_sale.total_price) AS total_spent
+FROM 
+    tbl_customer
+JOIN 
+    tbl_sale ON tbl_customer.customer_ID = tbl_sale.customer_ID
+GROUP BY 
+    tbl_customer.customer_ID,
+    tbl_customer.first_name,
+    tbl_customer.last_name,
+    tbl_customer.email
+HAVING 
+    total_spent > 0
+ORDER BY 
+    total_spent DESC;
+
+
+-- Listázza azokat a termékeket, amelyek a legnagyobb bevételt hozták egy-egy eladás során.
+SELECT 
+    tbl_sale.sale_ID,
+    tbl_product.product_name,
+    tbl_brand.brand,
+    tbl_sale.quantity_sale,
+    tbl_sale.total_price,
+    tbl_staff.first_name AS seller_first_name,
+    tbl_staff.last_name AS seller_last_name
+FROM 
+    tbl_sale
+JOIN 
+    tbl_product ON tbl_sale.product_ID = tbl_product.product_ID
+JOIN 
+    tbl_brand ON tbl_product.brand_ID = tbl_brand.brand_ID
+JOIN 
+    tbl_staff ON tbl_sale.staff_ID = tbl_staff.staff_ID
+ORDER BY 
+    tbl_sale.total_price DESC
+LIMIT 3;
+
+
+-- Stihl termékek listázása:
+SELECT 
+    tbl_product.product_ID,
+    tbl_product.product_number,
+    tbl_product.product_name,
+    tbl_brand.brand,
+    tbl_category.category,
+    tbl_product.product_price,
+    tbl_product.product_profit_price,
+    tbl_product.stock_number,
+    tbl_product.status
+FROM 
+    tbl_product
+JOIN 
+    tbl_brand ON tbl_product.brand_ID = tbl_brand.brand_ID
+JOIN 
+    tbl_category ON tbl_product.category_ID = tbl_category.category_ID
+WHERE 
+    tbl_brand.brand_ID = 4;
+
+
+-- rendelések:
+SELECT 
+  tbl_staff.staff_ID,
+  CONCAT(tbl_staff.last_name, ' ', tbl_staff.first_name) AS staff_name,
+  tbl_customer.customer_ID,
+  CONCAT(tbl_customer.last_name, ' ', tbl_customer.first_name) AS customer_name,
+  tbl_product.product_name,
+  tbl_buy.quantity_buy,
+  tbl_buy.bill_number
+FROM tbl_buy
+JOIN tbl_staff ON tbl_buy.staff_ID = tbl_staff.staff_ID
+JOIN tbl_customer ON tbl_buy.customer_ID = tbl_customer.customer_ID
+JOIN tbl_product ON tbl_buy.product_ID = tbl_product.product_ID
+ORDER BY tbl_buy.buy_ID ASC;
+
+
+-- eladások:
+SELECT 
+  tbl_staff.staff_ID,
+  CONCAT(tbl_staff.last_name, ' ', tbl_staff.first_name) AS staff_name,
+  tbl_customer.customer_ID,
+  CONCAT(tbl_customer.last_name, ' ', tbl_customer.first_name) AS customer_name,
+  tbl_product.product_name,
+  tbl_sale.quantity_sale,
+  tbl_sale.bill_number
+FROM tbl_sale
+JOIN tbl_staff ON tbl_sale.staff_ID = tbl_staff.staff_ID
+JOIN tbl_customer ON tbl_sale.customer_ID = tbl_customer.customer_ID
+JOIN tbl_product ON tbl_sale.product_ID = tbl_product.product_ID
+ORDER BY tbl_sale.sale_ID ASC;
+
+
+

@@ -1,0 +1,316 @@
+-- Táblák feltöltése:
+
+-- tbl_staff és tbl_enter feltöltése. jelszavak: 'titok'
+
+-- Vezető hozzáadása (hozzáférési szint: 3)
+INSERT INTO tbl_staff (
+    mycompany_ID, qualification_ID, first_name, last_name, birthdate, job_position, access_level,
+    zipcode, address_city, address_street, address_number, phone_number,
+    superbrutto, status, comment
+) VALUES (
+    1,                         -- mycompany_ID: Botanika Kft
+    2,                         -- qualification_ID: Középfokú
+    'Eszter',                  -- first_name
+    'Katona',                  -- last_name
+    '1985-05-15',              -- birthdate
+    'Vezető',                  -- job_position
+    3,                         -- access_level: 3 (vezető)
+    '1234',                    -- zipcode
+    'Budapest',                -- address_city
+    'Rét utca',                -- address_street
+    '22',                      -- address_number
+    '+3623456789',             -- phone_number
+    500000.00,                 -- superbrutto
+    1,                         -- status: 1 (aktív)
+    'Vezető: A fizikai bolt napi vezetése' -- comment
+);
+
+-- Vezető belépési adatainak beszúrása
+INSERT INTO tbl_enter (staff_ID, email, password) VALUES (
+    2,                         -- staff_ID: Az előző beszúrás auto_increment értéke (id = 2. dolgozó)
+    'Katona@gmail.com',      	-- email
+    SHA2('titok', 256)         -- jelszó 'titok' titkosítva SHA-256-al
+);
+
+-- Vezető eladó hozzáadása (hozzáférési szint: 2)
+INSERT INTO tbl_staff (
+    mycompany_ID, qualification_ID, first_name, last_name, birthdate, job_position, access_level,
+    zipcode, address_city, address_street, address_number, phone_number,
+    superbrutto, status, comment
+) VALUES (
+    1,                         -- mycompany_ID: Botanika Kft
+    2,                         -- qualification_ID: Középfokú
+    'Albert',                  -- first_name
+    'Halász',                  -- last_name
+    '1990-10-20',              -- birthdate
+    'Vezető Eladó',            -- job_position
+    2,                         -- access_level: 2 (vezető eladó)
+    '1034',                    -- zipcode
+    'Budapest',                -- address_city
+    'Erdő utca',               -- address_street
+    '34',                      -- address_number
+    '+36606567656',            -- phone_number
+    460000.00,                 -- superbrutto
+    1,                         -- status: 1 (aktív)
+    'Vezető eladó: Eladás és Rendelés vezetése és egyéb feladatok' -- comment
+);
+
+-- Vezető eladó belépési adatainak beszúrása
+INSERT INTO tbl_enter (staff_ID, email, password) VALUES (
+    3,                         -- staff_ID: Az előző beszúrás auto_increment értéke
+    'Halasz@yahoo.com',        -- email
+    SHA2('titok', 256)         -- jelszó: 'titok' titkosítva SHA-256-al
+);
+
+-- Vezető eladó hozzáadása (hozzáférési szint: 2)
+INSERT INTO tbl_staff (
+    mycompany_ID, qualification_ID, first_name, last_name, birthdate, job_position, access_level,
+    zipcode, address_city, address_street, address_number, phone_number,
+    superbrutto, status, comment
+) VALUES (
+    1,                         -- mycompany_ID: Botanika Kft
+    2,                         -- qualification_ID: Középfokú
+    'Vilmos',                  -- first_name
+    'Fekete',                  -- last_name
+    '1992-03-25',              -- birthdate
+    'Vezető Eladó',            -- job_position
+    2,                         -- access_level: 2 (vezető eladó)
+    '1048',                    -- zipcode
+    'Budapest',                -- address_city
+    'Fenyves utca',            -- address_street
+    '44',                      -- address_number
+    '+3660558901',             -- phone_number
+    480000.00,                 -- superbrutto
+    1,                         -- status: 1 (aktív)
+    'Vezető eladó: Személyzet, Eladás és Rendelés vezetése' -- comment
+);
+
+-- Második vezető eladó belépési adatainak beszúrása
+INSERT INTO tbl_enter (staff_ID, email, password) VALUES (
+    4,                         -- staff_ID: Az előző beszúrás auto_increment értéke
+    'Fekete@freemail.com',     -- email
+    SHA2('titok', 256)         -- jelszó titkosítva SHA-256-al
+);
+
+-- 4 db eladó hozzáadása (hozzáférési szint: 1):
+
+-- Eladó 1
+INSERT INTO tbl_staff (
+    mycompany_ID, qualification_ID, first_name, last_name, birthdate, job_position, access_level,
+    zipcode, address_city, address_street, address_number, phone_number,
+    superbrutto, status, comment
+) VALUES (
+    1,                         -- mycompany_ID: Botanika Kft
+    1,                         -- qualification_ID: Alapfokú
+    'Ilona',                   -- first_name
+    'Gál',                     -- last_name
+    '1995-07-30',              -- birthdate
+    'Eladó',                   -- job_position
+    1,                         -- access_level: 1 (eladó)
+    '1234',                    -- zipcode
+    'Budapest',                -- address_city
+    'Mária utca',              -- address_street
+    '115',                     -- address_number
+    '+3606802012',             -- phone_number
+    400000.00,                 -- superbrutto
+    1,                         -- status: 1 (aktív)
+    'Eladó: értékesítés'       -- comment
+);
+
+-- Eladó 1 belépési adatainak beszúrása:
+INSERT INTO tbl_enter (staff_ID, email, password) VALUES (
+    5,                         -- staff_ID: Az előző beszúrás auto_increment értéke
+    'Gal@citromail.hu',        -- email
+    SHA2('titok', 256)         -- jelszó titkosítva SHA-256-al
+);
+
+-- Eladó 2
+INSERT INTO tbl_staff (
+    mycompany_ID, qualification_ID, first_name, last_name, birthdate, job_position, access_level,
+    zipcode, address_city, address_street, address_number, phone_number,
+    superbrutto, status, comment
+) VALUES (
+    1,                         -- mycompany_ID: Botanika Kft
+    1,                         -- qualification_ID: Alapfokú
+    'Kata',                    -- first_name
+    'Kiss',                    -- last_name
+    '1998-12-10',              -- birthdate
+    'Eladó',                   -- job_position
+    1,                         -- access_level: 1 (eladó)
+    '1212',                    -- zipcode
+    'Budapest',                -- address_city
+    'Czinege utca',            -- address_street
+    '6',                       -- address_number
+    '+3303673123',             -- phone_number
+    400000.00,                 -- superbrutto: 400.000 Ft
+    1,                         -- status: 1 (aktív)
+    'Eladó: értékesítés'       -- comment
+);
+
+-- Eladó 2 belépési adatainak beszúrása
+INSERT INTO tbl_enter (staff_ID, email, password) VALUES (
+    6,                         -- staff_ID: Az előző beszúrás auto_increment értéke
+    'KissKata@gmail.com',      -- email
+    SHA2('titok', 256)         -- jelszó titkosítva SHA-256-al
+);
+
+-- Eladó 3
+INSERT INTO tbl_staff (
+    mycompany_ID, qualification_ID, first_name, last_name, birthdate, job_position, access_level,
+    zipcode, address_city, address_street, address_number, phone_number,
+    superbrutto, status, comment
+) VALUES (
+    1,                         -- mycompany_ID: Botanika Kft
+    2,                         -- qualification_ID
+    'Ferenc',                  -- first_name
+    'Kocsis',                  -- last_name
+    '1993-04-15',              -- birthdate
+    'Eladó',                   -- job_position
+    1,                         -- access_level: 1 (eladó)
+    '1018',                    -- zipcode
+    'Budapest',                -- address_city
+    'Akác utca',               -- address_street
+    '73',                      -- address_number
+    '+3630901234',             -- phone_number
+    440000.00,                 -- superbrutto
+    1,                         -- status: 1 (aktív)
+    'Eladó és raktározás'      -- comment
+);
+
+-- Eladó 3 belépési adatainak beszúrása
+INSERT INTO tbl_enter (staff_ID, email, password) VALUES (
+    7,                         -- staff_ID: Az előző beszúrás auto_increment értéke
+    'Kocsis@gmail.com',        -- email
+    SHA2('titok', 256)         -- jelszó titkosítva SHA-256-al
+);
+
+-- Eladó 4
+INSERT INTO tbl_staff (
+    mycompany_ID, qualification_ID, first_name, last_name, birthdate, job_position, access_level,
+    zipcode, address_city, address_street, address_number, phone_number,
+    superbrutto, status, comment
+) VALUES (
+    1,                         -- mycompany_ID: Botanika Kft
+    1,                         -- qualification_ID: Alapfokú
+    'Csilla',                  -- first_name
+    'Lengyel',                 -- last_name
+    '1996-09-05',              -- birthdate
+    'Eladó',                   -- job_position
+    1,                         -- access_level: 1 (eladó)
+    '1002',                    -- zipcode
+    'Budapest',                -- address_city
+    'Sas utca',                -- address_street
+    '8',                       -- address_number
+    '+3689044445',             -- phone_number
+    400000.00,                 -- superbrutto
+    0,                         -- status: 0 (inaktív, azaz logikailag törölve)
+    'Eladó: értékesítés'       -- comment
+);
+
+-- Eladó 4 belépési adatainak beszúrása: (megj: inaktív dolgozó belépési adatait érdemes törölni)
+INSERT INTO tbl_enter (staff_ID, email, password) VALUES (
+    8,                         -- staff_ID: Az előző beszúrás auto_increment értéke
+    'Lengyel@gmail.com',       -- email
+    SHA2('titok', 256)         -- jelszó titkosítva SHA-256-al
+);
+  
+-- tbl_customer (10 vevő) + (1 cég vevő és 5 cég beszállító) (status = 0 vásárló) (status = 1 beszállító)
+INSERT INTO tbl_customer (first_name, last_name, email, tax_number, status, zipcode, address_city, address_street, address_number) VALUES 
+('István', 'Kovács', 'istvan.kovacs@gmail.com', '12345678-2-41', 0, '1101', 'Budapest', 'Fő utca', '88'), 
+('Júlia', 'Szabó', 'julia.szabo@gmail.com', '23456789-2-42', 0, '1272', 'Budapest', 'Bartók Béla út', '4'), 
+('Károly', 'Tóth', 'karoly.toth@gmail.com', '34567890-2-43', 0, '1333', 'Budapest', 'Király utca', '29'), 
+('Lilla', 'Horváth', 'lilla.horvath@gmail.com', '45678901-2-44', 0, '1204', 'Budapest', 'Park tér', '33'), 
+('Miklós', 'Kiss', 'miklos.kiss@gmail.com', '56789012-2-45', 0, '1208', 'Budapest', 'Rákóczi út', '14'), 
+('Nóra', 'Molnár', 'nora.molnar@gmail.com', '67890123-2-46', 0, '1226', 'Budapest', 'Váci út', '66'), 
+('Olga', 'Balogh', 'olga.balogh@gmail.com', '78901234-2-47', 0, '1307', 'Budapest', 'Lehel utca', '18'), 
+('Péter', 'Nagy', 'peter.nagy@gmail.com', '89012345-2-48', 0, '1404', 'Budapest', 'Szabadság tér', '56'), 
+('Sándor', 'Fekete', 'sandor.fekete@gmail.com', '01234567-2-50', 0, '1210', 'Budapest', 'Erdő utca', '19'), 
+('Réka', 'Varga', 'reka.varga@gmail.com', '90123456-2-49', 0, '1509', 'Budapest', 'Kelenföldi út', '18'),
+-- Céges ügyfelek:
+('Kft', 'AlphaTech', 'info@alphatech.hu', '10345678-2-51', 1, '1131', 'Budapest', 'Béke utca', '3'),
+('Kft', 'GreenGarden', 'kapcsolat@greengarden.hu', '11456789-2-52', 1, '1156', 'Budapest', 'Kertész utca', '12'),
+('Zrt', 'Hídépítő', 'office@hidepitozrt.hu', '12567890-2-53', 1, '1112', 'Budapest', 'Budafoki út', '101'),
+('Kft', 'Nova-Design', 'hello@novadesign.hu', '13678901-2-54', 1, '1033', 'Budapest', 'Tímár utca', '5'),
+('Kft', 'BioMarket', 'info@biomarket.hu', '14789012-2-55', 1, '1022', 'Budapest', 'Margit körút', '45'),
+('Kft', 'City-Logistic', 'contact@citylog.hu', '15890123-2-56', 1, '1095', 'Budapest', 'Soroksári út', '135'); 
+
+
+
+-- tbl_brand:
+INSERT INTO tbl_brand (brand, brand_desc) VALUES 
+('Fiskars', 'Minőségi kerti szerszámok Finnországból, tartós és ergonomikus eszközök.'),
+('Bosch', 'Német precíziós szerszámok, megbízható technológia otthoni és professzionális használatra.'),
+('Hecht', 'Megfizethető kerti gépek, jó ár-érték arány a hobbi kertészek számára.'),
+('Stihl', 'Professzionális kerti eszközök, kiemelkedő teljesítmény és hosszú élettartam.');
+
+-- tbl_category:
+INSERT INTO tbl_category (category, category_desc) VALUES 
+('Fűnyíró', 'Benzines és elektromos fűnyírók.'),
+('Fűrész', 'Kézi és motoros fűrészek vágási feladatokhoz.'),
+('Fúró', 'Elektromos fúrók barkácsoláshoz és professzionális munkákhoz.'),
+('Fűkasza', 'Benzines és elektromos fűkaszák a nehezen elérhető területek karbantartására.'),
+('Grill', 'Kerti grillek szabadtéri sütéshez és családi összejövetelekhez.'),
+('Permetező', 'Kerti permetezők növények védelmére és gondozására.');
+
+-- tbl_product: áruk felvitele:
+INSERT INTO tbl_product (brand_ID, category_ID, product_number, product_name, product_price, product_profit_price, stock_number, status) VALUES 
+(1, 1, 'FISK001', 'Fiskars Benzines Fűnyíró', 65000.00, 90000.00, 10, 1),    	-- Fiskars Fűnyíró
+(2, 1, 'BOSCH001', 'Bosch Elektromos Fűnyíró', 30000.00, 45000.00, 8, 1),    	-- Bosch Fűnyíró
+(3, 1, 'HECHT001', 'Hecht Fűnyíró 2000W', 20000.00, 50000.00, 15, 1),       	-- Hecht Fűnyíró
+(4, 2, 'STIHL001', 'Stihl Láncfűrész MS 180', 40000.00, 60000.00, 5, 1),    	-- Stihl Fűrész
+(1, 2, 'FISK002', 'Fiskars Kézi Fűrész', 5000.00, 8000.00, 20, 1),          	-- Fiskars Fűrész
+(2, 3, 'BOSCH002', 'Bosch Akkus Fúró 18V', 15000.00, 22000.00, 12, 1),      	-- Bosch Fúró
+(3, 3, 'HECHT002', 'Hecht Elektromos Fúró', 10000.00, 15000.00, 18, 1),     	-- Hecht Fúró
+(4, 4, 'STIHL002', 'Stihl Benzines Fűkasza FS 55', 135000.00, 250000.00, 7, 1), -- Stihl Fűkasza
+(1, 4, 'FISK003', 'Fiskars Fűkasza Kézi', 18000.00, 27000.00, 10, 1),       	-- Fiskars Fűkasza
+(2, 5, 'BOSCH003', 'Bosch Kerti Grill BBQ', 25000.00, 38000.00, 6, 1),      	-- Bosch Grill
+(3, 5, 'HECHT003', 'Hecht Hordozható Grill', 15000.00, 23000.00, 9, 1),     	-- Hecht Grill
+(4, 6, 'STIHL003', 'Stihl Permetező SG 20', 20000.00, 30000.00, 4, 1);      	-- Stihl Permetező
+
+-- tbl_product: további áruk (22db) felvitele:
+INSERT INTO tbl_product (brand_ID, category_ID, product_number, product_name, product_price, product_profit_price, stock_number, status) VALUES 
+-- Fiskars Fűkaszák (5 új termék)
+(1, 4, 'FISK004', 'Fiskars PowerCut Fűkasza', 35000.00, 52000.00, 10, 1),
+(1, 4, 'FISK005', 'Fiskars Ergo Fűkasza', 28000.00, 42000.00, 10, 1),
+(1, 4, 'FISK006', 'Fiskars Professional Fűkasza', 45000.00, 67000.00, 10, 1),
+(1, 4, 'FISK007', 'Fiskars Light Fűkasza', 22000.00, 35000.00, 10, 1),
+(1, 4, 'FISK008', 'Fiskars Xtreme Fűkasza', 50000.00, 75000.00, 10, 1),
+-- Bosch Fűkaszák (5 új termék)
+(2, 4, 'BOSCH004', 'Bosch AKE 30 Fűkasza', 40000.00, 60000.00, 10, 1),
+(2, 4, 'BOSCH005', 'Bosch AKE 40 Fűkasza', 48000.00, 72000.00, 10, 1),
+(2, 4, 'BOSCH006', 'Bosch EasyCut Fűkasza', 32000.00, 49000.00, 10, 1),
+(2, 4, 'BOSCH007', 'Bosch Professional Fűkasza', 55000.00, 82000.00, 10, 1),
+(2, 4, 'BOSCH008', 'Bosch Cordless elektromos Fűkasza', 60000.00, 90000.00, 10, 1),
+-- Hecht Fűkaszák (6 új termék)
+(3, 4, 'HECHT004', 'Hecht 520 Fűkasza', 25000.00, 38000.00, 10, 1),
+(3, 4, 'HECHT005', 'Hecht 6200 Fűkasza', 30000.00, 45000.00, 10, 1),
+(3, 4, 'HECHT006', 'Hecht XXL-720 Fűkasza', 35000.00, 52000.00, 10, 1),
+(3, 4, 'HECHT007', 'Hecht Power-820 Fűkasza', 40000.00, 60000.00, 10, 1),
+(3, 4, 'HECHT008', 'Hecht Super-9200 Fűkasza', 45000.00, 67000.00, 10, 1),
+(3, 4, 'HECHT009', 'Hecht Mega-10020 Fűkasza', 50000.00, 75000.00, 10, 1),
+-- Stihl Fűkaszák (6 új termék)
+(4, 4, 'STIHL026', 'Stihl Fűkasza FSA 38', 120000.00, 220000.00, 10, 1),
+(4, 4, 'STIHL027', 'Stihl Fűkasza FS 50', 130000.00, 240000.00, 10, 1),
+(4, 4, 'STIHL028', 'Stihl Fűkasza FSA 70 C-E', 165000.00, 285000.00, 10, 1),
+(4, 4, 'STIHL029', 'Stihl Fűkasza FSA 91', 185000.00, 320000.00, 10, 1),
+(4, 4, 'STIHL030', 'Stihl Fűkasza FS 131', 210000.00, 360000.00, 10, 1),
+(4, 4, 'STIHL031', 'Stihl Fűkasza FSA 240', 225000.00, 385000.00, 10, 1);
+
+
+-- tbl_sale (5db eladás):
+INSERT INTO tbl_sale (staff_ID, customer_ID, product_ID, quantity_sale, bill_number) VALUES 
+(5, 1, 1, 2, 'SB-2025-000001'),  
+(6, 2, 4, 1, 'SB-2025-000002'),  
+(7, 3, 6, 3, 'SB-2025-000003'),  
+(8, 4, 8, 1, 'SB-2025-000004'),  
+(5, 5, 10, 1, 'SB-2025-000005'); 
+
+-- tbl_buy (5db vásárlás)
+INSERT INTO tbl_buy (staff_ID, customer_ID, product_ID, quantity_buy, bill_number) VALUES 
+(1, 11, 1, 3, 'RND-2025-0001'),  
+(2, 12, 4, 2, 'BILL-45879-658822'),  
+(3, 13, 6, 4, 'GSX-INV-2025/04/0003'), 
+(4, 14, 8, 1, 'TEX-2025-04-9987'),  
+(1, 15, 10, 2, 'WH-25-04-4512');
+
+
