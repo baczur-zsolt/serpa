@@ -530,7 +530,8 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         const input = document.getElementById(field.id);
         const error = document.getElementById(field.errorId);
 
-        if (!input || input.value === "" || input.value === "Válasszon" || (input.type === "number" && isNaN(input.valueAsNumber))) {
+        if (!input || input.value === "" || input.value === "Válasszon" || 
+            (input.type === "number" && isNaN(input.valueAsNumber))) {
             error.classList.remove('hidden');
             isValid = false;
         } else {
@@ -538,10 +539,7 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         }
     });
 
-    // Ha bármelyik mező hibás, ne küldjük el
-    if (!isValid) {
-        return;
-    }
+    if (!isValid) return;
 
     const fullName = document.getElementById('newstaff_name').value.trim();
     const nameParts = fullName.split(" ");
@@ -549,16 +547,13 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
     const last_name = nameParts.slice(1).join(" ") || "";
 
     const accessLevelMap = {
-        "4": 4,
-        "3": 3,
-        "2": 2,  // Javított duplikált kulcs
-        "1": 1
+        "4": 4, "3": 3, "2": 2, "1": 1
     };
 
     const job_positionMap = {
         "4": "Adminisztrátor",
         "3": "Vezető",
-        "2": "Vezető Eladó",  // Javított duplikált kulcs
+        "2": "Vezető Eladó",
         "1": "Eladó"
     };
     
@@ -583,10 +578,6 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         qualification_ID: 1
     };
 
-    // Logoljuk a küldött adatokat
-    console.log("Küldött adat:", userData);
-
-    // POST kérés
     fetch(`${API_URL}employee`, {
         method: 'POST',
         headers: {
@@ -594,35 +585,87 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         },
         body: JSON.stringify(userData),
     })
-    .then(res => res.text()) // először szövegként kezeljük
-    .then(text => {
-        console.log('Szerver válasz:', text); // Nézd meg ezt a konzolon
-        try {
-            const data = JSON.parse(text);
-            console.log('Érvényes JSON:', data);
-
-            // Form ürítése
-            fields.forEach(field => {
-                const input = document.getElementById(field.id);
-                if (input) {
-                    input.value = ''; // Töröljük a formot
-                }
-            });
-
-            // Modal bezárása
-            const modal = document.getElementById('crud-modal');
-            const overlay = document.getElementById('overlay');
+    .then(res => res.json())
+    .then(data => {
+        console.log('Szerver válasz:', data);
+    
+        if (data.response === 'error' && data.message === 'Létező e-mail cím!') {
+            const emailError = document.getElementById('error_email');
+            emailError.textContent = data.message;
+            emailError.classList.remove('hidden');
+            return;
+        }
+    
+        // Mivel a válasz egy tömb, az első elemet kell hozzáadni
+        if (data && data.length > 0) {
+            employeesData.push(data[0]);  // Az első alkalmazott adatainak hozzáadása
+            clearFormFields();
             modal.classList.add('hidden');
             overlay.classList.add('hidden');
-
-        } catch (e) {
-            console.error('Nem érvényes JSON!', e);
+            renderTable();  // Táblázat frissítése
+        } else {
+            console.error("Hiba: a válaszban nincs adat.");
         }
     })
-    .catch(error => {
-        console.error('Hiba történt:', error);
+    .catch(err => {
+        console.error("Hiba a fetch-ben:", err);
     });
 });
+
+// Figyeljük az e-mail mező változását, hogy eltüntessük a hibaüzenetet
+document.getElementById('newstaff_email').addEventListener('input', function () {
+    const emailError = document.getElementById('error_email');
+    if (!emailError.classList.contains('hidden')) {
+        emailError.classList.add('hidden');
+        emailError.textContent = 'Kötelező mező';
+    }
+
+    
+});
+
+function clearFormFields() {
+    const inputIds = [
+        'newstaff_name',
+        'newstaff_email',
+        'newstaff_password',
+        'newstaff_access_level',
+        'newstaff_phone_number',
+        'newstaff_address_zipcode',
+        'newstaff_address_city',
+        'newstaff_address_street',
+        'newstaff_address_housenumber',
+        'newstaff_superbrutto',
+        'newstaff_birthdate'
+    ];
+
+    inputIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.value = '';
+    });
+
+    // Esetleges hibaszövegek elrejtése
+    const errorIds = [
+        'error_name',
+        'error_email',
+        'error_password',
+        'error_position',
+        'error_phonenumber',
+        'error_zipcode',
+        'error_city',
+        'error_street',
+        'error_housenumber',
+        'error_superbrutto',
+        'error_birthdate'
+    ];
+
+    errorIds.forEach(id => {
+        const error = document.getElementById(id);
+        if (error) {
+            error.classList.add('hidden');
+            error.textContent = "Kötelező mező!"; // vagy amit alapból írsz ki
+        }
+    });
+}
 
 
 
