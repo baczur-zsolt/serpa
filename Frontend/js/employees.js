@@ -28,7 +28,7 @@ function renderTable() {
 
   let start = (currentPage - 1) * rowsPerPage;
   let end = start + rowsPerPage;
-  let paginatedItems = employeesData.slice(start, end);
+  let paginatedItems = [...employeesData].reverse().slice(start, end);
 
   paginatedItems.forEach(user => {
     let row = document.createElement("tr");
@@ -511,8 +511,9 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
     event.preventDefault();
 
     const fields = [
-        { id: 'newstaff_name', errorId: 'error_name' },
+        { id: 'newstaff_name', errorId: 'error_name' }, 
         { id: 'newstaff_email', errorId: 'error_email' },
+        { id: 'newstaff_password', errorId: 'error_password' },
         { id: 'newstaff_access_level', errorId: 'error_position' },
         { id: 'newstaff_phone_number', errorId: 'error_phonenumber' },
         { id: 'newstaff_address_zipcode', errorId: 'error_zipcode' },
@@ -563,11 +564,12 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
     
     const selectedRole = document.getElementById('newstaff_access_level').value;
     const mappedAccessLevel = accessLevelMap[selectedRole] || 0;
-    
 
     const userData = {
         first_name: first_name,
         last_name: last_name,
+        email: document.getElementById('newstaff_email').value,
+        password: document.getElementById('newstaff_password').value,
         birthdate: document.getElementById('newstaff_birthdate').value,
         job_position: job_positionMap[selectedRole],
         access_level: mappedAccessLevel,
@@ -577,20 +579,9 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         address_number: document.getElementById('newstaff_address_housenumber').value,
         phone_number: document.getElementById('newstaff_phone_number').value,
         superbrutto: parseInt(document.getElementById('newstaff_superbrutto').value),
-        status: true
+        status: true,
+        qualification_ID: 1
     };
-
-    // Optional mezők:
-    const qualificationEl = document.getElementById('newstaff_qualification_ID');
-    const commentEl = document.getElementById('newstaff_comment');
-
-    if (qualificationEl && qualificationEl.value) {
-        userData.qualification_ID = parseInt(qualificationEl.value);
-    }
-
-    if (commentEl && commentEl.value.trim()) {
-        userData.comment = commentEl.value.trim();
-    }
 
     // Logoljuk a küldött adatokat
     console.log("Küldött adat:", userData);
@@ -609,11 +600,30 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         try {
             const data = JSON.parse(text);
             console.log('Érvényes JSON:', data);
+
+            // Form ürítése
+            fields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (input) {
+                    input.value = ''; // Töröljük a formot
+                }
+            });
+
+            // Modal bezárása
+            const modal = document.getElementById('crud-modal');
+            const overlay = document.getElementById('overlay');
+            modal.classList.add('hidden');
+            overlay.classList.add('hidden');
+
         } catch (e) {
             console.error('Nem érvényes JSON!', e);
         }
+    })
+    .catch(error => {
+        console.error('Hiba történt:', error);
     });
 });
+
 
 
 function addUser(userData) {
