@@ -1,0 +1,15 @@
+-- ki kell lépni előtte az adatbázisból: exit; vagy újra elkell indítani a XAMPP-ot.
+-- törli az adatbázist , ha még létezik. 
+
+
+mysql --user=root --default-character-set=cp852
+
+-- adatbázisok a törlés előtt:
+SHOW DATABASES;
+
+DROP DATABASE IF EXISTS cms_20250413;
+
+-- adatbázisok a törlés után:
+SHOW DATABASES;
+
+

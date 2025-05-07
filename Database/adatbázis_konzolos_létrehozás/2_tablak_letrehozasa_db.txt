@@ -1,0 +1,395 @@
+-- frissen nyitott XAMPP ba kell mindent másolni!
+mysql --user=root --default-character-set=cp852
+
+-- Már létező adatbázisok:
+SHOW DATABASES;
+
+-- Adatbázis létrehozása:
+CREATE DATABASE IF NOT EXISTS cms_db; 
+
+-- adatbázisok a létrehozás után:
+SHOW DATABASES;  
+
+-- Adatbázis használata:
+USE cms_db;
+
+
+-- táblák létrehozása:
+-- tbl_qualification tábla létrehozása
+CREATE TABLE tbl_qualification (
+    qualification_ID INT AUTO_INCREMENT PRIMARY KEY,
+    qualification VARCHAR(50) NOT NULL
+);
+
+-- tbl_mycompany tábla létrehozása (csak egyetlen rekordot tartalmaz, a cég adatait, mycompany_ID = 1 azonosítóval.):
+-- csak egyetlen cég van a tbl_mycompany táblában!
+CREATE TABLE tbl_mycompany (
+    mycompany_ID INT AUTO_INCREMENT PRIMARY KEY,	-- csak 1 rekord kerül bele.
+    company_name VARCHAR(100) NOT NULL,
+    zipcode CHAR(4) NOT NULL,
+    address_city VARCHAR(100),
+    address_street VARCHAR(100),
+    address_number VARCHAR(10),
+    tax_number VARCHAR(13),
+    bank_account VARCHAR(30),
+    web VARCHAR(255),
+    phone_number VARCHAR(30),
+    email VARCHAR(255),
+    company_number VARCHAR(15),  			-- Cégjegyzékszám
+    profil TEXT,					-- cég tevékenysége
+    comment TEXT,					-- megjegyzés.
+    stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) COMMENT 'A saját cég adatait tartalmazó tábla';
+-- csak egyetlen cég van a tbl_mycompany táblában!
+
+-- tbl_staff tábla létrehozása:
+-- csak egyetlen cég van a tbl_mycompany táblában!
+CREATE TABLE tbl_staff (
+    staff_ID INT AUTO_INCREMENT PRIMARY KEY,
+    mycompany_ID INT NOT NULL DEFAULT 1,
+    qualification_ID INT NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    birthdate DATE NOT NULL,
+    job_position VARCHAR(50) NOT NULL,
+    access_level TINYINT NOT NULL,
+    zipcode CHAR(4) NOT NULL,
+    address_city VARCHAR(100) NOT NULL,
+    address_street VARCHAR(100) NOT NULL,
+    address_number VARCHAR(10) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL,
+    superbrutto DECIMAL(10,2) NOT NULL,
+    status TINYINT NOT NULL DEFAULT 1,
+    comment TEXT,
+    stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (qualification_ID) REFERENCES tbl_qualification(qualification_ID),
+    FOREIGN KEY (mycompany_ID) REFERENCES tbl_mycompany(mycompany_ID)
+);
+
+-- tbl_enter tábla létrehozása:
+CREATE TABLE tbl_enter (
+    enter_ID INT AUTO_INCREMENT PRIMARY KEY,
+    staff_ID INT NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,  			-- uniqe email címek, tehát mind egyedi.
+    password VARCHAR(255) NOT NULL,				-- ide kerülnek majd a titkosított jelszavak (titok)
+    FOREIGN KEY (staff_ID) REFERENCES tbl_staff(staff_ID)
+);
+
+-- tbl_brand tábla létrehozása:
+CREATE TABLE tbl_brand (
+    brand_ID INT AUTO_INCREMENT PRIMARY KEY,
+    brand VARCHAR(50) NOT NULL,
+    brand_desc TEXT
+);
+
+-- tbl_category tábla létrehozása:
+CREATE TABLE tbl_category (
+    category_ID INT AUTO_INCREMENT PRIMARY KEY,
+    category VARCHAR(50) NOT NULL,
+    category_desc TEXT
+);
+
+-- tbl_product tábla létrehozása:
+CREATE TABLE tbl_product (
+    product_ID INT AUTO_INCREMENT PRIMARY KEY,
+    brand_ID INT,
+    category_ID INT,
+    product_number VARCHAR(50),					-- termék cikkszáma, (nem kötekező megadni)
+    product_name VARCHAR(100) NOT NULL,
+    product_price DECIMAL(10,2) NOT NULL,			-- beszerzési ár
+    product_profit_price DECIMAL(10,2) NOT NULL,		-- eladási ár 
+    stock_number INT NOT NULL,					-- db szám
+    status TINYINT NOT NULL DEFAULT 1,
+    FOREIGN KEY (brand_ID) REFERENCES tbl_brand(brand_ID),
+    FOREIGN KEY (category_ID) REFERENCES tbl_category(category_ID)
+);
+
+-- tbl_customer tábla létrehozása:
+CREATE TABLE tbl_customer (
+    customer_ID INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50),           				-- cég név is lehet!
+    last_name VARCHAR(50),            				-- Kft/ Rt is lehet!
+    email VARCHAR(100) UNIQUE,					-- egyedi email
+    tax_number VARCHAR(13),          				-- adószám cégeknek kötelező. 
+    status TINYINT NOT NULL DEFAULT 1, 				-- számla jelzése: (0 -> vásárló: neki adhatunk el) és (1 -> beszállító: tőle rendelhünk)
+    zipcode CHAR(4),
+    address_city VARCHAR(100),
+    address_street VARCHAR(100),
+    address_number VARCHAR(10),
+    comment TEXT,
+    stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- tbl_buy tábla létrehozása:
+CREATE TABLE tbl_buy (
+    buy_ID INT AUTO_INCREMENT PRIMARY KEY,
+    staff_ID INT NOT NULL,
+    customer_ID INT NOT NULL,                                   -- itt a beszállító idegenkulcsa.
+    product_ID INT NOT NULL,
+    quantity_buy INT NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,				-- trigger számolja (származtatott mező)
+    bill_number VARCHAR(50),					-- rendelt termék számla csoportosító (egyedi számlaszám) akár 50 karakter hosszú is lehet.
+    buy_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (staff_ID) REFERENCES tbl_staff(staff_ID),
+    FOREIGN KEY (customer_ID) REFERENCES tbl_customer(customer_ID),  	--
+    FOREIGN KEY (product_ID) REFERENCES tbl_product(product_ID)
+);
+
+-- tbl_sale tábla létrehozása: ez a tábla tárolja az eladott termékek, digitális számláit, tilos törölni/változtatni.
+CREATE TABLE tbl_sale (
+    sale_ID INT AUTO_INCREMENT PRIMARY KEY,
+    staff_ID INT NOT NULL,
+    customer_ID INT NOT NULL,                                   -- vásárló idegenkulcsa.
+    product_ID INT NOT NULL,
+    quantity_sale INT NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,				-- trigger számolja (származtatott mező)
+    bill_number VARCHAR(14),					-- számla csoportosító (egyedi számlaszám) formátum: 'SB-2025-000000'
+    sale_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (staff_ID) REFERENCES tbl_staff(staff_ID),
+    FOREIGN KEY (customer_ID) REFERENCES tbl_customer(customer_ID),
+    FOREIGN KEY (product_ID) REFERENCES tbl_product(product_ID)
+);
+
+-- tbl_finance tábla létrehozása:
+CREATE TABLE tbl_finance (
+    finance_ID INT AUTO_INCREMENT PRIMARY KEY,			
+    buy_ID INT,
+    sale_ID INT,
+    balance DECIMAL(10,2) NOT NULL,				-- aktuális egyenleg Ft-ban. (visszanézhető a pénzmennyiség mozgása)
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (buy_ID) REFERENCES tbl_buy(buy_ID),
+    FOREIGN KEY (sale_ID) REFERENCES tbl_sale(sale_ID)
+);
+
+-- tbl_constant tábla létrehozása:
+CREATE TABLE tbl_constant (
+    constant_ID INT AUTO_INCREMENT PRIMARY KEY,
+    AFA DECIMAL(5,2) NOT NULL,					-- ÁFA értéke
+    perszuperbrutto DECIMAL(10,9) NOT NULL			-- számoláshoz: szuperbrutto * perszuperbrutto = brutto (Fizetés számolás)
+);
+
+
+-- Táblák:
+SHOW TABLES;
+
+-- Táblák szerkezete:
+
+DESC tbl_mycompany;
+DESC tbl_customer;
+DESC tbl_qualification;
+DESC tbl_staff;
+DESC tbl_enter;
+DESC tbl_brand;
+DESC tbl_category;
+DESC tbl_product;
+DESC tbl_sale;
+DESC tbl_buy;
+DESC tbl_finance;
+DESC tbl_constant;
+
+
+-- Tábla tartalma: (empty)
+SELECT * FROM tbl_staff;
+
+
+
+-- Triggerek:
+
+-- Trigger a total_price kiszámításához INSERT esetén (tbl_sale). Kiszámítja és fizikailag menti a total_price mezőt.
+DELIMITER //
+CREATE TRIGGER calculate_total_price_on_insert_sale
+BEFORE INSERT ON tbl_sale
+FOR EACH ROW
+BEGIN
+    DECLARE product_profit DECIMAL(10, 2);
+    -- A termék eladási árát lekérjük
+    SELECT product_profit_price INTO product_profit
+    FROM tbl_product
+    WHERE product_ID = NEW.product_ID;
+    -- A total_price kiszámítása
+    SET NEW.total_price = product_profit * NEW.quantity_sale;
+END;
+//
+DELIMITER ;
+
+
+-- Trigger a total_price kiszámításához INSERT esetén(tbl_buy). Kiszámítja és fizikailag menti a total_price mezőt.
+DELIMITER //
+CREATE TRIGGER calculate_total_price_on_insert_buy
+BEFORE INSERT ON tbl_buy
+FOR EACH ROW
+BEGIN
+    DECLARE product_cost DECIMAL(10, 2);
+    -- A termék beszerzési árát lekérjük
+    SELECT product_price INTO product_cost
+    FROM tbl_product
+    WHERE product_ID = NEW.product_ID;
+    -- A total_price kiszámítása
+    SET NEW.total_price = product_cost * NEW.quantity_buy;
+END;
+//
+DELIMITER ;
+
+
+-- Trigger a balance frissítéséhez INSERT esetén (tbl_sale) Kiszámítja és fizikailag menti a balance mezőt a tbl_finance táblában(insert).
+DELIMITER //
+CREATE TRIGGER update_balance_on_insert_sale
+AFTER INSERT ON tbl_sale
+FOR EACH ROW
+BEGIN
+    DECLARE current_balance DECIMAL(10, 2);
+    -- Az aktuális egyenleg lekérése
+    SELECT balance INTO current_balance
+    FROM tbl_finance
+    ORDER BY date DESC
+    LIMIT 1;
+    -- Az új egyenleg kiszámítása (eladás esetén nő)
+    SET current_balance = current_balance + NEW.total_price;
+    -- Az új egyenleg beszúrása
+    INSERT INTO tbl_finance (buy_ID, sale_ID, balance, date)
+    VALUES (NULL, NEW.sale_ID, current_balance, NOW());
+END;
+//
+DELIMITER ;
+
+
+-- Trigger a balance frissítéséhez INSERT esetén (tbl_buy).  Kiszámítja és fizikailag menti a balance mezőt.
+DELIMITER //
+CREATE TRIGGER update_balance_on_insert_buy
+AFTER INSERT ON tbl_buy
+FOR EACH ROW
+BEGIN
+    DECLARE current_balance DECIMAL(10, 2);
+    -- Az aktuális egyenleg lekérése
+    SELECT balance INTO current_balance
+    FROM tbl_finance
+    ORDER BY date DESC
+    LIMIT 1;
+    -- Az új egyenleg kiszámítása (vásárlás esetén csökken)
+    SET current_balance = current_balance - NEW.total_price;
+    -- Az új egyenleg beszúrása
+    INSERT INTO tbl_finance (buy_ID, sale_ID, balance, date)
+    VALUES (NEW.buy_ID, NULL, current_balance, NOW());
+END;
+//
+DELIMITER ;
+
+
+-- Trigger a stock_number frissítéséhez INSERT esetén (tbl_buy).
+DELIMITER //
+CREATE TRIGGER update_stock_on_insert_buy
+AFTER INSERT ON tbl_buy
+FOR EACH ROW
+BEGIN
+    -- A készlet növelése a vásárolt mennyiséggel
+    UPDATE tbl_product
+    SET stock_number = stock_number + NEW.quantity_buy
+    WHERE product_ID = NEW.product_ID;
+END;
+//
+DELIMITER ;
+
+
+-- Trigger a stock_number frissítéséhez INSERT esetén (tbl_sale)
+DELIMITER //
+CREATE TRIGGER update_stock_on_insert_sale
+AFTER INSERT ON tbl_sale
+FOR EACH ROW
+BEGIN
+    -- A készlet csökkentése az eladott mennyiséggel
+    UPDATE tbl_product
+    SET stock_number = stock_number - NEW.quantity_sale
+    WHERE product_ID = NEW.product_ID;
+END;
+//
+DELIMITER ;
+
+
+
+-- Táblák feltöltése a kezdeti adatokkal:
+
+-- 1. Először a kvalifikációk beszúrása, mert a staff tábla hivatkozik rá:
+-- Kvalifikációk:
+INSERT INTO tbl_qualification (qualification) VALUES ('Alapfokú');
+INSERT INTO tbl_qualification (qualification) VALUES ('Középfokú');
+INSERT INTO tbl_qualification (qualification) VALUES ('Felsőfokú');
+
+
+-- 2. A saját cég adatainak beszúrása, mert a staff tábla hivatkozik rá:
+-- céginfo:
+INSERT INTO tbl_mycompany (
+    company_name, zipcode, address_city, address_street, address_number,
+    tax_number, bank_account, web, phone_number, email, company_number,    
+    profil, comment
+) VALUES (
+    'Botanika Kft', '1034', 'Budapest', 'Galagonya utca', '13',
+    '12345432-1-11', '12345678-12345678', 'www.botanika.hu', '+36303336464',
+    'botanika@gmail.hu', '01-09-876543',
+    'Kerti gépek és szerszámok értékesítése, forgalmazása és szervizelése.',
+    'Kis és nagykereskedelem.'
+);
+
+
+-- 3. Személyzet (Admin) beszúrása:
+-- szuperadmin:
+INSERT INTO tbl_staff (
+    mycompany_ID, qualification_ID, first_name, last_name, birthdate, job_position, access_level,
+    zipcode, address_city, address_street, address_number, phone_number,
+    superbrutto, status, comment
+) VALUES (
+    1,                         -- mycompany_ID: a most beszúrt cég azonosítója (Csak ez a sajátcég szerepel a táblában)
+    3,                         -- qualification_ID: Felsőfokú
+    'Admin',                   -- first_name
+    'Admin',                   -- last_name
+    '1980-01-01',              -- birthdate
+    'Szuperadmin',             -- job_position
+    4,                         -- access_level: 4 (legmagasabb szint)
+    '1234',                    -- zipcode
+    'Budapest',                -- address_city
+    'Jázmin utca',             -- address_street
+    '1',                       -- address_number
+    '+36302221122',            -- phone_number
+    1000000.00,                -- superbrutto: 1.000.000 Ft
+    1,                         -- status: 1 (aktív)
+    'Rendszergazda, tilos törölni!' -- comment
+);
+
+
+
+-- Konstansok 27%, 1/127%
+INSERT INTO tbl_constant (AFA, perszuperbrutto) VALUES (27.0, 0.787401574);
+
+-- tbl_finance: Kezdeti pénz hozzáadása.:
+INSERT INTO tbl_finance (buy_ID, sale_ID, balance, date) VALUES (NULL, NULL, 10000000.00, NOW());
+
+
+-- tbl_enter: email és jelszó megadása:  'admin@admin.com' és jelszó: 'admin'  (SHA-256 titkosítással mentve)
+INSERT INTO tbl_enter (staff_ID, email, password) VALUES (1, 'admin@admin.com', SHA2('admin', 256));
+
+
+-- Ellenőrzések:
+-- Kvalifikációk ellenőrzése:
+SELECT * FROM tbl_qualification;
+
+-- Konstansok ellenőrzése:
+SELECT * FROM tbl_constant;
+
+-- Kezdeti egyenleg ellenőrzése: 10.000.000 Ft
+SELECT * FROM tbl_finance;
+
+-- Admin adatainak ellenőrzése:
+-- SELECT * FROM tbl_staff WHERE first_name = 'Admin' AND last_name = 'Admin';
+SELECT * FROM tbl_staff WHERE first_name = 'Admin' AND last_name = 'Admin'\G
+
+-- Admin belépési adatainak ellenőrzése:
+SELECT * FROM tbl_enter WHERE staff_ID = 1;
+
+
+
+
+
+--XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXXX
+--XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXXX
+--XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXXX
+
+

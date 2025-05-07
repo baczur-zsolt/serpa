@@ -1,0 +1,22 @@
+a belépés a weblapra(http://localhost/serpa/home) a következő:
+email 			+ password párosokkal lehetséges: (8db)
+
+
+email			password	szerep			jog. szint:
+
+admin@admin.com		admin		-- szuperadmin		4
+
+Katona@gmail.com	titok		-- vezető		3
+
+Halasz@yahoo.com	titok		-- vezető-eladó		2
+
+Fekete@freemail.com	titok		-- vezető-eladó		2
+
+Gal@citromail.hu	titok		-- eladó		1
+
+KissKata@gmail.com	titok		-- eladó		1
+
+Kocsis@gmail.com	titok		-- eladó		1
+
+Lengyel@gmail.com	titok		-- eladó		1
+
