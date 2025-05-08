@@ -61,7 +61,7 @@ function renderTable() {
 
         row.innerHTML = `
             <td class="hidden">${user.id}</td>
-            <td class="px-6 py-4">${product.first_name + ' ' + product.last_name}</td>
+            <td class="px-6 py-4">${product.last_name + ' ' + product.first_name}</td>
             <td class="px-6 py-4">${product.email}</td>
             <td class="px-6 py-4">${product.tax_number}</td>
             <td class="px-6 py-4">${product.status == 1 ? "Beszállító" : "Magánszemély"}</td>
@@ -128,59 +128,7 @@ document.getElementById("closeUserSettingsMenuModal").addEventListener("click", 
     document.getElementById("editModal").classList.add("hidden");
 });
 
-// Mentés gomb esemén
-/*
-document.getElementById("saveChanges").addEventListener("click", async function () {
-    const id = this.dataset.id;
-    const updatedData = {
-        product_name: document.getElementById("editName").value,
-        stock_number: document.getElementById("editEmail").value,
-        product_price: document.getElementById("editPosition").value,
-        product_profit_price: document.getElementById("editStatus").value
-    };
-    
 
-    const response = await fetch(`${API_URL}product/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData)
-        
-    });
-    console.log(updatedData);
-    console.log("stock_number:", document.getElementById("editEmail").value);
-console.log("product_price:", document.getElementById("editPosition").value);
-console.log("product_profit_price:", document.getElementById("editStatus").value);
-    if (response.ok) {
-        const index = partnersData.findIndex(emp => emp.customer_ID == id);
-        partnersData[index] = { ...partnersData[index], ...updatedData };
-        renderTable();
-        document.getElementById("editModal").classList.add("hidden");
-    } else {
-        alert("Hiba a frissítés során!");
-    }
-    document.getElementById("editEmail").addEventListener("input", function () {
-        console.log("editEmail változott:", this.value);
-    });
-});
-*/
-
-// Például közvetlenü
-/*
-if (!window.mobileViewHandlerAdded) {
-    mobileView.addEventListener("click", function(e) {
-        if (e.target.closest(".edit-btn")) {
-            const id = e.target.closest(".edit-btn").dataset.id;
-            const item = partnersData.find(emp => emp.product_ID == id);
-            openEditModal(item);
-        } else if (e.target.closest(".delete-btn")) {
-            const id = e.target.closest(".delete-btn").dataset.id;
-            deleteSale(id);
-        }
-    });
-    window.mobileViewHandlerAdded = true; // jelölés, hogy már hozzád lett adva
-}
-*/
-        
         
         generatePageNumbers();
         window.scrollTo({
@@ -190,29 +138,7 @@ if (!window.mobileViewHandlerAdded) {
         });
     }
 
-    /*
 
-    function openEditModal(partner) {
-        console.log("EDIT PARTNER:", partner);
-    
-        if (!partner) {
-            console.warn("Nincs átadott partner!");
-            return;
-        }
-    
-        // Input mezők feltöltése partner adataival
-        document.getElementById("editName").value = partner.first_name || "";
-        document.getElementById("editEmail").value = partner.email || "";
-        document.getElementById("editPosition").value = partner.tax_number || "";
-        document.getElementById("editStatus").value = partner.phone || "";
-    
-        // Elmentjük az ID-t, hogy tudjuk, mit frissítsünk
-        document.getElementById("saveChanges").dataset.id = partner.customer_ID;
-    
-        // Modal megjelenítése
-        document.getElementById("editModal").classList.remove("hidden");
-    }
-    */
 
 // Törlés
 document.addEventListener("DOMContentLoaded", function () {
