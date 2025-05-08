@@ -7,7 +7,7 @@ mysql --user=root --default-character-set=cp852
 -- adatbázisok a törlés előtt:
 SHOW DATABASES;
 
-DROP DATABASE IF EXISTS cms_20250413;
+DROP DATABASE IF EXISTS cms_db;
 
 -- adatbázisok a törlés után:
 SHOW DATABASES;

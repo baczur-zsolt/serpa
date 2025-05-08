@@ -1,0 +1,232 @@
+
+-- lekérdezések:
+-- példa:
+-- tbl_buy és tbl_finance:
+SELECT 
+    tbl_finance.finance_ID, 
+    tbl_finance.buy_ID, 
+    tbl_finance.balance, 
+    tbl_finance.date, 
+    tbl_buy.staff_ID, 
+    tbl_buy.customer_ID, 
+    tbl_buy.product_ID, 
+    tbl_buy.quantity_buy, 
+    tbl_buy.total_price, 
+    tbl_buy.bill_number, 
+    tbl_buy.buy_date,
+
+
+FROM tbl_finance
+LEFT JOIN tbl_buy ON tbl_finance.buy_ID = tbl_buy.buy_ID
+ORDER BY tbl_finance.date;
+
+
+
+-- tbl_sale és tbl_finance:
+SELECT 
+    tbl_finance.finance_ID, 
+    tbl_finance.sale_ID, 
+    tbl_finance.balance, 
+--    tbl_finance.date, 
+    tbl_sale.staff_ID, 
+    tbl_sale.customer_ID, 
+    tbl_sale.product_ID, 
+    tbl_sale.quantity_sale,
+    tbl_sale.total_price AS sale_total_price, 
+--    tbl_sale.bill_number, 
+    tbl_sale.sale_date
+FROM tbl_finance
+INNER JOIN tbl_sale ON tbl_finance.sale_ID = tbl_sale.sale_ID
+ORDER BY finance_ID;
+
+
+SELECT 
+    tbl_finance.finance_ID, 
+    tbl_finance.buy_ID, 
+    tbl_finance.balance, 
+--    tbl_finance.date, 
+    tbl_buy.staff_ID, 
+    tbl_buy.customer_ID, 
+    tbl_buy.product_ID, 
+    tbl_buy.quantity_buy,
+    tbl_buy.total_price AS buy_total_price, 
+--    tbl_buy.bill_number, 
+    tbl_buy.buy_date
+FROM tbl_finance
+INNER JOIN tbl_buy ON tbl_finance.buy_ID = tbl_buy.buy_ID
+ORDER BY finance_ID;
+
+-- mind 3 tábla: tbl_finance, tbl_sale, tbl_buy
+SELECT 
+    tbl_finance.finance_ID,
+    tbl_finance.balance,
+    tbl_finance.date,
+
+    -- Eladás mezők
+    tbl_sale.sale_ID,
+    tbl_sale.staff_ID AS sale_staff_ID,
+    tbl_sale.customer_ID AS sale_customer_ID,
+    tbl_sale.product_ID AS sale_product_ID,
+    tbl_sale.quantity_sale,
+    tbl_sale.total_price AS sale_total_price,
+    tbl_sale.bill_number AS sale_bill_number,
+    tbl_sale.sale_date,
+
+    -- Rendelés mezők
+    tbl_buy.buy_ID,
+    tbl_buy.staff_ID AS buy_staff_ID,
+    tbl_buy.customer_ID AS buy_customer_ID,
+    tbl_buy.product_ID AS buy_product_ID,
+    tbl_buy.quantity_buy,
+    tbl_buy.total_price AS buy_total_price,
+    tbl_buy.bill_number AS buy_bill_number,
+    tbl_buy.buy_date,
+
+    -- Tranzakció ideje (eladás vagy rendelés dátuma (az egyik mindig NULL): mindig visszaadja a nem NULL értéket!)
+    COALESCE(tbl_sale.sale_date, tbl_buy.buy_date) AS tranzakcio_ido
+
+FROM tbl_finance
+LEFT JOIN tbl_sale ON tbl_finance.sale_ID = tbl_sale.sale_ID
+LEFT JOIN tbl_buy ON tbl_finance.buy_ID = tbl_buy.buy_ID
+ORDER BY tbl_finance.finance_ID;
+
+  
++------------+-------------+---------------------+---------+---------------+------------------+-----------------+---------------+------------------+------------------+---------------------+--------+--------------+-----------------+----------------+--------------+-----------------+-----------------------+---------------------+---------------------+
+| finance_ID | balance     | date                | sale_ID | sale_staff_ID | sale_customer_ID | sale_product_ID | quantity_sale | sale_total_price | sale_bill_number | sale_date           | buy_ID | buy_staff_ID | buy_customer_ID | buy_product_ID | quantity_buy | buy_total_price | buy_bill_number       | buy_date            | tranzakcio_ido      |
++------------+-------------+---------------------+---------+---------------+------------------+-----------------+---------------+------------------+------------------+---------------------+--------+--------------+-----------------+----------------+--------------+-----------------+-----------------------+---------------------+---------------------+
+|          1 | 10000000.00 | 2025-05-08 17:32:53 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | NULL                |
+|          2 | 10090000.00 | 2025-05-08 17:33:31 |       1 |             1 |                5 |              12 |             3 |         90000.00 | SB-2025-000001   | 2025-01-01 10:00:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-01-01 10:00:00 |
+|          3 | 10254000.00 | 2025-05-08 17:33:31 |       2 |             2 |                7 |              21 |             2 |        164000.00 | SB-2025-000002   | 2025-01-04 11:30:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-01-04 11:30:00 |
+|          4 | 10542000.00 | 2025-05-08 17:33:31 |       3 |             3 |                6 |              19 |             4 |        288000.00 | SB-2025-000003   | 2025-01-08 15:00:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-01-08 15:00:00 |
+|          5 | 10617000.00 | 2025-05-08 17:33:31 |       4 |             4 |               10 |              28 |             1 |         75000.00 | SB-2025-000004   | 2025-01-12 14:45:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-01-12 14:45:00 |
+|          6 | 10693000.00 | 2025-05-08 17:33:31 |       5 |             5 |                9 |              23 |             2 |         76000.00 | SB-2025-000005   | 2025-01-16 12:30:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-01-16 12:30:00 |
+|          7 | 10633000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      1 |            1 |              14 |             12 |            3 |        60000.00 | INV-2025-JAN-001      | 2025-01-02 11:00:00 | 2025-01-02 11:00:00 |
+|          8 | 10468000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      2 |            2 |              13 |             21 |            3 |       165000.00 | BILL-2025-JAN-002     | 2025-01-06 12:20:00 | 2025-01-06 12:20:00 |
+|          9 | 10372000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      3 |            3 |              12 |             19 |            2 |        96000.00 | ORD-2025-JAN-003      | 2025-01-09 13:30:00 | 2025-01-09 13:30:00 |
+|         10 | 10322000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      4 |            4 |              15 |             28 |            1 |        50000.00 | PURCHASE-2025-JAN-004 | 2025-01-13 14:40:00 | 2025-01-13 14:40:00 |
+|         11 | 10297000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      5 |            5 |              11 |             23 |            1 |        25000.00 | OCT-2025-INV-005      | 2025-01-17 15:50:00 | 2025-01-17 15:50:00 |
+|         12 | 10453000.00 | 2025-05-08 17:33:31 |       6 |             1 |                8 |              25 |             3 |        156000.00 | SB-2025-000006   | 2025-02-01 10:30:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-02-01 10:30:00 |
+|         13 | 10603000.00 | 2025-05-08 17:33:31 |       7 |             2 |                5 |              17 |             2 |        150000.00 | SB-2025-000007   | 2025-02-03 12:45:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-02-03 12:45:00 |
+|         14 | 11563000.00 | 2025-05-08 17:33:31 |       8 |             3 |                7 |              30 |             4 |        960000.00 | SB-2025-000008   | 2025-02-07 14:00:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-02-07 14:00:00 |
+|         15 | 11623000.00 | 2025-05-08 17:33:31 |       9 |             7 |                9 |              18 |             1 |         60000.00 | SB-2025-000009   | 2025-02-10 13:15:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-02-10 13:15:00 |
+|         16 | 11803000.00 | 2025-05-08 17:33:31 |      10 |             5 |                6 |              22 |             2 |        180000.00 | SB-2025-000010   | 2025-02-14 11:50:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-02-14 11:50:00 |
+|         17 | 11698000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      6 |            2 |              14 |             25 |            3 |       105000.00 | INV-2025-FEB-001      | 2025-02-02 11:10:00 | 2025-02-02 11:10:00 |
+|         18 | 11648000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      7 |            2 |              13 |             17 |            1 |        50000.00 | BILL-2025-FEB-002     | 2025-02-05 12:30:00 | 2025-02-05 12:30:00 |
+|         19 | 11388000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      8 |            3 |              12 |             30 |            2 |       260000.00 | ORD-2025-FEB-003      | 2025-02-08 13:40:00 | 2025-02-08 13:40:00 |
+|         20 | 11348000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      9 |            5 |              15 |             18 |            1 |        40000.00 | PURCHASE-2025-FEB-004 | 2025-02-12 14:50:00 | 2025-02-12 14:50:00 |
+|         21 | 11228000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     10 |            5 |              11 |             22 |            2 |       120000.00 | OCT-2025-INV-005      | 2025-02-15 15:00:00 | 2025-02-15 15:00:00 |
+|         22 | 11408000.00 | 2025-05-08 17:33:31 |      11 |             6 |                3 |              22 |             2 |        180000.00 | SB-2025-000011   | 2025-03-01 09:00:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-03-01 09:00:00 |
+|         23 | 11633000.00 | 2025-05-08 17:33:31 |      12 |             7 |                4 |              17 |             3 |        225000.00 | SB-2025-000012   | 2025-03-05 10:30:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-03-05 10:30:00 |
+|         24 | 11921000.00 | 2025-05-08 17:33:31 |      13 |             1 |                5 |              19 |             4 |        288000.00 | SB-2025-000013   | 2025-03-09 14:15:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-03-09 14:15:00 |
+|         25 | 11973000.00 | 2025-05-08 17:33:31 |      14 |             2 |                6 |              25 |             1 |         52000.00 | SB-2025-000014   | 2025-03-12 11:40:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-03-12 11:40:00 |
+|         26 | 12453000.00 | 2025-05-08 17:33:31 |      15 |             3 |                7 |              30 |             2 |        480000.00 | SB-2025-000015   | 2025-03-16 13:05:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-03-16 13:05:00 |
+|         27 | 12333000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     11 |            6 |              14 |             22 |            2 |       120000.00 | INV-2025-MAR-001      | 2025-03-02 10:00:00 | 2025-03-02 10:00:00 |
+|         28 | 12233000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     12 |            7 |              13 |             17 |            2 |       100000.00 | BILL-2025-MAR-002     | 2025-03-06 12:45:00 | 2025-03-06 12:45:00 |
+|         29 | 12041000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     13 |            1 |              12 |             19 |            4 |       192000.00 | ORD-2025-MAR-003      | 2025-03-10 14:30:00 | 2025-03-10 14:30:00 |
+|         30 | 12006000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     14 |            2 |              15 |             25 |            1 |        35000.00 | PURCHASE-2025-MAR-004 | 2025-03-13 15:20:00 | 2025-03-13 15:20:00 |
+|         31 | 11746000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     15 |            3 |              11 |             30 |            2 |       260000.00 | OCT-2025-INV-005      | 2025-03-18 13:55:00 | 2025-03-18 13:55:00 |
+|         32 | 11860000.00 | 2025-05-08 17:33:31 |      16 |             4 |                5 |              23 |             3 |        114000.00 | SB-2025-000016   | 2025-04-01 10:00:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-04-01 10:00:00 |
+|         33 | 12010000.00 | 2025-05-08 17:33:31 |      17 |             2 |                6 |              28 |             2 |        150000.00 | SB-2025-000017   | 2025-04-04 13:30:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-04-04 13:30:00 |
+|         34 | 12298000.00 | 2025-05-08 17:33:31 |      18 |             2 |                7 |              19 |             4 |        288000.00 | SB-2025-000018   | 2025-04-08 14:10:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-04-08 14:10:00 |
+|         35 | 12538000.00 | 2025-05-08 17:33:31 |      19 |             3 |                8 |              30 |             1 |        240000.00 | SB-2025-000019   | 2025-04-11 15:40:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-04-11 15:40:00 |
+|         36 | 12688000.00 | 2025-05-08 17:33:31 |      20 |             6 |                9 |              17 |             2 |        150000.00 | SB-2025-000020   | 2025-04-15 12:25:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-04-15 12:25:00 |
+|         37 | 12613000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     16 |            4 |              12 |             23 |            3 |        75000.00 | INV-2025-APR-001      | 2025-04-02 11:15:00 | 2025-04-02 11:15:00 |
+|         38 | 12513000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     17 |            2 |              13 |             28 |            2 |       100000.00 | BILL-2025-APR-002     | 2025-04-06 14:00:00 | 2025-04-06 14:00:00 |
+|         39 | 12321000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     18 |            2 |              14 |             19 |            4 |       192000.00 | ORD-2025-APR-003      | 2025-04-09 15:25:00 | 2025-04-09 15:25:00 |
+|         40 | 12191000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     19 |            3 |              15 |             30 |            1 |       130000.00 | PURCHASE-2025-APR-004 | 2025-04-12 16:50:00 | 2025-04-12 16:50:00 |
+|         41 | 12091000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     20 |            6 |              11 |             17 |            2 |       100000.00 | OCT-2025-INV-005      | 2025-04-17 13:40:00 | 2025-04-17 13:40:00 |
++------------+-------------+---------------------+---------+---------------+------------------+-----------------+---------------+------------------+------------------+---------------------+--------+--------------+-----------------+----------------+--------------+-----------------+-----------------------+---------------------+---------------------+
+
+
+-- szűkítés hónapra: BETWEEN '2025-02-01' AND '2025-03-01'
+SELECT 
+    tbl_finance.finance_ID,
+    tbl_finance.balance,
+    tbl_finance.date,
+
+    -- Eladás mezők
+    tbl_sale.sale_ID,
+    tbl_sale.staff_ID AS sale_staff_ID,
+    tbl_sale.customer_ID AS sale_customer_ID,
+    tbl_sale.product_ID AS sale_product_ID,
+    tbl_sale.quantity_sale,
+    tbl_sale.total_price AS sale_total_price,
+    tbl_sale.bill_number AS sale_bill_number,
+    tbl_sale.sale_date,
+
+    -- Rendelés mezők
+    tbl_buy.buy_ID,
+    tbl_buy.staff_ID AS buy_staff_ID,
+    tbl_buy.customer_ID AS buy_customer_ID,
+    tbl_buy.product_ID AS buy_product_ID,
+    tbl_buy.quantity_buy,
+    tbl_buy.total_price AS buy_total_price,
+    tbl_buy.bill_number AS buy_bill_number,
+    tbl_buy.buy_date,
+
+    -- Tranzakció ideje (eladás vagy rendelés dátuma) (mindig a nem NULL értéket adja vissza)
+    COALESCE(tbl_sale.sale_date, tbl_buy.buy_date) AS tranzakcio_ido
+
+FROM tbl_finance
+LEFT JOIN tbl_sale ON tbl_finance.sale_ID = tbl_sale.sale_ID
+LEFT JOIN tbl_buy ON tbl_finance.buy_ID = tbl_buy.buy_ID
+
+-- Tranzakció ideje két dátum közt:
+WHERE COALESCE(tbl_sale.sale_date, tbl_buy.buy_date) BETWEEN '2025-02-01' AND '2025-03-01'
+
+ORDER BY tbl_finance.finance_ID;
+
+
++------------+-------------+---------------------+---------+---------------+------------------+-----------------+---------------+------------------+------------------+---------------------+--------+--------------+-----------------+----------------+--------------+-----------------+-----------------------+---------------------+---------------------+
+| finance_ID | balance     | date                | sale_ID | sale_staff_ID | sale_customer_ID | sale_product_ID | quantity_sale | sale_total_price | sale_bill_number | sale_date           | buy_ID | buy_staff_ID | buy_customer_ID | buy_product_ID | quantity_buy | buy_total_price | buy_bill_number       | buy_date            | tranzakcio_ido      |
++------------+-------------+---------------------+---------+---------------+------------------+-----------------+---------------+------------------+------------------+---------------------+--------+--------------+-----------------+----------------+--------------+-----------------+-----------------------+---------------------+---------------------+
+|         12 | 10453000.00 | 2025-05-08 17:33:31 |       6 |             1 |                8 |              25 |             3 |        156000.00 | SB-2025-000006   | 2025-02-01 10:30:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-02-01 10:30:00 |
+|         13 | 10603000.00 | 2025-05-08 17:33:31 |       7 |             2 |                5 |              17 |             2 |        150000.00 | SB-2025-000007   | 2025-02-03 12:45:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-02-03 12:45:00 |
+|         14 | 11563000.00 | 2025-05-08 17:33:31 |       8 |             3 |                7 |              30 |             4 |        960000.00 | SB-2025-000008   | 2025-02-07 14:00:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-02-07 14:00:00 |
+|         15 | 11623000.00 | 2025-05-08 17:33:31 |       9 |             7 |                9 |              18 |             1 |         60000.00 | SB-2025-000009   | 2025-02-10 13:15:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-02-10 13:15:00 |
+|         16 | 11803000.00 | 2025-05-08 17:33:31 |      10 |             5 |                6 |              22 |             2 |        180000.00 | SB-2025-000010   | 2025-02-14 11:50:00 |   NULL |         NULL |            NULL |           NULL |         NULL |            NULL | NULL                  | NULL                | 2025-02-14 11:50:00 |
+|         17 | 11698000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      6 |            2 |              14 |             25 |            3 |       105000.00 | INV-2025-FEB-001      | 2025-02-02 11:10:00 | 2025-02-02 11:10:00 |
+|         18 | 11648000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      7 |            2 |              13 |             17 |            1 |        50000.00 | BILL-2025-FEB-002     | 2025-02-05 12:30:00 | 2025-02-05 12:30:00 |
+|         19 | 11388000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      8 |            3 |              12 |             30 |            2 |       260000.00 | ORD-2025-FEB-003      | 2025-02-08 13:40:00 | 2025-02-08 13:40:00 |
+|         20 | 11348000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |      9 |            5 |              15 |             18 |            1 |        40000.00 | PURCHASE-2025-FEB-004 | 2025-02-12 14:50:00 | 2025-02-12 14:50:00 |
+|         21 | 11228000.00 | 2025-05-08 17:33:31 |    NULL |          NULL |             NULL |            NULL |          NULL |             NULL | NULL             | NULL                |     10 |            5 |              11 |             22 |            2 |       120000.00 | OCT-2025-INV-005      | 2025-02-15 15:00:00 | 2025-02-15 15:00:00 |
++------------+-------------+---------------------+---------+---------------+------------------+-----------------+---------------+------------------+------------------+---------------------+--------+--------------+-----------------+----------------+--------------+-----------------+-----------------------+---------------------+---------------------+
+
+######################################################################################################################################
+BEVÉTEL, KIADÁS
+
+-- csak a bevétel , két dátum közt: '2025-02-01' AND '2025-03-01'
+SELECT 
+    SUM(tbl_sale.total_price) AS total_sale_price
+
+FROM tbl_finance
+LEFT JOIN tbl_sale ON tbl_finance.sale_ID = tbl_sale.sale_ID
+LEFT JOIN tbl_buy ON tbl_finance.buy_ID = tbl_buy.buy_ID
+
+WHERE COALESCE(tbl_sale.sale_date, tbl_buy.buy_date) BETWEEN '2025-02-01' AND '2025-03-01';
+
++------------------+
+| total_sale_price |
++------------------+
+|       1506000.00 |
++------------------+
+
+
+-- csak a kiadás , két dátum közt: '2025-02-01' AND '2025-03-01'
+-- csak a kiadás (vásárlás)
+SELECT 
+    SUM(tbl_buy.total_price) AS total_buy_price
+
+FROM tbl_finance
+LEFT JOIN tbl_sale ON tbl_finance.sale_ID = tbl_sale.sale_ID
+LEFT JOIN tbl_buy ON tbl_finance.buy_ID = tbl_buy.buy_ID
+
+WHERE tbl_buy.buy_date BETWEEN '2025-02-01' AND '2025-03-01';
+
++-----------------+
+| total_buy_price |
++-----------------+
+|       575000.00 |
++-----------------+
+
+
