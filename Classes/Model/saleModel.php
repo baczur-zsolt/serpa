@@ -2,11 +2,12 @@
 
 class SaleModel{
     
-    public static function getSaleById($id=null){       //Returns the "tbl_sale" table data based on the "id" request
+    public static function getSaleByBillNumber($in=null){       //Returns the "tbl_sale" table data based on the "id" request
 
-        if(!$id==null)$id='sale_ID='.$id;
+        $in=str_pad($in, 6, "0", STR_PAD_LEFT);
+        if(!$in==null)$in='bill_number LIKE "%-'.$in.'"';
 
-        $response=Db::Select("tbl_sale", "*", $id);     //Querying the "tbl_sale" table with "id"
+        $response=Db::Select("tbl_sale", "*", $in);     //Querying the "tbl_sale" table with "id"
         
         for($i=0; $i<count($response); $i++){
             $productId='product_ID='.$response[$i]['product_ID'];
@@ -23,7 +24,7 @@ class SaleModel{
 
         if($json==null)$json = file_get_contents('php://input');       //"php://input" is a read-only stream that allows you to read raw data from the request body
         $data_in = json_decode($json, true);               //Decoding json data returns an ARRAY if the parameter is TRUE, an OBJECT if it is FALSE
-        
+
         $b_n = Db::Select("tbl_sale", "MAX(bill_number)");
         foreach($data_in as $data){
             if(isset($data['staff_ID']) && isset($data['customer_ID']) && isset($data['product_ID']) && isset($data['quantity_sale'])
@@ -32,6 +33,7 @@ class SaleModel{
                 
                 $number = explode("-", $b_n[0]["MAX(bill_number)"]);
                 $num=$number[2]+1;
+                $comment='';
 
                 while(strlen($num)<6) $num="0".$num;
 
@@ -42,6 +44,10 @@ class SaleModel{
                 .$data['product_ID'].","
                 .$data['quantity_sale'].",'"
                 .$bill_number."'";
+                if(isset($data['comment'])){
+                    $values.=",'".$data['comment']."'";
+                    $comment=',comment';
+                }
             }else{
                 http_response_code(406);
                 $response = ([
@@ -51,7 +57,7 @@ class SaleModel{
                 return $response;
             }
            
-            $columns='staff_ID,customer_ID,product_ID,quantity_sale,bill_number';
+            $columns='staff_ID,customer_ID,product_ID,quantity_sale,bill_number'.$comment;
             
             $values=implode(",", array($values));                                               //Convert to string 
             Db::Insert('tbl_sale', $columns, $values);                                          //Call the insert function with columns and values
@@ -59,7 +65,7 @@ class SaleModel{
             $response=Db::Select('tbl_sale', '*','sale_ID='.$last_insert_id);                   //Retrieves the entire row based on "id"
         }
         http_response_code(201);
-        return $response;
+        return $data;
     }
     public static function updateSaleFromJSON($id){         //Updates the table data with the received data
 
@@ -69,7 +75,7 @@ class SaleModel{
         if(!$data==null){
             foreach ($data as $x => $y) {
                 if($x=='staff_ID' && is_int($y) || $x=='customer_ID' && is_int($y) || $x=='product_ID' && is_int($y) || 
-                $x=='quantity_sale' && is_int($y) || $x=='bill_number' && is_string($y)){
+                $x=='quantity_sale' && is_int($y) || $x=='bill_number' && is_string($y) || $x=='comment' && is_string($y)){
                     array_push($col_val, "$x=$y");                  //Compiles the data from the received array into a new array by key-value pair
                 };
             };
@@ -89,21 +95,36 @@ class SaleModel{
             return $response;
         }
     }
-    public static function deleteSaleById($id){
+    public static function deleteSaleByBillNumber($in){
         // Db::SetFKChecks(0);
         // $where='sale_ID='.$id;
         // $rows=Db::Delete('tbl_sale', $where);       
         // Db::SetFKChecks(1);
         // $response='Deleted '.$rows.' rows';
-        $data=self::getSaleById($id);
-        $request=array(
-                "staff_ID"=>$data[0]['staff_ID'],
-                "customer_ID"=>$data[0]['customer_ID'],
-                "product_ID"=>$data[0]['product_ID'],
-                "quantity_sale"=>$data[0]['quantity_sale']*-1,
-                "bill_number"=>$data[0]['bill_number']
-        );
-
+        $data=self::getSaleByBillNumber($in);
+        $invoice=Db::Select("tbl_sale", "*");
+        foreach($invoice as $in){
+            if($in['comment']=="A(z) ".$data[0]['bill_number']." számú számla jóváírása."){
+                http_response_code(406);
+                $response = ([
+                    "response" => "error",
+                    "message" => "Ehhez a számlához már készült jóváíró számla!"
+                ]);
+                return $response;
+                exit;
+            }
+        }
+        $request=array();
+        for($i=0; $i<count($data); $i++){
+            $a=array(
+                "staff_ID"=>$data[$i]['staff_ID'],
+                "customer_ID"=>$data[$i]['customer_ID'],
+                "product_ID"=>$data[$i]['product_ID'],
+                "quantity_sale"=>$data[$i]['quantity_sale']*-1,
+                "comment"=>"A(z) ".$data[$i]['bill_number']." számú számla jóváírása."
+            );
+            array_push($request, $a);
+        }
         $response=self::setSaleFromJSON(json_encode($request));
         return $response;
     }

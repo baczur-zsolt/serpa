@@ -1,8 +1,8 @@
 <?php
     class SaleController{
         
-        public static function getSale($id=null){
-            $response=SaleModel::getSaleById($id);
+        public static function getSale($in=null){
+            $response=SaleModel::getSaleByBillNumber($in);
             echo json_encode($response);
         }
         public static function setSale(){ 
@@ -13,8 +13,8 @@
             $response=SaleModel::updateSaleFromJSON($id);
             echo json_encode($response);
         }
-        public static function deleteSale($id){
-            $response=SaleModel::deleteSaleById($id);
+        public static function deleteSale($in){
+            $response=SaleModel::deleteSaleByBillNumber($in);
             echo json_encode($response);
         }
     }
