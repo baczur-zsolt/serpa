@@ -28,7 +28,8 @@ function renderTable() {
 
   let start = (currentPage - 1) * rowsPerPage;
   let end = start + rowsPerPage;
-  let paginatedItems = [...employeesData].reverse().slice(start, end);
+  let filteredEmployees = employeesData.filter(user => user.status === 1);
+let paginatedItems = [...filteredEmployees].reverse().slice(start, end);
 
   paginatedItems.forEach(user => {
     let row = document.createElement("tr");
@@ -160,17 +161,28 @@ document.getElementById("saveChanges").addEventListener("click", async function 
 
 // Törlés
 async function deleteSale(id) {
-    if (!confirm("Biztosan törölni szeretnéd ezt az eladást?")) return;
+    if (!confirm("Biztosan inaktiválni szeretnéd ezt az alkalmazottat?")) return;
 
-    const response = await fetch(`${API_URL}sale/${id}`, {
-        method: "DELETE"
+    const response = await fetch(`${API_URL}employee/${id}`, {
+        method: "PUT", // vagy "PATCH" az API-tól függően
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ status: 0 }) // csak a státuszt módosítjuk
     });
 
     if (response.ok) {
-        employeesData = employeesData.filter(emp => emp.sale_ID != id);
-        renderTable();
+        // Frontenden is frissítjük az adatot
+        const employee = employeesData.find(emp => emp.staff_ID == id);
+        if (employee) {
+            employee.status = 0;
+        }
+
+        // Csak az aktívakat jelenítjük meg
+        const activeEmployees = employeesData.filter(emp => emp.status == 1);
+        renderTable(activeEmployees);
     } else {
-        alert("Hiba a törlés során!");
+        alert("Hiba az inaktiválás során!");
     }
 }
 // Például közvetlenül a script betöltésekor:
@@ -543,8 +555,8 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
 
     const fullName = document.getElementById('newstaff_name').value.trim();
     const nameParts = fullName.split(" ");
-    const first_name = nameParts[0] || "";
-    const last_name = nameParts.slice(1).join(" ") || "";
+    const last_name = nameParts[0] || "";
+    const first_name= nameParts.slice(1).join(" ") || "";
 
     const accessLevelMap = {
         "4": 4, "3": 3, "2": 2, "1": 1
