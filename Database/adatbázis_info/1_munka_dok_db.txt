@@ -215,9 +215,19 @@ SELECT * FROM tbl_staff ;
 
 
 ---------------------------------
+2025.05.07
 cms_db:
 tbl_mycompany -ban kisebb változtatás.
 végső adatbázis.
 
 
+
+---------------------------------
+2025.05.08
+cms_db:
+1.
+insert parancsok, tranzakcióként:
+2025.01.01-től 2025.04.30 ig azaz, 4 hónapra elosztva: havi 5 eladás és 5 bevételezés (rendelés). (összesen 40 tranzakció: 20 eladás és 20 rendelés)
+2.
+jobb email címek
 

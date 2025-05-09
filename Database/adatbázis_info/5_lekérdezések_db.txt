@@ -175,5 +175,70 @@ JOIN tbl_customer ON tbl_sale.customer_ID = tbl_customer.customer_ID
 JOIN tbl_product ON tbl_sale.product_ID = tbl_product.product_ID
 ORDER BY tbl_sale.sale_ID ASC;
 
+-- 2024 től tranzakciók:
+-- tbl_sale és tbl_finance:
+SELECT 
+    tbl_finance.finance_ID, 
+    tbl_finance.sale_ID, 
+    tbl_finance.balance, 
+--    tbl_finance.date, 
+    tbl_sale.staff_ID, 
+    tbl_sale.customer_ID, 
+    tbl_sale.product_ID, 
+    tbl_sale.quantity_sale,
+    tbl_sale.total_price AS sale_total_price, 
+--    tbl_sale.bill_number, 
+    tbl_sale.sale_date
+FROM tbl_finance
+INNER JOIN tbl_sale ON tbl_finance.sale_ID = tbl_sale.sale_ID
+ORDER BY finance_ID;
 
+SELECT 
+    tbl_finance.finance_ID, 
+    tbl_finance.buy_ID, 
+    tbl_finance.balance, 
+--    tbl_finance.date, 
+    tbl_buy.staff_ID, 
+    tbl_buy.customer_ID, 
+    tbl_buy.product_ID, 
+    tbl_buy.quantity_buy,
+    tbl_buy.total_price AS buy_total_price, 
+--    tbl_buy.bill_number, 
+    tbl_buy.buy_date
+FROM tbl_finance
+INNER JOIN tbl_buy ON tbl_finance.buy_ID = tbl_buy.buy_ID
+ORDER BY finance_ID;
 
+-- mind 3 tábla: tbl_finance, tbl_sale, tbl_buy
+SELECT 
+    tbl_finance.finance_ID,
+    tbl_finance.balance,
+    tbl_finance.date,
+
+    -- Eladás mezők
+    tbl_sale.sale_ID,
+    tbl_sale.staff_ID AS sale_staff_ID,
+    tbl_sale.customer_ID AS sale_customer_ID,
+    tbl_sale.product_ID AS sale_product_ID,
+    tbl_sale.quantity_sale,
+    tbl_sale.total_price AS sale_total_price,
+    tbl_sale.bill_number AS sale_bill_number,
+    tbl_sale.sale_date,
+
+    -- Rendelés mezők
+    tbl_buy.buy_ID,
+    tbl_buy.staff_ID AS buy_staff_ID,
+    tbl_buy.customer_ID AS buy_customer_ID,
+    tbl_buy.product_ID AS buy_product_ID,
+    tbl_buy.quantity_buy,
+    tbl_buy.total_price AS buy_total_price,
+    tbl_buy.bill_number AS buy_bill_number,
+    tbl_buy.buy_date,
+
+    -- Tranzakció ideje (eladás vagy rendelés dátuma (az egyik mindig NULL): mindig visszaadja a nem NULL értéket!)
+    COALESCE(tbl_sale.sale_date, tbl_buy.buy_date) AS tranzakcio_ido
+
+FROM tbl_finance
+LEFT JOIN tbl_sale ON tbl_finance.sale_ID = tbl_sale.sale_ID
+LEFT JOIN tbl_buy ON tbl_finance.buy_ID = tbl_buy.buy_ID
+ORDER BY tbl_finance.finance_ID;
