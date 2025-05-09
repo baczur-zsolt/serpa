@@ -5,7 +5,7 @@ const tableBody = document.querySelector("#employeesTable tbody");
 const rowsPerPage = 10;
 let currentPage = 1;
 let employeesData = [];
-
+let originalEmail = ""
 
 
 fetch(`${API_URL}employee`)
@@ -724,84 +724,85 @@ if (partner) {
     
 
     function openEditModal(partner) {
-        if (!partner) {
-            console.warn("Nincs átadott partner!");
-            return;
-        }
-
-        const fullName = `${partner.last_name || ""} ${partner.first_name || ""}`.trim();
-        editName.value = fullName;
-        editEmail.value = partner.email || "";
-        editPosition.value = editPosition.value = partner.status?.toString() || "1";
-        editPhone.value = partner.phone_number || "";
-        editZip.value = partner.zipcode|| "";
-        editCity.value = partner.address_city|| "";
-        editStreet.value = partner.address_street || "";
-        editHouse.value = partner.address_number || "";
-
-        saveChanges.dataset.id = partner.staff_ID;
-
-        editModal.classList.remove("hidden");
+    if (!partner) {
+        console.warn("Nincs átadott partner!");
+        return;
     }
+
+    const fullName = `${partner.last_name || ""} ${partner.first_name || ""}`.trim();
+    editName.value = fullName;
+    editEmail.value = partner.email || "";
+    editPosition.value = partner.status?.toString() || "1";
+    editPhone.value = partner.phone_number || "";
+    editZip.value = partner.zipcode || "";
+    editCity.value = partner.address_city || "";
+    editStreet.value = partner.address_street || "";
+    editHouse.value = partner.address_number || "";
+
+    saveChanges.dataset.id = partner.staff_ID;
+
+    // 💡 Itt frissítjük az eredeti e-mailt
+    originalEmail = partner.email || "";
+
+    editModal.classList.remove("hidden");
+}
 
     closeUserSettingsMenuModal.addEventListener("click", function () {
         editModal.classList.add("hidden");
     });
 
     saveChanges.addEventListener("click", async function () {
-        const id = this.dataset.id;
+    const id = this.dataset.id;
 
-        const fullName = editName.value.trim();
-        const nameParts = fullName.split(" ");
-        const lastName = nameParts[0] || "";
-        const firstName = nameParts.slice(1).join(" ") || "";
+    const fullName = editName.value.trim();
+    const nameParts = fullName.split(" ");
+    const lastName = nameParts[0] || "";
+    const firstName = nameParts.slice(1).join(" ") || "";
 
-        const accessLevelMap = {
+    const accessLevelMap = {
         "Adminisztrátor": 4,
         "Vezető": 3,
         "Vezető Eladó": 2,
         "Eladó": 1
-        };
+    };
 
-        const selectedPositionText = editPosition.options[editPosition.selectedIndex];
-        const accessLevel = parseInt(editPosition.value);
+    const selectedPositionText = editPosition.options[editPosition.selectedIndex];
+    const accessLevel = parseInt(editPosition.value);
 
-        
-
-
-        const updatedData = {
+    const updatedData = {
         last_name: lastName,
         first_name: firstName,
-        email: editEmail.value,
         position: selectedPositionText,
         phone_number: editPhone.value,
-        access_level: accessLevel, // <-- ez az új sor
+        access_level: accessLevel,
         zipcode: editZip.value,
         address_city: editCity.value,
         address_street: editStreet.value,
         address_number: editHouse.value
-        };
+    };
 
-        console.log("Küldött adat:", updatedData);
+    // Csak akkor add hozzá az emailt, ha változott
+    if (editEmail.value !== originalEmail) {
+        updatedData.email = editEmail.value;
+    }
 
-        const response = await fetch(`${API_URL}employee/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updatedData)
-        });
-
-        if (response.ok) {
-            const index = employeesData.findIndex(emp => emp.staff_ID == id);
-
-
-            if (index !== -1) {
-                employeesData[index] = { ...employeesData[index], ...updatedData };
-                renderTable();
-            }
-            editModal.classList.add("hidden");
-        } else {
-            alert("Hiba a frissítés során!");
-            console.error(await response.text());
-        }
+    const response = await fetch(`${API_URL}employee/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData)
     });
+
+    if (response.ok) {
+        const index = employeesData.findIndex(emp => emp.staff_ID == id);
+
+        if (index !== -1) {
+            employeesData[index] = { ...employeesData[index], ...updatedData };
+            renderTable();
+        }
+        editModal.classList.add("hidden");
+    } else {
+        alert("Hiba a frissítés során!");
+        console.error(await response.text());
+    }
+});
 });
