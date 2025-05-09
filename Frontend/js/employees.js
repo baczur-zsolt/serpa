@@ -107,10 +107,9 @@ let paginatedItems = [...filteredEmployees].reverse().slice(start, end);
 
 
 function openEditModal(item) {
-  document.getElementById("editName").value = item.product_name || "";
-  document.getElementById("editEmail").value = item.quantity_sale || "";
-  document.getElementById("editStatus").value = item.total_price || "";
-  document.getElementById("saveChanges").dataset.id = item.sale_ID;
+  document.getElementById("editName").value;
+  document.getElementById("editEmail").value;
+  document.getElementById("saveChanges").dataset.id;
   document.getElementById("editModal").classList.remove("hidden");
 }
 
@@ -120,44 +119,7 @@ document.getElementById("closeUserSettingsMenuModal").addEventListener("click", 
 });
 
 
-// Mentés gomb esemény
-document.getElementById("saveChanges").addEventListener("click", async function () {
-    const id = this.dataset.id;
-    const updatedData = {
-        product_name: document.getElementById("editName").value,
-        quantity_sale: parseInt(document.getElementById("editEmail").value),
-        total_price: parseFloat(document.getElementById("editStatus").value),
-        sale_date: document.getElementById("editPosition").value
-    };
-    
 
-    const response = await fetch(`${API_URL}sale/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedData)
-        
-    });
-    console.log(updatedData);
-    if (response.ok) {
-        const index = employeesData.findIndex(emp => emp.sale_ID == id);
-        employeesData[index] = { ...employeesData[index], ...updatedData };
-        renderTable();
-         // PDF generálása
-        const doc = new jsPDF();
-        doc.setFontSize(16);
-        doc.text("PDF generálás: " + updatedData.product_name, 20, 20);
-        doc.setFontSize(12);
-        doc.text(`Mennyiség: ${updatedData.quantity_sale}`, 20, 30);
-        doc.text(`Ár: ${updatedData.total_price}`, 20, 40);
-        doc.text(`Dátum: ${updatedData.sale_date}`, 20, 50);
-
-        // PDF letöltése
-        doc.save(`sale_${id}.pdf`);
-        document.getElementById("editModal").classList.add("hidden");
-    } else {
-        alert("Hiba a frissítés során!");
-    }
-});
 
 // Törlés
 async function deleteSale(id) {
@@ -715,3 +677,132 @@ function addUser(userData) {
 
 
 
+document.addEventListener("DOMContentLoaded", function () {
+    const editModal = document.getElementById("editModal");
+    const saveChanges = document.getElementById("saveChanges");
+    const closeUserSettingsMenuModal = document.getElementById("closeUserSettingsMenuModal");
+
+    const tableBody = document.getElementById("employeesTable").querySelector("tbody");
+    const mobileView = document.getElementById("mobileView"); // ID, amit használsz a mobilos listához
+
+    // Űrlap mezők
+    const editName = document.getElementById("editName");
+    const editEmail = document.getElementById("editEmail");
+    const editPosition = document.getElementById("editPosition");
+    const editPhone = document.getElementById("editPhone");
+    const editZip = document.getElementById("editZip");
+    const editCity = document.getElementById("editCity");
+    const editStreet = document.getElementById("editStreet");
+    const editHouse = document.getElementById("editHouse");
+
+    let editingRow = null;
+
+    // ASZTALI nézethez
+    tableBody.addEventListener("click", function (event) {
+        const button = event.target.closest(".edit-btn");
+
+        if (button) {
+            const id = button.dataset.id;
+const partner = employeesData.find(emp => emp.staff_ID == id);
+if (partner) {
+    openEditModal(partner);
+}
+        }
+    });
+
+    // MOBIL nézethez
+    mobileView.addEventListener("click", function(e) {
+        const editBtn = e.target.closest(".edit-btn");
+        if (editBtn) {
+            const id = editBtn.dataset.id;
+            const partner = employeesData.find(emp => emp.staff_ID == id);
+            if (partner) {
+                openEditModal(partner);
+            }
+        }
+    });
+
+    
+
+    function openEditModal(partner) {
+        if (!partner) {
+            console.warn("Nincs átadott partner!");
+            return;
+        }
+
+        const fullName = `${partner.last_name || ""} ${partner.first_name || ""}`.trim();
+        editName.value = fullName;
+        editEmail.value = partner.email || "";
+        editPosition.value = editPosition.value = partner.status?.toString() || "1";
+        editPhone.value = partner.phone_number || "";
+        editZip.value = partner.zipcode|| "";
+        editCity.value = partner.address_city|| "";
+        editStreet.value = partner.address_street || "";
+        editHouse.value = partner.address_number || "";
+
+        saveChanges.dataset.id = partner.staff_ID;
+
+        editModal.classList.remove("hidden");
+    }
+
+    closeUserSettingsMenuModal.addEventListener("click", function () {
+        editModal.classList.add("hidden");
+    });
+
+    saveChanges.addEventListener("click", async function () {
+        const id = this.dataset.id;
+
+        const fullName = editName.value.trim();
+        const nameParts = fullName.split(" ");
+        const lastName = nameParts[0] || "";
+        const firstName = nameParts.slice(1).join(" ") || "";
+
+        const accessLevelMap = {
+        "Adminisztrátor": 4,
+        "Vezető": 3,
+        "Vezető Eladó": 2,
+        "Eladó": 1
+        };
+
+        const selectedPositionText = editPosition.options[editPosition.selectedIndex];
+        const accessLevel = parseInt(editPosition.value);
+
+        
+
+
+        const updatedData = {
+        last_name: lastName,
+        first_name: firstName,
+        email: editEmail.value,
+        position: selectedPositionText,
+        phone_number: editPhone.value,
+        access_level: accessLevel, // <-- ez az új sor
+        zipcode: editZip.value,
+        address_city: editCity.value,
+        address_street: editStreet.value,
+        address_number: editHouse.value
+        };
+
+        console.log("Küldött adat:", updatedData);
+
+        const response = await fetch(`${API_URL}employee/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedData)
+        });
+
+        if (response.ok) {
+            const index = employeesData.findIndex(emp => emp.staff_ID == id);
+
+
+            if (index !== -1) {
+                employeesData[index] = { ...employeesData[index], ...updatedData };
+                renderTable();
+            }
+            editModal.classList.add("hidden");
+        } else {
+            alert("Hiba a frissítés során!");
+            console.error(await response.text());
+        }
+    });
+});
