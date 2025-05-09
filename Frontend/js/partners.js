@@ -560,9 +560,9 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
     }
 
     const fullName = document.getElementById('newstaff_name').value.trim();
-    const nameParts = fullName.split(" ");
-    const first_name = nameParts[0];
-    const last_name = nameParts.slice(1).join(" ") || "";
+const nameParts = fullName.split(" ");
+const last_name = nameParts[0];
+const first_name = nameParts.slice(1).join(" ") || "";
 
     // Státusz kiválasztása
     const status = document.getElementById('newstaff_status').value === '1' ? true : false;
