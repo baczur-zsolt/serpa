@@ -4,8 +4,10 @@ class SaleModel{
     
     public static function getSaleByBillNumber($in=null){       //Returns the "tbl_sale" table data based on the "id" request
 
-        $in=str_pad($in, 6, "0", STR_PAD_LEFT);
-        if(!$in==null)$in='bill_number LIKE "%-'.$in.'"';
+        if(!$in==null){
+            $in=str_pad($in, 6, "0", STR_PAD_LEFT);
+            $in='bill_number LIKE "%-'.$in.'"';    
+        }
 
         $response=Db::Select("tbl_sale", "*", $in);     //Querying the "tbl_sale" table with "id"
         
