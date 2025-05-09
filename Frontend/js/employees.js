@@ -120,7 +120,6 @@ document.getElementById("closeUserSettingsMenuModal").addEventListener("click", 
 
 
 
-
 // Törlés
 async function deleteSale(id) {
     if (!confirm("Biztosan inaktiválni szeretnéd ezt az alkalmazottat?")) return;
@@ -130,7 +129,7 @@ async function deleteSale(id) {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ status: 0 }) // csak a státuszt módosítjuk
+        body: JSON.stringify({ status: false })// csak a státuszt módosítjuk
     });
 
     if (response.ok) {
