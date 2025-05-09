@@ -28,7 +28,8 @@ function renderTable() {
 
   let start = (currentPage - 1) * rowsPerPage;
   let end = start + rowsPerPage;
-  let paginatedItems = employeesData.slice(start, end);
+  let filteredEmployees = employeesData.filter(user => user.status === 1);
+let paginatedItems = [...filteredEmployees].reverse().slice(start, end);
 
   paginatedItems.forEach(user => {
     let row = document.createElement("tr");
@@ -160,17 +161,28 @@ document.getElementById("saveChanges").addEventListener("click", async function 
 
 // Törlés
 async function deleteSale(id) {
-    if (!confirm("Biztosan törölni szeretnéd ezt az eladást?")) return;
+    if (!confirm("Biztosan inaktiválni szeretnéd ezt az alkalmazottat?")) return;
 
-    const response = await fetch(`${API_URL}sale/${id}`, {
-        method: "DELETE"
+    const response = await fetch(`${API_URL}employee/${id}`, {
+        method: "PUT", // vagy "PATCH" az API-tól függően
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ status: 0 }) // csak a státuszt módosítjuk
     });
 
     if (response.ok) {
-        employeesData = employeesData.filter(emp => emp.sale_ID != id);
-        renderTable();
+        // Frontenden is frissítjük az adatot
+        const employee = employeesData.find(emp => emp.staff_ID == id);
+        if (employee) {
+            employee.status = 0;
+        }
+
+        // Csak az aktívakat jelenítjük meg
+        const activeEmployees = employeesData.filter(emp => emp.status == 1);
+        renderTable(activeEmployees);
     } else {
-        alert("Hiba a törlés során!");
+        alert("Hiba az inaktiválás során!");
     }
 }
 // Például közvetlenül a script betöltésekor:
@@ -511,8 +523,9 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
     event.preventDefault();
 
     const fields = [
-        { id: 'newstaff_name', errorId: 'error_name' },
+        { id: 'newstaff_name', errorId: 'error_name' }, 
         { id: 'newstaff_email', errorId: 'error_email' },
+        { id: 'newstaff_password', errorId: 'error_password' },
         { id: 'newstaff_access_level', errorId: 'error_position' },
         { id: 'newstaff_phone_number', errorId: 'error_phonenumber' },
         { id: 'newstaff_address_zipcode', errorId: 'error_zipcode' },
@@ -529,7 +542,8 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         const input = document.getElementById(field.id);
         const error = document.getElementById(field.errorId);
 
-        if (!input || input.value === "" || input.value === "Válasszon" || (input.type === "number" && isNaN(input.valueAsNumber))) {
+        if (!input || input.value === "" || input.value === "Válasszon" || 
+            (input.type === "number" && isNaN(input.valueAsNumber))) {
             error.classList.remove('hidden');
             isValid = false;
         } else {
@@ -537,37 +551,32 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         }
     });
 
-    // Ha bármelyik mező hibás, ne küldjük el
-    if (!isValid) {
-        return;
-    }
+    if (!isValid) return;
 
     const fullName = document.getElementById('newstaff_name').value.trim();
     const nameParts = fullName.split(" ");
-    const first_name = nameParts[0] || "";
-    const last_name = nameParts.slice(1).join(" ") || "";
+    const last_name = nameParts[0] || "";
+    const first_name= nameParts.slice(1).join(" ") || "";
 
     const accessLevelMap = {
-        "4": 4,
-        "3": 3,
-        "2": 2,  // Javított duplikált kulcs
-        "1": 1
+        "4": 4, "3": 3, "2": 2, "1": 1
     };
 
     const job_positionMap = {
         "4": "Adminisztrátor",
         "3": "Vezető",
-        "2": "Vezető Eladó",  // Javított duplikált kulcs
+        "2": "Vezető Eladó",
         "1": "Eladó"
     };
     
     const selectedRole = document.getElementById('newstaff_access_level').value;
     const mappedAccessLevel = accessLevelMap[selectedRole] || 0;
-    
 
     const userData = {
         first_name: first_name,
         last_name: last_name,
+        email: document.getElementById('newstaff_email').value,
+        password: document.getElementById('newstaff_password').value,
         birthdate: document.getElementById('newstaff_birthdate').value,
         job_position: job_positionMap[selectedRole],
         access_level: mappedAccessLevel,
@@ -577,25 +586,10 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         address_number: document.getElementById('newstaff_address_housenumber').value,
         phone_number: document.getElementById('newstaff_phone_number').value,
         superbrutto: parseInt(document.getElementById('newstaff_superbrutto').value),
-        status: true
+        status: true,
+        qualification_ID: 1
     };
 
-    // Optional mezők:
-    const qualificationEl = document.getElementById('newstaff_qualification_ID');
-    const commentEl = document.getElementById('newstaff_comment');
-
-    if (qualificationEl && qualificationEl.value) {
-        userData.qualification_ID = parseInt(qualificationEl.value);
-    }
-
-    if (commentEl && commentEl.value.trim()) {
-        userData.comment = commentEl.value.trim();
-    }
-
-    // Logoljuk a küldött adatokat
-    console.log("Küldött adat:", userData);
-
-    // POST kérés
     fetch(`${API_URL}employee`, {
         method: 'POST',
         headers: {
@@ -603,17 +597,88 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         },
         body: JSON.stringify(userData),
     })
-    .then(res => res.text()) // először szövegként kezeljük
-    .then(text => {
-        console.log('Szerver válasz:', text); // Nézd meg ezt a konzolon
-        try {
-            const data = JSON.parse(text);
-            console.log('Érvényes JSON:', data);
-        } catch (e) {
-            console.error('Nem érvényes JSON!', e);
+    .then(res => res.json())
+    .then(data => {
+        console.log('Szerver válasz:', data);
+    
+        if (data.response === 'error' && data.message === 'Létező e-mail cím!') {
+            const emailError = document.getElementById('error_email');
+            emailError.textContent = data.message;
+            emailError.classList.remove('hidden');
+            return;
         }
+    
+        // Mivel a válasz egy tömb, az első elemet kell hozzáadni
+        if (data && data.length > 0) {
+            employeesData.push(data[0]);  // Az első alkalmazott adatainak hozzáadása
+            clearFormFields();
+            modal.classList.add('hidden');
+            overlay.classList.add('hidden');
+            renderTable();  // Táblázat frissítése
+        } else {
+            console.error("Hiba: a válaszban nincs adat.");
+        }
+    })
+    .catch(err => {
+        console.error("Hiba a fetch-ben:", err);
     });
 });
+
+// Figyeljük az e-mail mező változását, hogy eltüntessük a hibaüzenetet
+document.getElementById('newstaff_email').addEventListener('input', function () {
+    const emailError = document.getElementById('error_email');
+    if (!emailError.classList.contains('hidden')) {
+        emailError.classList.add('hidden');
+        emailError.textContent = 'Kötelező mező';
+    }
+
+    
+});
+
+function clearFormFields() {
+    const inputIds = [
+        'newstaff_name',
+        'newstaff_email',
+        'newstaff_password',
+        'newstaff_access_level',
+        'newstaff_phone_number',
+        'newstaff_address_zipcode',
+        'newstaff_address_city',
+        'newstaff_address_street',
+        'newstaff_address_housenumber',
+        'newstaff_superbrutto',
+        'newstaff_birthdate'
+    ];
+
+    inputIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.value = '';
+    });
+
+    // Esetleges hibaszövegek elrejtése
+    const errorIds = [
+        'error_name',
+        'error_email',
+        'error_password',
+        'error_position',
+        'error_phonenumber',
+        'error_zipcode',
+        'error_city',
+        'error_street',
+        'error_housenumber',
+        'error_superbrutto',
+        'error_birthdate'
+    ];
+
+    errorIds.forEach(id => {
+        const error = document.getElementById(id);
+        if (error) {
+            error.classList.add('hidden');
+            error.textContent = "Kötelező mező!"; // vagy amit alapból írsz ki
+        }
+    });
+}
+
 
 
 function addUser(userData) {

@@ -45,8 +45,8 @@
 
                   <div class="flex-1">
                     <label for="seller" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Eladó</label>
-                    <input type="text" name="staff_ID" id="seller" readonly class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500" placeholder="Termék neve" required>
-                    <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                    <input type="text" name="staff_ID" id="seller" readonly class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500" placeholder="Termék neve">
+                    <span class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
                 
                   <div class="flex-1 relative">
@@ -66,8 +66,8 @@
                       <!-- JS betölti -->
                     </ul>
                   
-                    <input type="hidden" name="customer_ID" id="customer_ID" required>
-                    
+                    <input type="hidden" name="customer_ID" id="customer_ID">
+                    <span class="error-message text-red-500 text-sm hidden"></span>
                   </div>
                 
                   
@@ -93,15 +93,15 @@
                         <!-- JS betölti -->
                       </ul>
                     
-                      <input type="hidden" name="product_ID" class="product_ID" required>
+                      <input type="hidden" name="product_ID[]" class="product_ID">
                       
                     </div>
                   
                     <div class="flex-1">
                       <label for="newstaff_email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Mennyiség</label>
-                      <input type="number" name="quantity" id="quantity"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
-                        placeholder="Mennyiség" required>
+                      <input type="number" name="quantity[]" id="quantity"
+                        class="quantity bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
+                        placeholder="Mennyiség">
                       
                     </div>
                   
@@ -126,7 +126,7 @@
 
         
               </div>
-              <div id="productRows"">
+              <div id="productRows">
                 <!-- Dinamikusan hozzáadott mezők itt -->
               </div>
               <div class="mb-4">
@@ -171,14 +171,14 @@
 
                   <div class="flex-1">
                     <label for="seller" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Bevételezés rögzítője</label>
-                    <input type="text" name="seller" id="seller" disabled class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"  required>
+                    <input type="text" name="seller" id="seller" disabled class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500">
                     <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
                 
 
                   <div class="flex-1">
                     <label for="bill_number" class="block mb-2 text-sm font-medium text-gray-900">Számlaszám</label>
-<input type="text" name="bill_number" id="bill_number" class="bill_number_input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5" required>
+<input type="text" name="bill_number" id="bill_number" class="bill_number_input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
                     <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
 
@@ -200,7 +200,7 @@
                     </ul>
                   
                     <input type="hidden" name="supplier_ID" id="supplier_ID">
-                    <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                    <span class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
                 
                   
@@ -214,7 +214,7 @@
                     
                       <button type="button"
                         class="productDropdownBtn w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg px-4 py-2.5 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 relative">
-                        <span class="selectedProduct">Válassz terméket</span>
+                        <span class="selectedProduct" id="">Válassz terméket</span>
                         <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" fill="none"
                           stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                           <path d="M19 9l-7 7-7-7" />
@@ -226,15 +226,15 @@
                         <!-- JS betölti -->
                       </ul>
                     
-                      <input type="hidden" name="product_ID" class="product_ID" required>
+                      <input type="hidden" name="product_ID">
                       <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                     </div>
                   
                     <div class="flex-1">
                       <label for="newstaff_email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Mennyiség</label>
                       <input type="number" name="quantity" id="newstaff_email"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
-                        placeholder="Mennyiség" required>
+                        class="quantity bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
+                        placeholder="Mennyiség">
                       <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                     </div>
                   
@@ -242,7 +242,7 @@
                       <label for="newstaff_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Egységár</label>
                       <input type="text" name="price[]" id="newstaff_status"
                         class="productUnitPrice  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Egységár" disabled>
+                        placeholder="Egységár">
                       <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                     </div>
                     
@@ -259,7 +259,7 @@
 
         
               </div>
-              <div id="productRows"">
+              <div id="productRows">
                 <!-- Dinamikusan hozzáadott mezők itt -->
               </div>
               <div class="mb-4">
@@ -283,6 +283,7 @@
 
     <div id="overlay" class="hidden absolute inset-0 bg-black/50 z-10"></div>
     <div id="BuyingOverlay" class="hidden absolute inset-0 bg-black/50 z-10"></div>
+    <div id="EditingOverlay" class="hidden absolute inset-0 bg-black/50 z-10"></div>
     
     <div id="addNewEmployee" class="mr-5 flex justify-end">
       <button id="openModal" type="button"
@@ -312,30 +313,30 @@
       </button>
       
     </div>
-      <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5">
-        <!-- Asztali nézet: Táblázat -->
-        <div class="hidden md:block">
-            <table id="employeesTable" class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="w-2/12 px-6 py-3 font-medium text-gray-900">Számla</th>
-                        <th class="w-2/12 px-6 py-3 font-medium text-gray-900">Típus</th>
-                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Számla dátuma</th>
-                        <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Partner</th>
-                        <th class="w-5/12 px-6 py-4 font-medium text-gray-900">Összeg</th>
-                        <th class="w-10/12 px-6 py-4 font-medium text-gray-900">Műveletek</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-                    <!-- Ide kerülnek a dinamikusan betöltött sorok -->
-                </tbody>
-            </table>
-        </div>
+    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5">
+      <!-- Desktop nézet (csak nagy képernyőkön) -->
+      <div class="hidden xl:block">
+        <table id="employeesTable" class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="w-2/12 px-6 py-3 font-medium text-gray-900">Számla</th>
+              <th class="w-2/12 px-6 py-3 font-medium text-gray-900">Típus</th>
+              <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Számla dátuma</th>
+              <th class="w-3/12 px-6 py-3 font-medium text-gray-900">Partner</th>
+              <th class="w-5/12 px-6 py-4 font-medium text-gray-900">Összeg</th>
+              <th class="w-10/12 px-6 py-4 font-medium text-gray-900">Műveletek</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 border-t border-gray-100">
+            <!-- Dinamikusan betöltött sorok -->
+          </tbody>
+        </table>
+      </div>
     
-        <!-- Mobil nézet: Kártya formátum -->
-        <div id="mobileView" class="md:hidden space-y-4">
-            <!-- Dinamikusan betöltött kártyák -->
-        </div>
+      <!-- Kártyás nézet tablet és mobil nézetben -->
+<div id="mobileView" class="xl:hidden space-y-4">
+  <!-- Kártyás nézet tartalma ide jön (JS vagy HTML) -->
+</div>
     </div>
 
     <div id="pagination" class="flex justify-center">
@@ -420,7 +421,31 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-
+<template id="productRowTemplate">
+  <div class="flex flex-col sm:flex-row gap-4 w-full productRow">
+    <div class="flex-1 relative">
+      <label class="block mb-2 text-sm font-medium text-gray-900">Termék neve</label>
+      <button type="button"
+        class="productDropdownBtn w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg px-4 py-2.5 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 relative">
+        <span class="selectedProduct">Válassz terméket</span>
+        <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" fill="none"
+          stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <ul class="productOptions absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md text-sm hidden max-h-60 overflow-auto"></ul>
+      <input type="hidden" name="product_ID[]" class="product_ID">
+    </div>
+    <div class="flex-1">
+      <label class="block mb-2 text-sm font-medium text-gray-900">Mennyiség</label>
+      <input type="number" name="quantity[]" class="quantity bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
+    </div>
+    <div class="flex-1">
+      <label class="block mb-2 text-sm font-medium text-gray-900">Egységár</label>
+      <input type="text" name="price[]" class="productUnitPrice bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" readonly>
+    </div>
+  </div>
+</template>
 
 </body>
 </html>

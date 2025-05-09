@@ -1,17 +1,11 @@
 import { API_URL } from './config.js';
 
-
 fetch(`${API_URL}finance`)
-  .then(response => response.json())  // Az adatokat JSON formátumban várjuk
+  .then(response => response.json())
   .then(data => {
-    // A legutolsó adat kiválasztása
-    const latestFinance = data[data.length - 1];  // Az utolsó elem
-
-    // A balance kiíratása a HTML-be
-    const balanceElement = document.getElementById('egyenlegFt');  // Az elem, ahol megjelenítjük
-    balanceElement.textContent = latestFinance.balance;  // A balance értéke kiírása
-
-    // Ha szükséges, itt más adatokat is kiírhatsz
+    const latestFinance = data[data.length - 1];
+    const balanceElement = document.getElementById('egyenlegFt');
+    balanceElement.textContent = latestFinance.balance;
   })
   .catch(error => {
     console.error('Hiba történt az adatok lekérése során:', error);
@@ -86,10 +80,30 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       // ===== 3. Havi kimutatás (12 hónap) =====
-      const yearlyData = filterByDays(365);
-      const monthly = groupBy(yearlyData, d =>
-        d.toLocaleDateString('hu-HU', { year: 'numeric', month: 'short' })
-      );
+      const yearlyData = [];
+      for (let i = 11; i >= 0; i--) {
+        const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+        
+        const monthEntries = data.filter(entry => {
+          const entryDate = parseDate(entry.date);
+          return entryDate >= monthStart && entryDate <= monthEnd;
+        });
+        
+        if (monthEntries.length > 0) {
+          const lastEntry = monthEntries[monthEntries.length - 1];
+          const monthKey = monthStart.toLocaleDateString('hu-HU', { year: 'numeric', month: 'short' });
+          yearlyData.push({
+            date: monthKey,
+            balance: lastEntry.balance
+          });
+        }
+      }
+
+      const monthly = yearlyData.reduce((acc, entry) => {
+        acc[entry.date] = parseFloat(entry.balance);
+        return acc;
+      }, {});
 
       // ===== 4. Profit kiszámítás =====
       const startBalance = parseFloat(data[0].balance);

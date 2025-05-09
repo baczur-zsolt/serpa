@@ -60,7 +60,14 @@
                   </div>
 
                   <div class="col-span-2 sm:col-span-1">
-                    <label for="newstaff_birthdate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Email</label>
+                    <label for="newstaff_email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Jelszó</label>
+                    <input type="password" name="password" id="newstaff_password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
+                    placeholder="Alalmazott e-mail címe" required>
+                    <span id="error_password"class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
+                  </div>
+
+                  <div class="col-span-2 sm:col-span-1">
+                    <label for="newstaff_birthdate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Születési idő</label>
                     <input type="date" name="newstaff_birthdate" id="newstaff_birthdate" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
                     placeholder="Alalmazott e-mail címe" required>
                     <span id="error_birthdate"class="error-message text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
