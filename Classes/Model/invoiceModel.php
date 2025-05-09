@@ -1,12 +1,13 @@
 <?php
     class InvoiceModel{
     
-    public static function getInvoiceById($in){
+    public static function getInvoiceByBillNumber($in){
         if(!isset($in)){
             http_response_code(404);
             exit;
         }
-        if(!$in==null)$in='bill_number LIKE "%'.$in.'"';
+        $in=str_pad($in, 6, "0", STR_PAD_LEFT);
+        if(!$in==null)$in='bill_number LIKE "%-'.$in.'"';
 
         $mySale=Db::Select("tbl_sale LEFT JOIN tbl_staff ON tbl_sale.staff_ID=tbl_staff.staff_ID 
                                     LEFT JOIN tbl_product ON tbl_sale.product_ID=tbl_product.product_ID
