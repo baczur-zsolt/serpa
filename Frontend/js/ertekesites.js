@@ -7,96 +7,71 @@ let currentPage = 1;
 let employeesData = [];
 let productsData = [];
 
-//Felhasználók adatainak lekérése
-//
-//https://67bdcc05321b883e790df6fe.mockapi.io/api/users
+const EXCLUDED_BILLS_KEY = 'excludedBillNumbers'; // localStorage kulcs
 
-
-//Felhasználók törlése a sorból az ikon megnyomásával
-// Felhasználó törlése
-/*
-function deleteUser(selectedUserId) {
-    if (selectedUserId) {
-        fetch(`${API_URL}=${selectedUserId}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-        .then(response => {
-            if (response.ok) {
-                // Sor eltávolítása a DOM-ból
-                document.querySelector(`tr[data-user-id="${selectedUserId}"]`)?.remove();
-                console.log("Sikeresen eltávolítva")
-            } else {
-                alert("Sikertelen törlés");
-            }
-        })
-        .catch(error => console.error("Hiba:", error))
-        .finally(() => {
-            document.getElementById("userDeleteModal").classList.add("hidden");
-        });
+// Kizárt számlaszámok betöltése localStorage-ból
+function loadExcludedBillNumbers() {
+    try {
+        const storedData = localStorage.getItem(EXCLUDED_BILLS_KEY);
+        return storedData ? JSON.parse(storedData) : [];
+    } catch (err) {
+        console.error("Hiba a kizárt számlaszámok betöltésekor:", err);
+        return [];
     }
 }
-*/
-//Felhasználói adatok módosítása
+
+// Kizárt számlaszámok mentése localStorage-ba
+function saveExcludedBillNumbers(billNumbers) {
+    try {
+        localStorage.setItem(EXCLUDED_BILLS_KEY, JSON.stringify(Array.from(billNumbers)));
+    } catch (err) {
+        console.error("Hiba a kizárt számlaszámok mentésekor:", err);
+    }
+}
 
 
 
 
-// Felhasználók törlése a sorból az ikon megnyomásával
-/*
-document.addEventListener("DOMContentLoaded", function () {
-    let selectedUserId = null;
-
-    // Delegált eseménykezelő a kukákhoz
-    document.addEventListener("click", function (event) {
-        let trashIcon = event.target.closest("a"); // Az <a> elemre figyelünk
-        if (trashIcon && trashIcon.querySelector("svg")) {
-            event.preventDefault(); // Ne navigáljon el a "#" miatt
-            selectedUserId = trashIcon.getAttribute("data-user-id");
-
-            // Modal megjelenítése
-            document.getElementById("userDeleteModal").classList.remove("hidden");
-        }
-    });
-
-    // Modal bezárása
-    document.querySelectorAll("[data-modal-hide='userDeleteModal']").forEach(button => {
-        
-        button.addEventListener("click", function () {
-            document.getElementById("userDeleteModal").classList.add("hidden");
-        });
-    });
-    
-    // Törlés megerősítése
-    document.querySelector(".text-white.bg-blue-600").addEventListener("click", function () {
-        deleteUser(selectedUserId); // Külön függvény meghívása
-    });
-});
-*/
 
 Promise.all([
   fetch(`${API_URL}sale`, { cache: "no-store" }),
   fetch(`${API_URL}buy`, { cache: "no-store" }),
-  fetch(`${API_URL}partner`, { cache: "no-store" })
+  fetch(`${API_URL}partner`, { cache: "no-store" }),
+  fetch(`${API_URL}sale`, { cache: "no-store" })
 ])
-  .then(([saleRes, buyRes, partnerRes]) => {
+  .then(([saleRes, buyRes, partnerRes, saleDetailsRes]) => {
     return Promise.all([
       saleRes.json(),
       buyRes.json(),
-      partnerRes.json()
+      partnerRes.json(),
+      saleDetailsRes.json()
     ]);
   })
-  .then(([saleData, buyData, partnerData]) => {
+  .then(([saleData, buyData, partnerData, saleDetails]) => {
     // Kombinált adat létrehozása
     const combinedData = [
-        ...saleData.map(item => ({ ...item, type: "Eladás", id: item.sale_ID, date: item.sale_date })),
-        ...buyData.map(item => ({ ...item, type: "Bevételezés", id: item.buy_ID, date: item.buy_date }))
+      ...saleData.map(item => ({
+        ...item,
+        type: "Eladás",
+        id: item.sale_ID,
+        date: item.sale_date,
+        comment: item.comment?.startsWith("A(z) ") ? item.comment.slice(5) : item.comment
+      })),
+      ...buyData.map(item => ({
+        ...item,
+        type: "Bevételezés",
+        id: item.buy_ID,
+        date: item.buy_date
+      }))
     ];
 
     // Csak azok a tételek, amelyeknél a quantity_sale nem negatív
-    const filteredData = combinedData.filter(item => item.quantity_sale > 0);
+    const filteredData = combinedData.filter(item => {
+      if (item.type === "Eladás") {
+        return item.quantity_sale > 0;
+      }
+      return true; // A bevételezések átmennek
+    });
 
     // Adatok rendezése dátum alapján (legújabb elöl)
     filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -105,109 +80,176 @@ Promise.all([
     employeesData = filteredData;
     productsData = partnerData;
 
+    // Sztornó kapcsolatok felépítése és frissítése
+    updateStornoRelationships();
+
     // Táblázat renderelése
     renderTable();
-})
+  })
   .catch(error => {
     console.error("Hiba az adatok betöltése közben:", error);
   });
 
+// Sztornó kapcsolatok felépítése és localStorage frissítése
+function updateStornoRelationships() {
+    // Gyűjtsük össze a sztornózott és eredeti számlákat
+    const excludedBillNumbers = new Set(loadExcludedBillNumbers());
+    
+    // Először megtaláljuk az összes sztornózott számlát és annak eredeti számláját
+    employeesData.forEach(item => {
+        // Ellenőrizzük, hogy sztornózott számláról van-e szó
+        const isStorno = item.comment && 
+                        (item.comment.includes("jóváírása") || 
+                         item.comment.includes("jóváírás")) &&
+                        (item.quantity_sale < 0 || item.total_price < 0);
+        
+        if (isStorno) {
+            // A sztornó számláját hozzáadjuk a kizárandókhoz
+            if (item.bill_number) {
+                excludedBillNumbers.add(item.bill_number);
+            }
+            
+            // Az eredeti számla azonosítójának kinyerése a kommentből
+            const originalBillNumberMatch = item.comment?.match(/A\(z\) ([^\s]+) számú/);
+            if (originalBillNumberMatch && originalBillNumberMatch[1]) {
+                const originalBillNumber = originalBillNumberMatch[1];
+                // Az eredeti számlát is kizárjuk
+                excludedBillNumbers.add(originalBillNumber);
+                console.log(`Kizárva: Sztornó számla: ${item.bill_number}, Eredeti számla: ${originalBillNumber}`);
+            }
+        }
+    });
+    
+    console.log("Kizárt számlaszámok:", Array.from(excludedBillNumbers));
+    
+    // Mentsük el a localStorage-ba
+    saveExcludedBillNumbers(excludedBillNumbers);
+}
+
 // 🔹 Táblázat frissítése az aktuális oldallal
 function renderTable() {
-  tableBody.innerHTML = "";  // Clear table
-  mobileView.innerHTML = ""; // Clear mobile view
+    tableBody.innerHTML = "";  // Clear table
+    mobileView.innerHTML = ""; // Clear mobile view
 
-  let start = (currentPage - 1) * rowsPerPage;
-  let end = start + rowsPerPage;
-  let paginatedItems = employeesData.slice(start, end);
+    // Kizárt számlaszámok betöltése localStorage-ból
+    const excludedBillNumbers = new Set(loadExcludedBillNumbers());
+    
+    console.log("Renderelés során kizárt számlaszámok:", Array.from(excludedBillNumbers));
+    
+    // Szűrjük az adatokat, hogy kizárjuk mind a sztornó, mind az eredeti számlákat
+    const filteredData = employeesData.filter(item => {
+        // Ha nincs számlaszám, megtartjuk (bevételezés lehet)
+        if (!item.bill_number) {
+            return true;
+        }
+        
+        // Ha a számlaszám szerepel a kizárandók között, akkor kiszűrjük
+        if (excludedBillNumbers.has(item.bill_number)) {
+            console.log(`Kiszűrt számla: ${item.bill_number}`);
+            return false;
+        }
+        
+        return true;
+    });
 
-  paginatedItems.forEach(user => {
-    const customer = productsData.find(p => p.customer_ID === user.customer_ID);
-    const customerName = customer ? `${customer.last_name} ${customer.first_name}` : "N/A";
-    const transactionType = user.type || "Eladás";
-    const customerStatus = customer ? (customer.status === 0 ? "Vásárló" : "Beszállító") : "N/A";
+    console.log(`Eredeti adatok száma: ${employeesData.length}, Szűrt adatok száma: ${filteredData.length}`);
 
-    // Table row
-    let row = document.createElement("tr");
-    row.classList.add("hover:bg-gray-100");
-    row.id = user.id;
-    row.innerHTML = `
-      <td class="hidden">${user.id || user.buy_ID || user.sale_ID}</td>
-      <td class="px-6 py-4">${user.bill_number}</td>
-      <td class="px-6 py-4">${transactionType}</td>
-      <td class="px-6 py-4">
-        ${user.sale_date ? `${user.sale_date}<br>` : ""}
-        ${user.buy_date ? `${user.buy_date}` : ""}
-      </td>
-      <td class="px-6 py-4">${customerName}</td>
-      <td class="px-6 py-4">${user.total_price + " Ft"}</td>
-      <td class="px-6 py-4">
-        <div class="flex justify-center gap-4">
-          ${transactionType === "Eladás" ? `
-            <button class="view-btn desktop-view-btn" view-bill="${user.bill_number}">
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7">
-                <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"/>
-              </svg>
-            </button>
-            <button class="download-btn desktop-download-btn" data-bill="${user.bill_number}">
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7">
-                <path d="M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z"/>
-              </svg>
-            </button>
-          ` : ""}
+    let start = (currentPage - 1) * rowsPerPage;
+    let end = start + rowsPerPage;
+    let paginatedItems = filteredData.slice(start, end);
 
-          <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.sale_ID || user.buy_ID}">
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ff6666">
-              <path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z"/>
-            </svg>
-          </button>
-        </div>
-      </td>
-    `;
-    tableBody.appendChild(row);
+    // Táblázat renderelése
+    paginatedItems.forEach(user => {
+        const customer = productsData.find(p => p.customer_ID === user.customer_ID);
+        const customerName = customer ? `${customer.last_name} ${customer.first_name}` : "N/A";
+        const transactionType = user.type || "Eladás";
+        const customerStatus = customer ? (customer.status === 0 ? "Vásárló" : "Beszállító") : "N/A";
 
-    // Create mobile card view
-    const mobileCard = document.createElement("div");
-    mobileCard.className = "bg-white shadow-md rounded-lg p-4 mb-4 border border-gray-200";
-    mobileCard.setAttribute("data-id", user.customer_ID);
-    mobileCard.innerHTML = `
-      <div class="flex justify-between">
-        <h3 class="text-lg font-semibold text-gray-900">${customerName}</h3>
-        <div class="flex gap-2">
-        <button class="view-btn desktop-view-btn" view-bill="${user.bill_number}">
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7">
-                <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"/>
-              </svg>
-            </button>
-<button class="download-btn desktop-download-btn" data-bill="${user.bill_number}">
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7">
-                <path d="M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z"/>
-              </svg>
-            </button>
-         
-          <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.customer_ID}">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <p class="text-sm text-gray-500">Adószám: ${customer ? customer.tax_number : "N/A"}</p>
-      <p class="text-sm">${customerStatus}</p>
-      <p class="text-sm text-gray-500">Irányítószám: ${customer ? customer.zipcode : "N/A"}</p>
-      <p class="text-sm text-gray-500">Város: ${customer ? customer.address_city : "N/A"}</p>
-      <p class="text-sm text-gray-500">Utca: ${customer ? customer.address_street : "N/A"}</p>
-      <p class="text-sm text-gray-500">Házszám: ${customer ? customer.address_number : "N/A"}</p>
-    `;
-    mobileView.appendChild(mobileCard); // Kártyák hozzáadása a mobil nézethez
-  });
+        // Table row
+        let row = document.createElement("tr");
+        row.classList.add("hover:bg-gray-100");
+        row.id = user.id;
+        row.innerHTML = `
+            <td class="hidden">${user.id || user.buy_ID || user.sale_ID}</td>
+            <td class="px-6 py-4">${user.bill_number}</td>
+            <td class="px-6 py-4 font-semibold ${transactionType === "Eladás" ? 'text-green-500' : 'text-red-500'}">
+                ${transactionType}
+            </td>
+            <td class="px-6 py-4">
+                ${user.sale_date ? `${user.sale_date}<br>` : ""}
+                ${user.buy_date ? `${user.buy_date}` : ""}
+            </td>
+            <td class="px-6 py-4">${customerName}</td>
+            <td class="px-6 py-4">${user.total_price + " Ft"}</td>
+            <td class="px-6 py-4">
+                <div class="flex justify-center gap-4">
+                    ${transactionType === "Eladás" ? `
+                        <button class="view-btn desktop-view-btn" view-bill="${user.bill_number}">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7">
+                                <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"/>
+                            </svg>
+                        </button>
+                        <button class="download-btn desktop-download-btn" data-bill="${user.bill_number}">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7">
+                                <path d="M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z"/>
+                            </svg>
+                        </button>
+                    ` : ""}
 
-  generatePageNumbers();
-  window.scrollTo({
-    top: 0,
-    left: 0,
-    behavior: 'smooth' // Smooth scroll to top
-  });
+                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.bill_number || user.bill_number}">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ff6666">
+                            <path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </td>
+        `;
+        tableBody.appendChild(row);
+
+        // Create mobile card view
+        const mobileCard = document.createElement("div");
+        mobileCard.className = "bg-white shadow-md rounded-lg p-4 mb-4 border border-gray-200";
+        mobileCard.setAttribute("data-id", user.customer_ID);
+        mobileCard.innerHTML = `
+            <div class="flex justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">${customerName}</h3>
+                <div class="flex gap-2">
+                    ${transactionType === "Eladás" ? `
+                        <button class="view-btn desktop-view-btn" view-bill="${user.bill_number}">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7">
+                                <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"/>
+                            </svg>
+                        </button>
+                        <button class="download-btn desktop-download-btn" data-bill="${user.bill_number}">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#009df7">
+                                <path d="M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z"/>
+                            </svg>
+                        </button>
+                    ` : ""}
+                    
+                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.bill_number}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500">Adószám: ${customer ? customer.tax_number : "N/A"}</p>
+            <p class="text-sm">${customerStatus}</p>
+            <p class="text-sm text-gray-500">Irányítószám: ${customer ? customer.zipcode : "N/A"}</p>
+            <p class="text-sm text-gray-500">Város: ${customer ? customer.address_city : "N/A"}</p>
+            <p class="text-sm text-gray-500">Utca: ${customer ? customer.address_street : "N/A"}</p>
+            <p class="text-sm text-gray-500">Házszám: ${customer ? customer.address_number : "N/A"}</p>
+        `;
+        mobileView.appendChild(mobileCard);
+    });
+
+    generatePageNumbers();
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+    });
 }
 
 /*
@@ -231,6 +273,225 @@ Promise.all([
 window.addEventListener('resize', () => {
   renderTable();
 });
+
+// Segédfüggvény a sztornózott számlák szűréséhez
+function filterOutStornoInvoices(invoices) {
+    const stornoOriginalNumbers = new Set();
+    
+    // 1. Gyűjtsük össze az eredeti számlaszámokat a sztornók commentjeiből
+    invoices.forEach(invoice => {
+        if (invoice.comment && invoice.comment.includes("jóváírása")) {
+            const match = invoice.comment.match(/A\(z\) (.*?) számú számla jóváírása/);
+            if (match && match[1]) {
+                stornoOriginalNumbers.add(match[1]);
+            }
+        }
+    });
+    
+    // 2. Szűrjük ki a sztornókat és az eredeti számlákat is
+    return invoices.filter(invoice => {
+        // Ha ez egy sztornó számla
+        if (invoice.comment && invoice.comment.includes("jóváírása")) {
+            return false;
+        }
+        
+        // Ha ehhez a számlához van sztornó
+        if (stornoOriginalNumbers.has(invoice.bill_number)) {
+            return false;
+        }
+        
+        return true;
+    });
+}
+
+
+
+
+// Törlés
+async function deleteSale(billNumber) {
+    console.log("Törléshez használt billNumber:", billNumber);
+    
+    if (!billNumber) {
+        alert("Érvénytelen számlaszám!");
+        return;
+    }
+
+    // Számlaszám feldolgozása
+    const billNumberParts = billNumber.split('-');
+    const billNumberSuffix = billNumberParts[billNumberParts.length - 1].padStart(6, '0');
+
+    // Elem keresése - figyelünk a nullish értékekre is
+    const item = employeesData.find(emp => {
+        if (!emp.bill_number) return false;
+        const empParts = emp.bill_number.split('-');
+        return empParts[empParts.length - 1] === billNumberSuffix;
+    });
+
+    if (!item) {
+        alert(`Nem található az elem a megadott számlaszámmal: ${billNumber}`);
+        return;
+    }
+
+    // Már létező sztornó ellenőrzése
+    const existingStorno = employeesData.find(emp => 
+        emp.comment?.includes(`A(z) ${item.bill_number} számú számla jóváírása.`));
+
+    if (existingStorno) {
+        alert("Ehhez a számlához már készült jóváíró számla!");
+        return;
+    }
+
+    // Ellenőrizzük, hogy ez a számla nem maga is egy sztornó-e
+    if (item.quantity_sale < 0 || item.total_price < 0 || 
+        (item.comment && item.comment.includes("jóváírása"))) {
+        alert("Ez a számla már maga is egy sztornó számla, ezt nem lehet sztornózni!");
+        return;
+    }
+
+    if (!confirm(`Biztosan sztornóznád a(z) ${item.bill_number} számú számlát?`)) return;
+
+    try {
+        // Sztornó adatok előkészítése
+        const itemsToReverse = employeesData.filter(emp => emp.bill_number === item.bill_number);
+        
+        if (itemsToReverse.length === 0) {
+            alert("Nem találhatók a sztornózandó számla tételei!");
+            return;
+        }
+
+        const reversalData = itemsToReverse.map(emp => ({
+            staff_ID: emp.staff_ID,
+            customer_ID: emp.customer_ID,
+            product_ID: emp.product_ID,
+            quantity_sale: emp.quantity_sale * -1, // Negatív értékkel állítjuk be
+            comment: `A(z) ${emp.bill_number} számú számla jóváírása.`
+        }));
+
+        // API hívás
+        const response = await fetch(`${API_URL}sale/delete/${billNumberSuffix}`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(reversalData)
+        });
+
+        let responseText = '';
+        try {
+            responseText = await response.text();
+        } catch (err) {
+            console.error("Válasz szöveg olvasási hiba:", err);
+        }
+
+        if (!response.ok) {
+            throw new Error(responseText || `HTTP hiba! Státusz: ${response.status}`);
+        }
+
+        // A szerver válaszának feldolgozása
+        let result;
+        try {
+            // Csak akkor próbáljuk JSON-ként értelmezni, ha tényleg van tartalom
+            if (responseText && responseText.trim()) {
+                result = JSON.parse(responseText);
+            }
+        } catch (err) {
+            console.error("Válasz JSON feldolgozási hiba:", err);
+            // Nem állítjuk le a folyamatot, lehet, hogy nem JSON választ kaptunk
+        }
+
+        // Sikeres sztornózás feldolgozása - akár kaptunk JSON választ, akár nem
+        if (result && Array.isArray(result) && result.length > 0) {
+            // Szerver által visszaadott sztornó számlák hozzáadása
+            employeesData.push(...result);
+            console.log("Sztornó sikeres, szerver által visszaadott adatok hozzáadva:", result);
+        } else {
+            console.warn("A szerver nem adott vissza elemeket, manuálisan adjuk hozzá a sztornó tételt");
+            
+            // Segédfüggvény az új számlaszám generálásához, ha nincs definiálva
+            const generateNewBillNumber = () => {
+                // Ha van ilyen függvény, használd azt
+                if (typeof window.generateNewBillNumber === 'function') {
+                    return window.generateNewBillNumber();
+                }
+                
+                // Ha nincs, generálunk egy ideiglenes számlaszámot
+                const date = new Date();
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                
+                return `STORNO-${year}${month}${day}-${random}`;
+            };
+            
+            // Sztornó tételek létrehozása
+            const newItems = reversalData.map(item => {
+                // A megfelelő termék nevének megtalálása
+                const originalItem = employeesData.find(e => e.product_ID === item.product_ID);
+                
+                return {
+                    ...item,
+                    type: "Eladás",
+                    bill_number: generateNewBillNumber(),
+                    product_name: originalItem?.product_name || "Ismeretlen termék",
+                    date: new Date().toISOString().split('T')[0], // Mai dátum
+                    total_price: -(originalItem?.total_price || 0), // Negatív érték
+                    id: `storno_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` // Egyedi azonosító
+                };
+            });
+            
+            employeesData.push(...newItems);
+        }
+
+        // Mentsük el a sztornózott és az eredeti számlát a kizártakhoz
+        const excludedBillNumbers = new Set(loadExcludedBillNumbers());
+        
+        // Az eredeti számla kizárása
+        excludedBillNumbers.add(item.bill_number);
+        
+        // Az új sztornó számla kizárása (ha van)
+        if (result && Array.isArray(result) && result.length > 0) {
+            result.forEach(storno => {
+                if (storno.bill_number) excludedBillNumbers.add(storno.bill_number);
+            });
+        }
+        
+        // Mentsük el a frissített kizárt számlákat
+        saveExcludedBillNumbers(excludedBillNumbers);
+        
+        alert("Sikeres sztornózás! Jóváíró számla létrehozva.");
+        
+        // Frissítsük a sztornó kapcsolatokat és rendereljük újra a táblázatot
+        updateStornoRelationships();
+        renderTable();
+
+    } catch (err) {
+        console.error("Sztornó hiba:", err);
+        alert(`Hiba történt a sztornózás során: ${err.message}`);
+    }
+}
+
+
+// Segédfüggvény az új számlaszám generálásához
+function generateNewBillNumber() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const prefix = `ST-${year}-`;
+    
+    const lastStorno = employeesData
+        .filter(e => e.bill_number.startsWith(prefix))
+        .sort()
+        .pop();
+    
+    const lastNumber = lastStorno 
+        ? parseInt(lastStorno.bill_number.split('-')[2]) 
+        : 0;
+    
+    return `${prefix}${String(lastNumber + 1).padStart(6, '0')}`;
+}
+
 
 //Event delegation a különböző gombokhoz
 document.addEventListener('click', function(event) {
@@ -383,26 +644,7 @@ document.getElementById("saveChanges").addEventListener("click", async function 
     }
 });
 
-// Törlés
-async function deleteSale(id) {
-  const item = employeesData.find(emp => emp.id == id);
-  if (!item) return alert("Nem található az elem.");
 
-  const endpoint = item.type === "Eladás" ? "sale" : "buy";
-
-  if (!confirm("Biztosan törölni szeretnéd ezt az elemet?")) return;
-
-  const response = await fetch(`${API_URL}${endpoint}/${id}`, {
-    method: "DELETE"
-  });
-
-  if (response.ok) {
-    employeesData = employeesData.filter(emp => emp.id != id);
-    renderTable();
-  } else {
-    alert("Hiba a törlés során!");
-  }
-}
 function editSale(id) {
   const item = employeesData.find(emp => emp.id == id);
 
@@ -616,10 +858,11 @@ document.getElementById('applyNewStaff').addEventListener('click', async functio
     }];
 
     try {
-      const response = await submitSaleData(saleData);
       
+      const response = await submitSaleData(saleData);
+      console.log("Kapott válasz a submitSaleData-tól:", response);
       // Sikeres válasz kezelése
-      if (Array.isArray(response) && response[0] && response[0].sale_ID) {
+      if (response && response.staff_ID && response.customer_ID) {
         // Űrlap alaphelyzetbe állítása
         form.reset();
         
@@ -635,6 +878,7 @@ document.getElementById('applyNewStaff').addEventListener('click', async functio
         
         // Sikeres üzenet
         alert('Sikeres eladás!');
+        location.reload()
       } else {
         throw new Error("Hibás válasz a szervertől");
       }
@@ -1262,8 +1506,8 @@ function fillDropdown(options, selectedProduct, productInput, data, button) {
         const priceInput = fullRow ? fullRow.querySelector('.productUnitPrice') : null;
         
         // Itt a beszerzési árat (product_price) használjuk bevételzésnél
-        if (priceInput && product.product_price !== undefined) {
-          priceInput.value = product.product_price;
+        if (priceInput && product.product_profit_price !== undefined) {
+          priceInput.value = product.product_profit_price;
         }
       });
 
@@ -1520,42 +1764,41 @@ function fillDropdown(options, selectedProduct, productInput, data, button) {
   }
 
 // Törlés 
+async function deleteSaleByBillNumber(billNumber) {
+  const item = employeesData.find(emp => emp.bill_number.endsWith(`-${billNumber}`));
+  if (!item) return alert("Nem található az elem a megadott számlaszámmal.");
 
-async function deleteSale(id) {
-  const item = employeesData.find(emp => emp.id == id);
-  if (!item) return alert("Nem található az elem.");
+  if (!confirm(`Biztosan sztornóznád a(z) ${item.bill_number} számú számlát?`)) return;
 
-  if (!confirm("Biztosan sztornóznád ezt az eladást?")) return;
+  try {
+    const response = await fetch(`${API_URL}sale/delete/${billNumber}`, {
+      method: "POST"
+    });
 
-  const response = await fetch(`${API_URL}sale/delete/${id}`, {
-    method: "POST"
-  });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Hiba történt a sztornózás során.");
+    }
 
-  if (response.ok) {
-    alert("Sikeres sztornózás!");
+    const newItems = await response.json();
 
-    // A sztornózott elem frissítése a negatív mennyiséggel
-    const updatedItem = { ...item, quantity_sale: item.quantity_sale * -1 };
+    if (!Array.isArray(newItems)) {
+      throw new Error("Hibás válaszformátum a szervertől.");
+    }
 
-    // Frissítem a helyi adatokat a sztornózott tétellel
-    employeesData = employeesData.map(emp =>
-      emp.id === id ? updatedItem : emp
-    );
+    alert("Sikeres sztornózás! Mínuszos számla létrehozva.");
 
-    // Szűröm ki a sztornózott tételeket
-    const filteredData = employeesData.filter(emp => emp.quantity_sale > 0);
-
-    // Frissítem a táblázatot
-    employeesData = filteredData;
-
-    // Ellenőrizzük, hogy az adatok valóban frissültek-e
-    console.log("Frissített adat: ", employeesData);
+    // Hozzáadjuk a mínuszos számlasorokat
+    employeesData.push(...newItems);
 
     renderTable();
-  } else {
-    alert("Hiba a sztornózás során!");
+  } catch (err) {
+    console.error("Sztornó hiba:", err);
+    alert(`Hiba: ${err.message}`);
   }
 }
+
+
 
 
 // Szerkesztés 
