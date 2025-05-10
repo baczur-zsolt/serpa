@@ -9,8 +9,8 @@
             $response=SaleModel::setSaleFromJSON(); 
             echo json_encode($response);
         }
-        public static function updateSale($id){
-            $response=SaleModel::updateSaleFromJSON($id);
+        public static function updateSale(){
+            $response=SaleModel::updateSaleFromJSON();
             echo json_encode($response);
         }
         public static function deleteSale($in){
