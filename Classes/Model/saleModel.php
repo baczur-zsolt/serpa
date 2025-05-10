@@ -69,40 +69,38 @@ class SaleModel{
         http_response_code(201);
         return $data;
     }
-    public static function updateSaleFromJSON($id){         //Updates the table data with the received data
+    public static function updateSaleFromJSON(){         //Updates the table data with the received data
 
         $json = file_get_contents('php://input');           //"php://input" is a read-only stream that allows you to read raw data from the request body
         $data = json_decode($json, true);                   //Decoding json data returns an ARRAY if the parameter is TRUE, an OBJECT if it is FALSE
-        $col_val=array();
-        if(!$data==null){
-            foreach ($data as $x => $y) {
-                if($x=='staff_ID' && is_int($y) || $x=='customer_ID' && is_int($y) || $x=='product_ID' && is_int($y) || 
-                $x=='quantity_sale' && is_int($y) || $x=='bill_number' && is_string($y) || $x=='comment' && is_string($y)){
-                    array_push($col_val, "$x=$y");                  //Compiles the data from the received array into a new array by key-value pair
+
+        $rows=0;
+        foreach($data as $d){
+            $col_val=array();
+            if(!$d==null){
+                foreach ($d as $x => $y) {
+                    if((isset($d['sale_ID']) && is_int($d['sale_ID'])) && ($x=='staff_ID' && is_int($y) || $x=='customer_ID' && is_int($y) || $x=='product_ID' && is_int($y) || 
+                    $x=='quantity_sale' && is_int($y) || $x=='bill_number' && is_string($y) || $x=='comment' && is_string($y))){
+                        array_push($col_val, "$x=$y");                  //Compiles the data from the received array into a new array by key-value pair
+                    };
                 };
             };
-        };
-        if(!$col_val==null){
-            $columns_values=implode(",", ($col_val));           //Convert to string
-            $where='sale_ID='.$id;         
-            $rows=Db::Update('tbl_sale', $columns_values, $where);    //Calls the update function with the column and value pairs and the where
-            $response='Updated '.$rows.' rows';
-            return $response;
-        }else{
-            http_response_code(406);
-            $response = ([
-                "response" => "error",
-                "message" => "Nem megfelelő adat!"
-            ]);
-            return $response;
+            if(!$col_val==null){
+                $columns_values=implode(",", ($col_val));           //Convert to string
+                $where='sale_ID='.$d['sale_ID'];         
+                $rows+=Db::Update('tbl_sale', $columns_values, $where);    //Calls the update function with the column and value pairs and the where
+                $response='Updated '.$rows.' rows';
+            }else{
+                http_response_code(406);
+                $response = ([
+                    "response" => "error",
+                    "message" => "Updated ".$rows." rows. Nem megfelelő adat a ".count($d).". sorban!"
+                ]);
+            }
         }
+        return $response;
     }
     public static function deleteSaleByBillNumber($in){
-        // Db::SetFKChecks(0);
-        // $where='sale_ID='.$id;
-        // $rows=Db::Delete('tbl_sale', $where);       
-        // Db::SetFKChecks(1);
-        // $response='Deleted '.$rows.' rows';
         $data=self::getSaleByBillNumber($in);
         $invoice=Db::Select("tbl_sale", "*");
         foreach($invoice as $in){
