@@ -203,8 +203,8 @@ class MYPDF extends TCPDF {
                         $this->customer[0]["zipcode"].' '.$this->customer[0]["address_city"].', '.$this->customer[0]["address_street"].' '.$this->customer[0]["address_number"].'.<br>'.
                         'Adószám: '.$this->customer[0]["tax_number"].'</p>'
                         , 1, 'L', 0, 6, 105, 20, true, 0, true, true, 3, 'T', true);
-        $this->MultiCell(60, 10, 'Információ:<br>'.
-                        $this->customer[0]["comment"]
+        $this->MultiCell(60, 10, 'Információ: '.
+                        $this->mySale[0]["comment"]
                         , 1, 'L', 0, 2, '', 50, true, 0, true, true, 3, 'T', true);
 
         $dateTime=date_create($this->mySale[0]["sale_date"]);
