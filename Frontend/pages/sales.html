@@ -167,7 +167,7 @@
             </div>
             <!-- Modal body -->
             <form id="buyingForm" class="p-4 md:p-5">
-                <div class="productRow  flex flex-wrap gap-4 mb-4">
+                <div class="buyingProductRow  flex flex-wrap gap-4 mb-4">
 
                   <div class="flex-1">
                     <label for="seller" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Bevételezés rögzítője</label>
@@ -178,16 +178,16 @@
 
                   <div class="flex-1">
                     <label for="bill_number" class="block mb-2 text-sm font-medium text-gray-900">Számlaszám</label>
-<input type="text" name="bill_number" id="bill_number" class="bill_number_input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
+              <input type="text" name="bill_number" id="bill_number" class="bill_number_input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
                     <span id="error-message" class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                   </div>
 
                   <div class="flex-1 relative">
-                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Beszállító</label>
+                    <label for="supplier_ID" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Beszállító</label>
                   
-                    <button id="selectedSupplier" type="button"
+                    <button id="supplierDropdownBtn" type="button"
                       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg px-4 py-2.5 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 relative">
-                      <span>Válassz beszállítót</span>
+                      <span id="selectedSupplier">Válassz beszállítót</span>
                       <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
                         viewBox="0 0 24 24">
                         <path d="M19 9l-7 7-7-7" />
@@ -209,12 +209,12 @@
                   
                   
                   <div class="flex flex-col sm:flex-row gap-4 w-full">
-                    <div class="flex-1 relative">
+                    <div class="flex-1 relative buyingProductRow">
                       <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Termék neve</label>
                     
                       <button type="button"
-                        class="buyproductDropdownBtn w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg px-4 py-2.5 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 relative">
-                        <span class="selectedProduct" id="">Válassz terméket</span>
+                        class="buyingProductDropdownBtn w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg px-4 py-2.5 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 relative">
+                        <span class="selectedBuyingProduct">Válassz terméket</span>
                         <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" fill="none"
                           stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                           <path d="M19 9l-7 7-7-7" />
@@ -222,18 +222,18 @@
                       </button>
                     
                       <ul
-                        class="productOptions absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md text-sm hidden max-h-60 overflow-auto">
+                        class="buyingProductOptions absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-md text-sm hidden max-h-60 overflow-auto">
                         <!-- JS betölti -->
                       </ul>
                     
-                      <input type="hidden" name="product_ID">
+                      <input type="hidden" name="product_ID" class="product_ID">
                       <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                     </div>
                   
                     <div class="flex-1">
                       <label for="newstaff_email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Mennyiség</label>
                       <input type="number" name="quantity" id="buyingFormQuantity"
-                        class="quantity bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
+                        class="buyingQuantity bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-red-500 dark:focus:border-red-500"
                         placeholder="Mennyiség">
                       <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
                     </div>
@@ -241,7 +241,7 @@
                     <div class="flex-1">
                       <label for="newstaff_status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Egységár</label>
                       <input type="text" name="price[]" id="newstaff_status"
-                        class="productUnitPrice  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        class="buyingUnitPrice  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-300 dark:placeholder-gray-400 dark:text-gray-500 dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="Egységár" readonly>
                       
                     </div>
@@ -263,7 +263,7 @@
                 <!-- Dinamikusan hozzáadott mezők itt -->
               </div>
               <div class="mb-4">
-                <button type="button" id="addBuyProductRow" class="text-sm mt-5 text-blue-700 hover:underline mt-2">
+                <button type="button" id="addBuyProductRow" class=" text-sm mt-5 text-blue-700 hover:underline mt-2">
                   + Termék felvétele
                 </button>
               </div>

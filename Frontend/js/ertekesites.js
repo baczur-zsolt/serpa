@@ -1,5 +1,4 @@
 import { API_URL } from './config.js';
-//Pagination
 
 const tableBody = document.querySelector("#employeesTable tbody");
 const rowsPerPage = 10;
@@ -65,7 +64,6 @@ Promise.all([
     ]);
   })
   .then(([saleData, buyData, partnerData, saleDetails]) => {
-    // Kombinált adat létrehozása
     const combinedData = [
       ...saleData.map(item => ({
         ...item,
@@ -82,7 +80,6 @@ Promise.all([
       }))
     ];
 
-    // Csak azok a tételek, amelyeknél a quantity_sale nem negatív (ezt már nem szűrjük ki)
     const filteredData = combinedData;
 
     // Adatok rendezése dátum alapján (legújabb elöl)
@@ -95,7 +92,6 @@ Promise.all([
     // Sztornó kapcsolatok felépítése és frissítése
     updateStornoRelationships();
 
-    // Táblázat renderelése
     renderTable();
   })
   .catch(error => {
@@ -104,13 +100,10 @@ Promise.all([
 
 // Sztornó kapcsolatok felépítése és localStorage frissítése
 function updateStornoRelationships() {
-    // Gyűjtsük össze az eredeti számlákat (kizárandó) és a sztornó számlákat (megjelenítendő)
     const excludedBillNumbers = new Set(loadExcludedBillNumbers());
     const stornoBillNumbers = new Set(loadStornoBillNumbers());
     
-    // Először megtaláljuk az összes sztornózott számlát és annak eredeti számláját
     employeesData.forEach(item => {
-        // Ellenőrizzük, hogy sztornózott számláról van-e szó
         const isStorno = item.comment && 
                         (item.comment.includes("jóváírása") || 
                          item.comment.includes("jóváírás")) &&
@@ -133,8 +126,7 @@ function updateStornoRelationships() {
         }
     });
     
-    console.log("Kizárt számlaszámok (eredeti számlák):", Array.from(excludedBillNumbers));
-    console.log("Sztornó számlaszámok (megjelenítendő):", Array.from(stornoBillNumbers));
+
     
     // Mentsük el a localStorage-ba
     saveExcludedBillNumbers(excludedBillNumbers);
@@ -147,7 +139,6 @@ function groupItemsByBillNumber(items) {
     
     items.forEach(item => {
         if (!item.bill_number) {
-            // Ha nincs számlaszám, egyedi kezelés (pl. bevételezés)
             const uniqueKey = `no-bill-${item.id}`;
             billGroups.set(uniqueKey, [item]);
             return;
@@ -167,13 +158,10 @@ function groupItemsByBillNumber(items) {
     
     billGroups.forEach((items, billNumber) => {
         if (items.length === 1) {
-            // Ha csak egy tétel van, nincs mit összevonni
             groupedItems.push(items[0]);
         } else {
-            // Több tétel esetén összevonjuk őket
             const firstItem = items[0];
             
-            // Az első elem adatait vesszük alapul és összesítjük az értékeket
             const groupedItem = {
                 ...firstItem,
                 // Az összes tétel árának összege
@@ -195,21 +183,19 @@ function groupItemsByBillNumber(items) {
     return groupedItems;
 }
 
-// 🔹 Táblázat frissítése az aktuális oldallal
+//  Táblázat frissítése az aktuális oldallal
 function renderTable() {
     tableBody.innerHTML = "";  // Clear table
     
     // Mobile view clearing
     if (typeof mobileView !== 'undefined' && mobileView) {
-        mobileView.innerHTML = ""; // Clear mobile view if exists
+        mobileView.innerHTML = "";
     }
 
     // Kizárt számlaszámok és sztornó számlaszámok betöltése localStorage-ból
     const excludedBillNumbers = new Set(loadExcludedBillNumbers());
     const stornoBillNumbers = new Set(loadStornoBillNumbers());
     
-    console.log("Renderelés során kizárt számlaszámok:", Array.from(excludedBillNumbers));
-    console.log("Renderelés során sztornó számlaszámok:", Array.from(stornoBillNumbers));
     
     // Szűrjük az adatokat, hogy csak az eredeti számlákat zárjuk ki, a sztornó számlákat megtartjuk
     const filteredData = employeesData.filter(item => {
@@ -220,7 +206,6 @@ function renderTable() {
         
         // Ha a számlaszám szerepel a kizárandók között (eredeti számlák), akkor kiszűrjük
         if (excludedBillNumbers.has(item.bill_number)) {
-            console.log(`Kiszűrt eredeti számla: ${item.bill_number}`);
             return false;
         }
         
@@ -230,7 +215,6 @@ function renderTable() {
     // Azonos számlaszámú tételek összevonása
     const groupedData = groupItemsByBillNumber(filteredData);
     
-    console.log(`Eredeti adatok száma: ${employeesData.length}, Szűrt adatok száma: ${filteredData.length}, Összevont adatok száma: ${groupedData.length}`);
 
     let start = (currentPage - 1) * rowsPerPage;
     let end = start + rowsPerPage;
@@ -252,12 +236,13 @@ function renderTable() {
 
         // Table row - sztornó számla esetén piros háttér, csoportosított tételek esetén halványkék háttér
         let row = document.createElement("tr");
-        row.classList.add("hover:bg-gray-100");
-        if (isStorno) {
-            row.classList.add("bg-red-100"); // Piros háttér a sztornó számláknak
-        } else if (isGrouped) {
-            row.classList.add("bg-blue-50"); // Halványkék háttér az összevont tételeknek
-        }
+
+// Háttérszín beállítása a tranzakció típusa szerint
+if (isStorno) {
+    row.classList.add("bg-red-50"); // Piros háttér a sztornó számláknak
+} else if (transactionType === "Bevételezés") {
+    row.classList.add("bg-blue-50"); // Kék háttér a bevételezéseknek
+}
         row.id = user.id;
         row.innerHTML = `
             <td class="hidden">${user.id || user.buy_ID || user.sale_ID}</td>
@@ -289,17 +274,18 @@ function renderTable() {
                         </button>
                     ` : ""}
 
-                    <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.bill_number || user.bill_number}">
+                    ${transactionType !== "Bevételezés" ? `
+                <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.bill_number || user.bill_number}">
                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ff6666">
                             <path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z"/>
                         </svg>
                     </button>
+                    ` : ""}
                 </div>
             </td>
         `;
         tableBody.appendChild(row);
 
-        // Create mobile card view if mobileView exists
         if (typeof mobileView !== 'undefined' && mobileView) {
             const mobileCard = document.createElement("div");
             mobileCard.className = `bg-white shadow-md rounded-lg p-4 mb-4 border border-gray-200 ${isStorno ? 'bg-red-100' : ''} ${isGrouped ? 'bg-blue-50' : ''}`;
@@ -320,11 +306,13 @@ function renderTable() {
                                 </svg>
                             </button>
                         ` : ""}
+                        ${transactionType === "Eladás" ? `
                         <button class="delete-btn text-red-600 hover:text-red-800" data-id="${user.bill_number || user.bill_number}">
                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ff6666">
                                 <path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z"/>
                             </svg>
                         </button>
+                        ` : ""}
                     </div>
                 </div>
                 <p class="text-sm text-gray-700">
@@ -359,57 +347,12 @@ function renderTable() {
         behavior: 'smooth'
     });
 }
-/*
-Promise.all([
-  fetch(`${API_URL}sale`),
-  fetch(`${API_URL}partner`)
-])
-.then(([saleRes, productRes]) => {
-  return Promise.all([saleRes.json(), productRes.json()]);
-})
-.then(([saleData, productData]) => {
-  employeesData = saleData;
-  productsData = productData;
-  renderTable(); // Itt már a módosított renderTable hívódik
-})
-.catch(error => {
-  console.error("Hiba a letöltésnél:", error);
-});
-*/
-// ablak átméretezés figyelő
+
 window.addEventListener('resize', () => {
   renderTable();
 });
 
-// Segédfüggvény a sztornózott számlák szűréséhez
-function filterOutStornoInvoices(invoices) {
-    const stornoOriginalNumbers = new Set();
-    
-    // 1. Gyűjtsük össze az eredeti számlaszámokat a sztornók commentjeiből
-    invoices.forEach(invoice => {
-        if (invoice.comment && invoice.comment.includes("jóváírása")) {
-            const match = invoice.comment.match(/A\(z\) (.*?) számú számla jóváírása/);
-            if (match && match[1]) {
-                stornoOriginalNumbers.add(match[1]);
-            }
-        }
-    });
-    
-    // 2. Szűrjük ki a sztornókat és az eredeti számlákat is
-    return invoices.filter(invoice => {
-        // Ha ez egy sztornó számla
-        if (invoice.comment && invoice.comment.includes("jóváírása")) {
-            return false;
-        }
-        
-        // Ha ehhez a számlához van sztornó
-        if (stornoOriginalNumbers.has(invoice.bill_number)) {
-            return false;
-        }
-        
-        return true;
-    });
-}
+
 
 
 
@@ -427,7 +370,7 @@ async function deleteSale(billNumber) {
     const billNumberParts = billNumber.split('-');
     const billNumberSuffix = billNumberParts[billNumberParts.length - 1].padStart(6, '0');
 
-    // Elem keresése - figyelünk a nullish értékekre is
+    // Elem keresése
     const item = employeesData.find(emp => {
         if (!emp.bill_number) return false;
         const empParts = emp.bill_number.split('-');
@@ -580,24 +523,7 @@ async function deleteSale(billNumber) {
 }
 
 
-// Segédfüggvény az új számlaszám generálásához
-function generateNewBillNumber() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const prefix = `ST-${year}-`;
-    
-    const lastStorno = employeesData
-        .filter(e => e.bill_number.startsWith(prefix))
-        .sort()
-        .pop();
-    
-    const lastNumber = lastStorno 
-        ? parseInt(lastStorno.bill_number.split('-')[2]) 
-        : 0;
-    
-    return `${prefix}${String(lastNumber + 1).padStart(6, '0')}`;
-}
+
 
 
 //Event delegation a különböző gombokhoz
@@ -615,7 +541,7 @@ document.addEventListener('click', function(event) {
   if (viewBtn) {
       const billNumber = viewBtn.getAttribute('view-bill');
       const formattedBillNumber = billNumber.slice(8);
-      const url = `http://localhost/serpa/invoice/${formattedBillNumber}`;
+      const url = `${API_URL}invoice/${formattedBillNumber}`;
       window.open(url, '_blank');
       return;
   }
@@ -624,7 +550,6 @@ document.addEventListener('click', function(event) {
   const editBtn = event.target.closest('.edit-btn');
   if (editBtn) {
       const saleId = editBtn.getAttribute('data-id');
-      // Itt hívd meg a szerkesztés függvényed
       editSale(saleId);
       return;
   }
@@ -633,7 +558,6 @@ document.addEventListener('click', function(event) {
   const deleteBtn = event.target.closest('.delete-btn');
   if (deleteBtn) {
       const saleId = deleteBtn.getAttribute('data-id');
-      // Itt hívd meg a törlés függvényed
       deleteSale(saleId);
       return;
   }
@@ -689,13 +613,10 @@ function downloadInvoice(billNumber) {
             button.addEventListener('click', function() {
               const saleID = this.getAttribute('data-id');
           
-              // Itt lekérheted az adott sorhoz tartozó adatokat (pl. product, quantity, price, stb.)
-              // Ezután generálhatod a PDF-et és letöltheted
-          
               const doc = new jsPDF();
           
               // Példa adat
-              const productName = "Termék neve"; // Itt adhatod hozzá az adatokat, amik szükségesek
+              const productName = "Termék neve";
               const quantity = "Mennyiség";
               const price = "Ár";
           
@@ -752,33 +673,7 @@ document.getElementById("saveChanges").addEventListener("click", async function 
 });
 
 
-function editSale(id) {
-  const item = employeesData.find(emp => emp.id == id);
 
-  if (!item) return alert("Nem található az elem.");
-
-  if (item.type !== "Eladás") {
-    alert("Csak eladást lehet szerkeszteni.");
-    return;
-  }
-
-  openEditModal(item); // meglévő modal nyitó logika
-}
-
-// Például közvetlenül a script betöltésekor:
-if (!window.mobileViewHandlerAdded) {
-    mobileView.addEventListener("click", function(e) {
-        if (e.target.closest(".edit-btn")) {
-            const id = e.target.closest(".edit-btn").dataset.id;
-            const item = employeesData.find(emp => emp.sale_ID == id);
-            openEditModal(item);
-        } else if (e.target.closest(".delete-btn")) {
-            const id = e.target.closest(".delete-btn").dataset.id;
-            deleteSale(id);
-        }
-    });
-    window.mobileViewHandlerAdded = true; // jelölés, hogy már hozzád lett adva
-}
 
         
         
@@ -879,7 +774,7 @@ if (modal) {
   });
 }
 
-// Segédfüggvények - globálisak, hogy mindkét modul használhassa
+// Segédfüggvények
 function showError(inputElement, message) {
   clearError(inputElement);
 
@@ -1023,7 +918,6 @@ if (applyNewStaff) {
       });
     });
 
-    // HA MINDEN RENDBEN, KÜLDJÜK EL AZ ŰRLAPOT
     if (isValid) {
       const form = document.getElementById('applyNewStaffForm');
       
@@ -1043,17 +937,11 @@ if (applyNewStaff) {
         return;
       }
       
-      // RÉSZLETES NAPLÓZÁS - Terméksorok összegyűjtése
-      console.log("--------- TERMÉKSOROK FELDOLGOZÁSA KEZDŐDIK ---------");
-      console.log("Bejelentkezett eladó ID:", sellerID);
-      console.log("Kiválasztott vevő ID:", customerID);
-      
       const saleData = [];
       
       // 1. Az első (eredeti) terméksor feldolgozása
       if (firstProductRow) {
-        console.log("ELSŐ TERMÉKSOR FELDOLGOZÁSA:");
-        
+
         const productIDInput = firstProductRow.querySelector('.product_ID');
         const quantityInput = firstProductRow.querySelector('.quantity');
         const unitPriceInput = firstProductRow.querySelector('.productUnitPrice');
@@ -1074,18 +962,16 @@ if (applyNewStaff) {
             };
             
             saleData.push(termekSorAdat);
-            console.log('✅ Első terméksor sikeresen feldolgozva:', termekSorAdat);
+            console.log('Első terméksor sikeresen feldolgozva:', termekSorAdat);
           } else {
-            console.warn('❌ Első terméksor érvénytelen adatokkal:', { productID, quantity, unitPrice });
+            console.warn('Első terméksor érvénytelen adatokkal:', { productID, quantity, unitPrice });
           }
         }
       }
       
       // 2. A további terméksorok feldolgozása
-      console.log("TOVÁBBI TERMÉKSOROK FELDOLGOZÁSA:");
       
       additionalProductRows.forEach((row, index) => {
-        console.log(`--- ${index + 2}. TERMÉKSOR FELDOLGOZÁSA ---`);
         
         const productIDInput = row.querySelector('.product_ID');
         const quantityInput = row.querySelector('.quantity');
@@ -1093,7 +979,7 @@ if (applyNewStaff) {
         
         // Ha bármelyik mező nem létezik vagy érvénytelen, ugorjuk át
         if (!productIDInput || !quantityInput || !unitPriceInput) {
-          console.warn(`⚠️ ${index + 2}. terméksor kihagyva (hiányzó mezők).`);
+          console.warn(`${index + 2}. terméksor kihagyva (hiányzó mezők).`);
           return;
         }
         
@@ -1112,14 +998,12 @@ if (applyNewStaff) {
           };
           
           saleData.push(termekSorAdat);
-          console.log(`✅ ${index + 2}. terméksor sikeresen feldolgozva:`, termekSorAdat);
+          console.log(`${index + 2}. terméksor sikeresen feldolgozva:`, termekSorAdat);
         } else {
-          console.warn(`❌ ${index + 2}. terméksor érvénytelen adatokkal:`, { productID, quantity, unitPrice });
+          console.warn(`${index + 2}. terméksor érvénytelen adatokkal:`, { productID, quantity, unitPrice });
         }
       });
       
-      console.log("----- ÖSSZESÍTÉS -----");
-      console.log("Feldolgozott terméksorok száma:", saleData.length);
       
       if (saleData.length === 0) {
         alert('Nem sikerült érvényes terméksorokat találni! Kérjük, ellenőrizd az adatokat.');
@@ -1178,12 +1062,8 @@ if (applyNewStaff) {
 async function submitSaleData(userData) {
   try {
     // RÉSZLETES NAPLÓZÁS
-    console.log("----------- ADATKÜLDÉS KEZDŐDIK -----------");
-    console.log("Küldés előtt - Termékek száma:", userData.length);
-    console.log("Küldés előtt - Elküldendő adatok STRINGIFY előtt:", userData);
+
     const jsonData = JSON.stringify(userData);
-    console.log("Küldés előtt - Elküldendő JSON adat:", jsonData);
-    console.log("Küldés előtt - Elküldendő JSON adat hossza:", jsonData.length, "karakter");
     
     // Külön kiíratjuk minden termék adatait
     userData.forEach((item, index) => {
@@ -1195,9 +1075,7 @@ async function submitSaleData(userData) {
         unit_price: item.unit_price
       });
     });
-    
-    console.log("Hívás URL:", `${API_URL}sale`);
-    console.log("Hívás metódus:", "POST");
+
     
     const response = await fetch(`${API_URL}sale`, {
       method: 'POST',
@@ -1206,10 +1084,6 @@ async function submitSaleData(userData) {
       },
       body: jsonData
     });
-    
-    console.log("Backend válasz státusz:", response.status);
-    console.log("Backend válasz OK?", response.ok);
-    console.log("Backend válasz státusz szöveg:", response.statusText);
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -1237,11 +1111,10 @@ async function submitSaleData(userData) {
       data = responseText;
     }
     
-    console.log("----------- ADATKÜLDÉS BEFEJEZVE -----------");
     return data;
 
   } catch (error) {
-    console.error('❌ Hiba történt az eladás rögzítésekor:', error);
+    console.error('Hiba történt az eladás rögzítésekor:', error);
     console.error('Hiba részletei:', error.stack);
     throw error;
   }
@@ -1358,25 +1231,70 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// Termék legördülők inicializálása
+// Termék legördülő menük inicializálása speciális hibakeresési módban
 function initAllProductDropdowns() {
+  
+  // Ha még nem töltődtek be a termékadatok, először betöltjük
+  if (!window.productDataLoaded) {
+    console.warn('Termékadatok még nem töltődtek be, betöltés kezdése');
+    fetchProductData();
+    return;
+  }
+  
   const dropdownButtons = document.querySelectorAll(".productDropdownBtn");
-  dropdownButtons.forEach(button => initProductDropdown(button));
+  
+  dropdownButtons.forEach((button) => {
+    initProductDropdown(button);
+  });
 }
 
-// Egy termék legördülő menü inicializálása
+// Termékadatok manuális betöltése
+function fetchProductData() {
+  fetch(`${API_URL}product`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Nem sikerült betölteni a termékadatokat');
+      }
+      return response.json();
+    })
+    .then(productData => {
+      window.productData = productData;
+      window.productDataLoaded = true;
+      
+      // Ismét megpróbáljuk inicializálni a legördülőket
+      initAllProductDropdowns();
+    })
+    .catch(error => {
+      console.error('Hiba a termékadatok betöltésekor:', error);
+    });
+}
+
+// Termék legördülő inicializálása speciális hibakeresési módban
 function initProductDropdown(button) {
-  if (!button) return;
+  
+  if (!button) {
+    console.warn('Nem létező gomb');
+    return;
+  }
   
   const parentElement = button.closest(".productRow") || button.closest(".flex-1");
-  if (!parentElement) return;
+  if (!parentElement) {
+    console.warn('Nem található szülőelem a gombhoz', button);
+    return;
+  }
   
   const options = parentElement.querySelector(".productOptions");
   const selectedProduct = button.querySelector(".selectedProduct");
   const productInput = parentElement.querySelector(".product_ID");
   
+
+  
   if (!options || !selectedProduct || !productInput) {
-    console.error("Hiányzó DOM elemek a termék dropdown-hoz", { button, options, selectedProduct, productInput });
+    console.error('Hiányzó DOM elemek a termék dropdown-hoz', { 
+      options: !!options, 
+      selectedProduct: !!selectedProduct, 
+      productInput: !!productInput 
+    });
     return;
   }
 
@@ -1398,8 +1316,9 @@ function initProductDropdown(button) {
   fillProductDropdown(options, selectedProduct, productInput, parentElement);
 }
 
-// Termék dropdown feltöltése
+// Termék dropdown feltöltése részletes hibakeresési módban
 function fillProductDropdown(options, selectedProduct, productInput, parentElement) {
+  
   // Ellenőrizzük, hogy be vannak-e töltve a termékek
   if (!window.productData || !Array.isArray(window.productData) || window.productData.length === 0) {
     console.warn("Még nincsenek betöltve a termékadatok");
@@ -1415,10 +1334,11 @@ function fillProductDropdown(options, selectedProduct, productInput, parentEleme
       li.textContent = product.product_name;
       li.setAttribute("data-value", product.product_ID);
       li.setAttribute("data-price", product.product_profit_price || 0);
-      li.setAttribute("data-buy-price", product.product_price || 0);
       li.className = "px-4 py-2 cursor-pointer hover:bg-blue-100";
       
       li.addEventListener("click", function() {
+        console.log('🖱️ Termék kiválasztva:', product);
+        
         selectedProduct.textContent = product.product_name;
         productInput.value = product.product_ID;
         options.classList.add("hidden");
@@ -1430,12 +1350,30 @@ function fillProductDropdown(options, selectedProduct, productInput, parentEleme
         if (priceInput) {
           const price = product.product_profit_price || 0;
           priceInput.value = price;
+          console.log('Egységár beállítva:', price);
+        } else {
+          console.warn('Nem található egységár mező');
         }
       });
       
       options.appendChild(li);
     });
 }
+
+
+// Inicializálás az oldal betöltésekor
+document.addEventListener("DOMContentLoaded", function() {
+  // Termékadatok betöltése, ha még nem történt meg
+  if (!window.productDataLoaded) {
+    fetchProductData();
+  } else {
+    initAllProductDropdowns();
+  }
+});
+
+// Export a globális hatókörbe, hogy elérhető legyen máshol is
+window.initAllProductDropdowns = initAllProductDropdowns;
+window.initProductDropdown = initProductDropdown;
 
 // Új terméksor hozzáadása gomb eseménykezelője
 document.addEventListener("DOMContentLoaded", function() {
@@ -1500,15 +1438,14 @@ function addNewProductRow(container) {
 
 // ========== BEVÉTELEZÉS MODUL ==========
 
-// ========== BEVÉTELEZÉS MODUL ==========
 
 // Konstansok definíciója - bevételezési modulhoz
 const openBuyingModal = document.getElementById('openBuyingModal');
 const closeBuyingModal = document.getElementById('closeBuyingModal');
 const buyingModal = document.getElementById('buying-crud-modal');
+const buyingOverlay = document.getElementById('overlay'); // Ugyanazt az overlay-t használjuk
 const buyingForm = document.getElementById('buyingForm');
 const submitBuyingButton = document.getElementById('submitBuyingForm');
-const buyingOverlay = document.getElementById('overlay'); // Ugyanazt az overlay-t használjuk
 
 // Modal logika - bevételezéshez
 if (openBuyingModal) {
@@ -1522,7 +1459,6 @@ if (openBuyingModal) {
 if (closeBuyingModal) {
   closeBuyingModal.addEventListener('click', () => {
     buyingModal.classList.add('hidden');
-    buyingModal.classList.remove('flex');
     buyingOverlay.classList.add('hidden');
     resetBuyingForm();
   });
@@ -1533,7 +1469,6 @@ if (buyingModal) {
   buyingModal.addEventListener('click', (e) => {
     if (e.target === buyingModal) {
       buyingModal.classList.add('hidden');
-      buyingModal.classList.remove('flex');
       buyingOverlay.classList.add('hidden');
       resetBuyingForm();
     }
@@ -1662,7 +1597,7 @@ function validateBuyingForm() {
   return isValid;
 }
 
-// Termék részletei frissítése
+// Módosított updateProductDetails függvény
 function updateProductDetails(productId) {
   if (!productId || productId === '0') {
     const detailsContainer = document.getElementById('product-details');
@@ -1689,14 +1624,16 @@ function updateProductDetails(productId) {
         `;
         detailsContainer.classList.remove('hidden');
         
-        // Beszerzési ár mezőbe is beállítjuk az utolsó árat
+        // Megkeressük a termékhez tartozó sort, ahol a termék ki lett választva
         const parentElement = document.querySelector(`[data-value="${productId}"]`).closest('.buyingProductRow') || 
-                             document.querySelector(`[data-value="${productId}"]`).closest('.buyingRowWrapper');
+                              document.querySelector(`[data-value="${productId}"]`).closest('.buyingRowWrapper');
         
         if (parentElement) {
           const buyPriceInput = parentElement.querySelector('.buyingUnitPrice');
-          if (buyPriceInput && product.product_price) {
+          if (buyPriceInput && product.product_price && (!buyPriceInput.value || buyPriceInput.value == 0)) {
+            // Csak akkor állítjuk be az árat, ha még nincs beállítva vagy 0
             buyPriceInput.value = product.product_price;
+            console.log("Egységár beállítva a termék részletek alapján:", product.product_price);
           }
         }
       }
@@ -1704,53 +1641,82 @@ function updateProductDetails(productId) {
   }
 }
 
-// Összes beszállító dropdown inicializálása 
-document.addEventListener("DOMContentLoaded", function() {
-  // Beszállító legördülő menü inicializálása
-  const supplierDropdownBtn = document.getElementById("supplierDropdownBtn");
-  const supplierOptions = document.getElementById("supplierOptions");
-  const selectedSupplier = document.getElementById("selectedSupplier");
-  const supplierInput = document.getElementById("supplier_ID");
-  
-  if (supplierDropdownBtn && supplierOptions) {
-    // Toggle
-    supplierDropdownBtn.addEventListener("click", function(e) {
-      e.preventDefault();
-      supplierOptions.classList.toggle("hidden");
-    });
-    
-    document.addEventListener("click", function(e) {
-      if (!supplierDropdownBtn.contains(e.target) && !supplierOptions.contains(e.target)) {
-        supplierOptions.classList.add("hidden");
+// Beszállító és termék legördülő menük inicializálása
+document.addEventListener("DOMContentLoaded", function () {
+  const dropdownBtn = document.getElementById("supplierDropdownBtn");
+  const dropdownOptions = document.getElementById("supplierOptions");
+  const selectedCustomer = document.getElementById("selectedSupplier");
+  const customerInput = document.getElementById("supplier_ID");
+
+  if (!dropdownBtn || !dropdownOptions) return;
+
+  // Toggle
+  dropdownBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    dropdownOptions.classList.toggle("hidden");
+  });
+
+  document.addEventListener("click", function (e) {
+    if (
+      !dropdownBtn.contains(e.target) &&
+      !dropdownOptions.contains(e.target)
+    ) {
+      dropdownOptions.classList.add("hidden");
+    }
+  });
+
+  // Partner betöltés
+  Promise.all([
+    fetch(`${API_URL}sale`),
+    fetch(`${API_URL}partner`),
+    fetch(`${API_URL}product`)
+  ])
+    .then(([saleRes, partnerRes, productRes]) => 
+      Promise.all([saleRes.json(), partnerRes.json(), productRes.json()])
+    )
+    .then(([saleData, partnerData, productData]) => {
+      // Termékek globális tárolása
+      window.productData = productData;
+      window.productDataLoaded = true;
+      
+      // Táblázat renderelés, ha kell
+      if (typeof renderTable === "function") {
+        window.employeesData = saleData;
+        renderTable();
       }
-    });
-    
-    // Beszállítók betöltése
-    fetch(`${API_URL}partner`)
-      .then(response => response.json())
-      .then(supplierData => {
-        supplierOptions.innerHTML = "";
-        
-        supplierData
-          .filter(supplier => supplier.status === 0) // csak az aktív státuszúakat engedjük át
-          .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-          .forEach(supplier => {
-            const li = document.createElement("li");
-            li.textContent = supplier.name;
-            li.setAttribute("data-value", supplier.supplier_ID);
-            li.className = "px-4 py-2 cursor-pointer hover:bg-blue-100";
-            li.addEventListener("click", function() {
-              selectedSupplier.textContent = supplier.name;
-              supplierInput.value = supplier.supplier_ID;
-              supplierOptions.classList.add("hidden");
-            });
-            supplierOptions.appendChild(li);
+
+      // Vevő dropdown feltöltése
+      dropdownOptions.innerHTML = "";
+
+      partnerData
+        .filter(partner => partner.status === 1) // csak a státusz 0-ásokat engedi át
+        .sort((a, b) => {
+          const nameA = (a.name || `${a.last_name} ${a.first_name}`).toLowerCase();
+          const nameB = (b.name || `${b.last_name} ${b.first_name}`).toLowerCase();
+          return nameA.localeCompare(nameB);
+        })
+        .forEach((partner) => {
+          const displayName =
+            partner.name || `${partner.last_name} ${partner.first_name}`;
+          const li = document.createElement("li");
+          li.textContent = displayName;
+          li.setAttribute("data-value", partner.customer_ID);
+          li.className = "px-4 py-2 cursor-pointer hover:bg-blue-100";
+          li.addEventListener("click", function () {
+            selectedCustomer.textContent = displayName;
+            customerInput.value = partner.customer_ID;
+            dropdownOptions.classList.add("hidden");
           });
-      })
-      .catch(error => {
-        console.error("Hiba a beszállítók betöltésekor:", error);
-      });
-  }
+          dropdownOptions.appendChild(li);
+        });
+        
+      // Termék dropdown-ok inicializálása
+      initAllProductDropdowns();
+    })
+    .catch((error) => {
+      console.error("Hiba az adatok betöltésekor:", error);
+    });
+
   
   // Termék legördülők inicializálása a már meglévő termékeknél
   initAllBuyingProductDropdowns();
@@ -1766,154 +1732,184 @@ document.addEventListener("DOMContentLoaded", function() {
   }
   
   // Form eseménykezelő
-  if (submitBuyingButton && buyingForm) {
-    submitBuyingButton.addEventListener("click", async function(event) {
-      event.preventDefault();
+if (submitBuyingButton && buyingForm) {
+  submitBuyingButton.addEventListener("click", async function(event) {
+    event.preventDefault();
+    
+    // Összes hibaüzenet törlése
+    clearErrors(buyingForm);
+    
+    // Számlaszám validáció
+    const billNumberInput = document.getElementById('bill_number');
+    if (!billNumberInput.value.trim()) {
+      showError(billNumberInput, 'Kötelező megadni a számlaszámot!');
+      billNumberInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    
+    if (validateBuyingForm()) {
+      // Az eladó ID lekérése
+      const staffID = await getLoggedInStaffID();
+      const supplierID = parseInt(document.querySelector('input[name="supplier_ID"]').value);
+      const billNumber = billNumberInput.value.trim(); // Számlaszám mentése
       
-      // Összes hibaüzenet törlése
-      clearErrors(buyingForm);
+      // Ellenőrzés: van-e eladó és beszállító azonosító
+      if (isNaN(staffID)) {
+        alert('Hiba történt az eladó azonosításakor!');
+        return;
+      }
       
-      if (validateBuyingForm()) {
-        // Az eladó ID lekérése
-        const staffID = await getLoggedInStaffID();
-        const supplierID = parseInt(document.querySelector('input[name="supplier_ID"]').value);
+      if (isNaN(supplierID)) {
+        alert('Érvénytelen beszállító azonosító!');
+        return;
+      }
+
+      const buyingData = [];
+      
+      // DEBUG - Ellenőrizzük a DOM-ot
+
+      const firstProductRow = document.querySelector('.buyingProductRow');
+
+      if (firstProductRow) {
         
-        // Ellenőrzés: van-e eladó és beszállító azonosító
-        if (isNaN(staffID)) {
-          alert('Hiba történt az eladó azonosításakor!');
-          return;
-        }
+        const productIDInput = firstProductRow.querySelector('input.product_ID');
+        const quantityInput = firstProductRow.querySelector('input.buyingQuantity');
+        const buyPriceInput = firstProductRow.querySelector('input.buyingUnitPrice');
         
-        if (isNaN(supplierID)) {
-          alert('Érvénytelen beszállító azonosító!');
-          return;
-        }
+        console.log("Talált mezők:", {
+          productIDInput: productIDInput,
+          quantityInput: quantityInput,
+          buyPriceInput: buyPriceInput
+        });
         
-        console.log("--------- BEVÉTELEZÉSI SOROK FELDOLGOZÁSA KEZDŐDIK ---------");
-        console.log("Bejelentkezett eladó ID:", staffID);
-        console.log("Kiválasztott beszállító ID:", supplierID);
+        console.log("Mezők értékei:", {
+          productID: productIDInput ? productIDInput.value : 'nem található',
+          quantity: quantityInput ? quantityInput.value : 'nem található',
+          buyPrice: buyPriceInput ? buyPriceInput.value : 'nem található'
+        });
         
-        const buyingData = [];
-        
-        // 1. Az első (eredeti) terméksor feldolgozása
-        const firstProductRow = document.querySelector('.buyingProductRow:not([id])');
-        if (firstProductRow) {
-          console.log("ELSŐ BEVÉTELEZÉSI SOR FELDOLGOZÁSA:");
-          
-          const productIDInput = firstProductRow.querySelector('.product_ID');
-          const quantityInput = firstProductRow.querySelector('.buyingQuantity');
-          const buyPriceInput = firstProductRow.querySelector('.buyingUnitPrice');
-          
-          if (productIDInput && quantityInput && buyPriceInput) {
-            const productID = parseInt(productIDInput.value);
-            const quantity = parseInt(quantityInput.value);
-            const buyPrice = parseFloat(buyPriceInput.value);
-            
-            if (!isNaN(productID) && !isNaN(quantity) && !isNaN(buyPrice) && 
-                productID > 0 && quantity > 0 && buyPrice > 0) {
-              const termekSorAdat = {
-                staff_ID: staffID,
-                supplier_ID: supplierID,
-                product_ID: productID,
-                quantity_buy: quantity,
-                buy_price: buyPrice
-              };
-              
-              buyingData.push(termekSorAdat);
-              console.log('✅ Első bevételezési sor sikeresen feldolgozva:', termekSorAdat);
-            } else {
-              console.warn('❌ Első bevételezési sor érvénytelen adatokkal:', { productID, quantity, buyPrice });
-            }
-          }
-        }
-        
-        // 2. A további terméksorok feldolgozása
-        console.log("TOVÁBBI BEVÉTELEZÉSI SOROK FELDOLGOZÁSA:");
-        
-        const additionalBuyingRows = document.querySelectorAll('.buyingRowWrapper');
-        additionalBuyingRows.forEach((row, index) => {
-          console.log(`--- ${index + 2}. BEVÉTELEZÉSI SOR FELDOLGOZÁSA ---`);
-          
-          const productIDInput = row.querySelector('.product_ID');
-          const quantityInput = row.querySelector('.buyingQuantity');
-          const buyPriceInput = row.querySelector('.buyingUnitPrice');
-          
-          // Ha bármelyik mező nem létezik vagy érvénytelen, ugorjuk át
-          if (!productIDInput || !quantityInput || !buyPriceInput) {
-            console.warn(`⚠️ ${index + 2}. bevételezési sor kihagyva (hiányzó mezők).`);
-            return;
-          }
-          
+        if (productIDInput && quantityInput && buyPriceInput) {
           const productID = parseInt(productIDInput.value);
           const quantity = parseInt(quantityInput.value);
-          const buyPrice = parseFloat(buyPriceInput.value);
+          const buyPrice = parseFloat(buyPriceInput.value);    
           
           if (!isNaN(productID) && !isNaN(quantity) && !isNaN(buyPrice) && 
               productID > 0 && quantity > 0 && buyPrice > 0) {
             const termekSorAdat = {
               staff_ID: staffID,
-              supplier_ID: supplierID,
+              customer_ID: supplierID,   // A backend customer_ID-t vár
               product_ID: productID,
               quantity_buy: quantity,
-              buy_price: buyPrice
+              bill_number: billNumber
             };
             
             buyingData.push(termekSorAdat);
-            console.log(`✅ ${index + 2}. bevételezési sor sikeresen feldolgozva:`, termekSorAdat);
+            console.log('Első bevételezési sor sikeresen feldolgozva:', termekSorAdat);
           } else {
-            console.warn(`❌ ${index + 2}. bevételezési sor érvénytelen adatokkal:`, { productID, quantity, buyPrice });
+            console.warn('Első bevételezési sor érvénytelen adatokkal:', { productID, quantity, buyPrice });
           }
-        });
-        
-        console.log("----- ÖSSZESÍTÉS -----");
-        console.log("Feldolgozott bevételezési sorok száma:", buyingData.length);
-        
-        if (buyingData.length === 0) {
-          alert('Nem sikerült érvényes terméksorokat találni! Kérjük, ellenőrizd az adatokat.');
-          return;
-        }
-        
-        try {
-          const response = await submitBuyingData(buyingData);
-          
-          // Sikeres válasz kezelése
-          if (response) {
-            // Űrlap alaphelyzetbe állítása
-            resetBuyingForm();
-            
-            // Modal bezárása
-            buyingModal.classList.add('hidden');
-            buyingModal.classList.remove('flex');
-            buyingOverlay.classList.add('hidden');
-            
-            // Sikeres üzenet
-            alert('Sikeres bevételezés!');
-            location.reload();
-          } else {
-            throw new Error("Hibás válasz a szervertől");
-          }
-        } catch (error) {
-          console.error('Hiba történt:', error);
-          alert(`Hiba történt: ${error.message}`);
+        } else {
+          console.warn('Nem található minden szükséges mező az első bevételezési sorban');
         }
       } else {
-        // Hiba esetén görgessünk az első hibaüzenethez
-        const firstError = buyingForm.querySelector('.error-message');
-        if (firstError) {
-          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        console.warn('Nem található az első bevételezési sor');
       }
-    });
-  }
+    
+      // 2. A további terméksorok feldolgozása
+      console.log("TOVÁBBI BEVÉTELEZÉSI SOROK FELDOLGOZÁSA:");
+      
+      const additionalBuyingRows = document.querySelectorAll('.buyingRowWrapper');
+      console.log(`Talált további sorok száma: ${additionalBuyingRows.length}`);
+      
+      additionalBuyingRows.forEach((row, index) => {
+        
+        const productIDInput = row.querySelector('input.product_ID');
+        const quantityInput = row.querySelector('input.buyingQuantity');
+        const buyPriceInput = row.querySelector('input.buyingUnitPrice');
+        
+        console.log(`${index + 2}. sor mezők:`, {
+          productIDInput: productIDInput,
+          quantityInput: quantityInput,
+          buyPriceInput: buyPriceInput
+        });
+        
+        // Ha bármelyik mező nem létezik vagy érvénytelen, ugorjuk át
+        if (!productIDInput || !quantityInput || !buyPriceInput) {
+          console.warn(`${index + 2}. bevételezési sor kihagyva (hiányzó mezők).`);
+          return;
+        }
+      
+        const productID = parseInt(productIDInput.value);
+        const quantity = parseInt(quantityInput.value);
+        const buyPrice = parseFloat(buyPriceInput.value);
+        
+        console.log(`${index + 2}. sor értékek:`, { productID, quantity, buyPrice });
+        
+        if (!isNaN(productID) && !isNaN(quantity) && !isNaN(buyPrice) && 
+            productID > 0 && quantity > 0 && buyPrice > 0) {
+          const termekSorAdat = {
+            staff_ID: staffID,
+            customer_ID: supplierID,   // A backend customer_ID-t vár
+            product_ID: productID,
+            quantity_buy: quantity,
+            bill_number: billNumber    // Minden sor ugyanazt a bill_number-t kapja
+          };
+          
+          buyingData.push(termekSorAdat);
+          console.log(`${index + 2}. bevételezési sor sikeresen feldolgozva:`, termekSorAdat);
+        } else {
+          console.warn(`${index + 2}. bevételezési sor érvénytelen adatokkal:`, { productID, quantity, buyPrice });
+        }
+      });
+
+      
+      if (buyingData.length === 0) {
+        alert('Nem sikerült érvényes terméksorokat találni!');
+        return;
+      }
+      
+      try {
+        const response = await submitBuyingData(buyingData);
+        
+        // Sikeres válasz kezelése
+        if (response) {
+          // Űrlap alaphelyzetbe állítása
+          resetBuyingForm();
+          
+          // Modal bezárása
+          buyingModal.classList.add('hidden');
+          buyingOverlay.classList.add('hidden');
+          
+          // Sikeres üzenet
+          alert('Sikeres bevételezés!');
+          location.reload();
+        } else {
+          throw new Error("Hibás válasz a szervertől");
+        }
+      } catch (error) {
+        console.error('Hiba történt:', error);
+        alert(`Hiba történt: ${error.message}`);
+      }
+    } else {
+      // Hiba esetén görgessünk az első hibaüzenethez
+      const firstError = buyingForm.querySelector('.error-message');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  });
+}
+
 });
 
-// Termék legördülők inicializálása
+// Termék legördülők inicializálása és további függvények (változatlanok maradnak)
 function initAllBuyingProductDropdowns() {
   const dropdownButtons = document.querySelectorAll(".buyingProductDropdownBtn");
   dropdownButtons.forEach(button => initBuyingProductDropdown(button));
 }
 
-// Egy termék legördülő menü inicializálása
+
+// Módosított legördülő termék kiválasztó inicializálása
 function initBuyingProductDropdown(button) {
   if (!button) return;
   
@@ -1947,11 +1943,9 @@ function initBuyingProductDropdown(button) {
   fillBuyingProductDropdown(options, selectedProduct, productInput, parentElement);
 }
 
-// Termék dropdown feltöltése
 function fillBuyingProductDropdown(options, selectedProduct, productInput, parentElement) {
   // Ellenőrizzük, hogy be vannak-e töltve a termékek
   if (!window.productData || !Array.isArray(window.productData) || window.productData.length === 0) {
-    console.warn("Még nincsenek betöltve a termékadatok");
     
     // Betöltjük a termékadatokat, ha még nincsenek betöltve
     fetch(`${API_URL}product`)
@@ -1967,7 +1961,7 @@ function fillBuyingProductDropdown(options, selectedProduct, productInput, paren
     return;
   }
   
-  options.innerHTML = "";
+options.innerHTML = "";
   
   window.productData
     .sort((a, b) => a.product_name.localeCompare(b.product_name))
@@ -1983,11 +1977,47 @@ function fillBuyingProductDropdown(options, selectedProduct, productInput, paren
         productInput.value = product.product_ID;
         options.classList.add("hidden");
         
-        // Az egységár beállítása
-        const priceInput = parentElement.querySelector('.buyingUnitPrice');
+        // Részletes konzol napló a kiválasztott termékről
+        console.log("Kiválasztott termék:", {
+          id: product.product_ID,
+          name: product.product_name,
+          price: product.product_price || 0,
+          inputValue: productInput.value
+        });
+        
+        
+        // Az egységár mindig felülírásra kerül a termék legutolsó árával
+        const parentRowWrapper = parentElement.closest('.buyingRowWrapper') || 
+                                 parentElement.closest('.buyingProductRow') || 
+                                 parentElement.closest('form') || 
+                                 parentElement.closest('.flex-col.sm\\:flex-row');
+        const priceInput = parentRowWrapper ? 
+            (parentRowWrapper.querySelector('.buyingUnitPrice') || 
+             parentRowWrapper.querySelector('input[name="price[]"]') ||
+             parentRowWrapper.closest('form').querySelector('.buyingUnitPrice') ||
+             parentRowWrapper.closest('form').querySelector('input[name="price[]"]')) : 
+            null;
+        
         if (priceInput) {
-          const price = product.product_price || 0;
-          priceInput.value = price;
+          // Ha van ár a termékhez, akkor mindig beállítjuk
+          if (product.product_price) {
+            // Próbáljuk meg közvetlen módon és setAttribute-tal is
+            priceInput.value = product.product_price.toString();
+            priceInput.setAttribute('value', product.product_price.toString());
+          } else {
+            // Ha nincs ár, akkor kiürítjük a mezőt
+            priceInput.value = '';
+            priceInput.setAttribute('value', '');
+            console.log("Nincs elérhető egységár, mező kiürítve a konkrét sorban");
+          }
+        } else {
+          console.warn('Nem található egységár mező a konkrét sorban', { 
+            parentElement, 
+            parentRowWrapper, 
+            product,
+            parentElementClasses: parentElement.classList.toString(),
+            parentElementParentClasses: parentElement.parentElement?.classList.toString()
+          });
         }
         
         // Termék részletek frissítése
@@ -1998,21 +2028,13 @@ function fillBuyingProductDropdown(options, selectedProduct, productInput, paren
     });
 }
 
-// Új bevételezési terméksor hozzáadása
 
-// Új terméksor hozzáadása gomb eseménykezelője
-document.addEventListener("DOMContentLoaded", function() {
-  const addProductButton = document.getElementById("addBuyProductRow");
-  const productGrid = document.getElementById("BuyProductRows");
-  
-  if (addProductButton && productGrid) {
-    addProductButton.addEventListener("click", function() {
-      addNewProductRow(productGrid);
-    });
-  }
+document.getElementById("addBuyProductRow").addEventListener("click", function () {
+  const container = document.getElementById("BuyProductRows");
+  addNewBuyingProductRow(container);
 });
 
-
+// Új terméksor hozzáadásakor is ellenőrizzük, hogy az árak megfelelően beállításra kerüljenek
 function addNewBuyingProductRow(container) {
   const newRow = document.createElement("div");
   newRow.className = "flex flex-col sm:flex-row gap-4 w-full buyingRowWrapper mt-4";
@@ -2060,33 +2082,27 @@ function addNewBuyingProductRow(container) {
     newRow.remove();
   });
 }
-
 // Bevételezési adatok beküldése
 async function submitBuyingData(buyingData) {
   try {
-    // RÉSZLETES NAPLÓZÁS
-    console.log("----------- BEVÉTELEZÉSI ADATKÜLDÉS KEZDŐDIK -----------");
-    console.log("Küldés előtt - Termékek száma:", buyingData.length);
-    console.log("Küldés előtt - Elküldendő adatok STRINGIFY előtt:", buyingData);
     const jsonData = JSON.stringify(buyingData);
-    console.log("Küldés előtt - Elküldendő JSON adat:", jsonData);
-    console.log("Küldés előtt - Elküldendő JSON adat hossza:", jsonData.length, "karakter");
+
     
     // Külön kiíratjuk minden termék adatait
     buyingData.forEach((item, index) => {
       console.log(`Termék #${index + 1} adatai:`, {
         staff_ID: item.staff_ID,
-        supplier_ID: item.supplier_ID,
+        customer_ID: item.supplier_ID,
         product_ID: item.product_ID,
         quantity_buy: item.quantity_buy,
-        buy_price: item.buy_price
+        total_price: item.buy_price
       });
     });
     
-    console.log("Hívás URL:", `${API_URL}buying`);
+    console.log("Hívás URL:", `${API_URL}buy`);
     console.log("Hívás metódus:", "POST");
     
-    const response = await fetch(`${API_URL}buying`, {
+    const response = await fetch(`${API_URL}buy`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -2094,9 +2110,6 @@ async function submitBuyingData(buyingData) {
       body: jsonData
     });
     
-    console.log("Backend válasz státusz:", response.status);
-    console.log("Backend válasz OK?", response.ok);
-    console.log("Backend válasz státusz szöveg:", response.statusText);
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -2123,21 +2136,14 @@ async function submitBuyingData(buyingData) {
       // Ha nem JSON a válasz, akkor a nyers szöveget adjuk vissza
       data = responseText;
     }
-    
-    console.log("----------- BEVÉTELEZÉSI ADATKÜLDÉS BEFEJEZVE -----------");
     return data;
 
   } catch (error) {
-    console.error('❌ Hiba történt a bevételezés rögzítésekor:', error);
+    console.error('Hiba történt a bevételezés rögzítésekor:', error);
     console.error('Hiba részletei:', error.stack);
     throw error;
   }
 }
-
-document.querySelector("#selectedSupplier").addEventListener("click", function() {
-  let productOptions = document.querySelector(".productOptions");
-  productOptions.classList.toggle("hidden"); // Ez láthatóvá teszi/eltünteti a dropdown-t
-});
 
 
 
