@@ -231,3 +231,15 @@ insert parancsok, tranzakcióként:
 2.
 jobb email címek
 
+---------------------------------
+2025.05.12
+cms_db:
+1.
+tbl_sale.comment VARCHAR(50) mező létrehozás 	-- sztorno jelzése, sztornó számlánál + információ [eladási számla]
+tbl_buy.comment VARCHAR(50) mező létrehozás	-- sztornó
+
+2.
+tbl_sale tábla feltöltése: 1 számlán, több tranzakció
+
+3.
+sztornó számla készítése
