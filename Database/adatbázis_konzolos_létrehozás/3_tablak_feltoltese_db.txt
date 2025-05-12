@@ -413,19 +413,21 @@ VALUES (3, 11, 30, 2, 'OCT-2025-INV-005', '2025-03-18 13:55:00');
 
 -- áprilisi eladások
 INSERT INTO tbl_sale (staff_ID, customer_ID, product_ID, quantity_sale, bill_number, sale_date)
-VALUES (4, 5, 23, 3, 'SB-2025-000016', '2025-04-01 10:00:00');
+VALUES (2, 5, 23, 3, 'SB-2025-000016', '2025-04-01 10:00:00');
 
 INSERT INTO tbl_sale (staff_ID, customer_ID, product_ID, quantity_sale, bill_number, sale_date)
-VALUES (2, 6, 28, 2, 'SB-2025-000017', '2025-04-04 13:30:00');
+VALUES (2, 5, 28, 2, 'SB-2025-000016', '2025-04-01 10:00:00');
+
 
 INSERT INTO tbl_sale (staff_ID, customer_ID, product_ID, quantity_sale, bill_number, sale_date)
-VALUES (2, 7, 19, 4, 'SB-2025-000018', '2025-04-08 14:10:00');
+VALUES (3, 8, 19, 4, 'SB-2025-000017', '2025-04-08 14:10:00');
 
 INSERT INTO tbl_sale (staff_ID, customer_ID, product_ID, quantity_sale, bill_number, sale_date)
-VALUES (3, 8, 30, 1, 'SB-2025-000019', '2025-04-11 15:40:00');
+VALUES (3, 8, 30, 1, 'SB-2025-000017', '2025-04-08 14:10:00');
 
 INSERT INTO tbl_sale (staff_ID, customer_ID, product_ID, quantity_sale, bill_number, sale_date)
-VALUES (6, 9, 17, 2, 'SB-2025-000020', '2025-04-15 12:25:00');
+VALUES (3, 8, 17, 2, 'SB-2025-000017', '2025-04-08 14:10:00');
+
 
 -- áprilisi rendelés
 INSERT INTO tbl_buy (staff_ID, customer_ID, product_ID, quantity_buy, bill_number, buy_date)
@@ -446,6 +448,12 @@ VALUES (6, 11, 17, 2, 'OCT-2025-INV-005', '2025-04-17 13:40:00');
 
 COMMIT;
 
+-- májusi eladások + sztorno
+--INSERT INTO tbl_sale (staff_ID, customer_ID, product_ID, quantity_sale, bill_number, sale_date)
+--VALUES (2, 4, 8, 2, 'SB-2025-000018', '2025-05-05 10:00:00');
+
+--INSERT INTO tbl_sale (staff_ID, customer_ID, product_ID, quantity_sale, bill_number, comment, sale_date)
+--VALUES (2, 4, 8, -2, 'SB-2025-000019', '2025-05-05 10:10:00');
 
 
 --XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXX ::: XXXXXXXX

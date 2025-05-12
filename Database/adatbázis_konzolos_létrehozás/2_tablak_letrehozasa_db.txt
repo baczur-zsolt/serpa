@@ -129,6 +129,7 @@ CREATE TABLE tbl_buy (
     quantity_buy INT NOT NULL,
     total_price DECIMAL(10,2) NOT NULL,				-- trigger számolja (származtatott mező)
     bill_number VARCHAR(50),					-- rendelt termék számla csoportosító (egyedi számlaszám) akár 50 karakter hosszú is lehet.
+    comment VARCHAR(50),                                        -- megjegyzés a rendeléshez: sztorno 
     buy_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (staff_ID) REFERENCES tbl_staff(staff_ID),
     FOREIGN KEY (customer_ID) REFERENCES tbl_customer(customer_ID),  	--
@@ -144,6 +145,7 @@ CREATE TABLE tbl_sale (
     quantity_sale INT NOT NULL,
     total_price DECIMAL(10,2) NOT NULL,				-- trigger számolja (származtatott mező)
     bill_number VARCHAR(14),					-- számla csoportosító (egyedi számlaszám) formátum: 'SB-2025-000000'
+    comment VARCHAR(50),                                        -- megjegyzés a rendeléshez: sztorno [sztorno számla készítése]
     sale_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (staff_ID) REFERENCES tbl_staff(staff_ID),
     FOREIGN KEY (customer_ID) REFERENCES tbl_customer(customer_ID),
