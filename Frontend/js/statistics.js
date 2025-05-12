@@ -1,21 +1,7 @@
 import { API_URL } from './config.js';
 
 
-fetch(`${API_URL}finance`)
-  .then(response => response.json())  // Az adatokat JSON formátumban várjuk
-  .then(data => {
-    // A legutolsó adat kiválasztása
-    const latestFinance = data[data.length - 1];  // Az utolsó elem
 
-    // A balance kiíratása a HTML-be
-    const balanceElement = document.getElementById('egyenlegFt');  // Az elem, ahol megjelenítjük
-    balanceElement.textContent = latestFinance.balance;  // A balance értéke kiírása
-
-    // Ha szükséges, itt más adatokat is kiírhatsz
-  })
-  .catch(error => {
-    console.error('Hiba történt az adatok lekérése során:', error);
-  });
 
 document.addEventListener('DOMContentLoaded', () => {
   fetch(`${API_URL}finance`)
@@ -178,31 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-const balanceCtx = document.getElementById('balanceChart');
-new Chart(balanceCtx, {
-  type: 'line',
-  data: {
-    labels: ["2025-04-28 12:24", "2025-04-28 12:25"],
-    datasets: [{
-      label: 'Egyenleg (Ft)',
-      data: [10000000, 10180000],
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59,130,246,0.2)',
-      tension: 0.3,
-      fill: true
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' },
-      title: { display: false }
-    },
-    scales: {
-      y: { beginAtZero: false }
-    }
-  }
-});
+
 
     
 // API kérés a /sale végpontról
@@ -277,50 +239,9 @@ function getProductColor(index) {
     '#22c55e', // zöld
     '#f59e0b', // narancssárga
     '#3b82f6', // kék
-    '#9333ea', // lila
-    '#e11d48'  // piros
+    '#9333ea' // lila
+
   ];
   return colors[index % colors.length];
 }
 
-
-
-    // Bubble Chart – Eladás mennyiség és bevétel
-    const bubbleCtx = document.getElementById('bubbleChart');
-    new Chart(bubbleCtx, {
-      type: 'bubble',
-      data: {
-        datasets: [
-          {
-            label: "Fiskars Benzines Fűnyíró",
-            data: [{ x: 2, y: 180000, r: 10 }],
-            backgroundColor: '#60a5fa'
-          },
-          {
-            label: "Stihl Láncfűrész MS 180",
-            data: [{ x: 1, y: 60000, r: 5 }],
-            backgroundColor: '#f87171'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: {
-            title: { display: true, text: 'Eladott mennyiség' },
-            beginAtZero: true
-          },
-          y: {
-            title: { display: true, text: 'Bevétel (Ft)' },
-            beginAtZero: true
-          }
-        },
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: ctx => `Mennyiség: ${ctx.raw.x}, Bevétel: ${ctx.raw.y.toLocaleString()} Ft`
-            }
-          }
-        }
-      }
-    });
