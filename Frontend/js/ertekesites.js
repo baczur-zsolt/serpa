@@ -680,18 +680,81 @@ document.getElementById("saveChanges").addEventListener("click", async function 
         
     }
 
+function calculateTotalPages() {
+    const excludedBillNumbers = new Set(loadExcludedBillNumbers());
+    const filteredData = employeesData.filter(item => {
+        if (!item.bill_number) return true;
+        if (excludedBillNumbers.has(item.bill_number)) return false;
+        return true;
+    });
+    
+    const groupedData = groupItemsByBillNumber(filteredData);
+    return Math.ceil(groupedData.length / rowsPerPage);
+}
+
+// 🔹 Következő oldal - updated
+function nextPage() {
+    const totalPages = calculateTotalPages();
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+    }
+}
+
+// 🔹 Előző oldal - updated
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+    }
+}
+
+window.addEventListener('resize', () => {
+  renderTable();
+  generatePageNumbers();
+});
+
+
+
+
 function generatePageNumbers() {
-    const totalPages = Math.ceil(employeesData.length / rowsPerPage);
+    const totalPages = calculateTotalPages();
+    
     const pageNumbersDiv = document.getElementById("pageNumbers");
+    pageNumbersDiv.innerHTML = "";
 
-    pageNumbersDiv.innerHTML = ""; // Clear page numbers
 
-    for (let i = 1; i <= totalPages; i++) {
+    const isMobile = window.innerWidth < 768; 
+    
+
+    const maxVisiblePages = isMobile ? 3 : 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = startPage + maxVisiblePages - 1;
+
+    if (endPage > totalPages) {
+        endPage = totalPages;
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    if (totalPages <= 1) {
+        return;
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
         const pageButton = document.createElement("button");
         pageButton.textContent = i;
-        pageButton.classList.add("page-button", "rounded-md", "border", "border-slate-300", "py-2", "px-3", "text-center", "text-sm", "transition-all", "shadow-sm", "hover:shadow-lg", "text-slate-600", "hover:text-white", "hover:bg-blue-600", "hover:border-blue-600", "focus:text-white", "focus:bg-blue-600", "focus:border-blue-600", "active:border-blue-600", "active:text-white", "active:bg-blue-800", "disabled:pointer-events-none", "disabled:opacity-50", "disabled:shadow-none", "ml-2");
+        pageButton.classList.add(
+            "page-button", "rounded-md", "border", "border-slate-300",
+            "py-2", "px-3", "text-center", "text-sm", "transition-all",
+            "shadow-sm", "hover:shadow-lg", "text-slate-600",
+            "hover:text-white", "hover:bg-blue-600", "hover:border-blue-600",
+            "focus:text-white", "focus:bg-blue-600", "focus:border-blue-600",
+            "active:border-blue-600", "active:text-white", "active:bg-blue-800",
+            "disabled:pointer-events-none", "disabled:opacity-50", "disabled:shadow-none",
+            "ml-2"
+        );
 
-        // Disable current page button
         if (i === currentPage) {
             pageButton.disabled = true;
             pageButton.classList.add("bg-blue-600", "text-white");
@@ -706,21 +769,26 @@ function generatePageNumbers() {
     }
 }
 
-// 🔹 Következő oldal
-function nextPage() {
-    if (currentPage < Math.ceil(employeesData.length / rowsPerPage)) {
-        currentPage++;
-        renderTable();
-    }
-}
 
-// 🔹 Előző oldal
-function prevPage() {
-    if (currentPage > 1) {
-        currentPage--;
+document.getElementById("firstBtn").addEventListener("click", () => {
+    if (currentPage !== 1) {
+        currentPage = 1;
         renderTable();
     }
-}
+});
+
+
+document.getElementById("lastBtn").addEventListener("click", () => {
+    const totalPages = calculateTotalPages();
+    
+    if (currentPage !== totalPages) {
+        currentPage = totalPages;
+        renderTable();
+    }
+});
+
+
+
 
 // 🔹 Első megjelenítés
 renderTable();
@@ -1418,7 +1486,7 @@ function addNewProductRow(container) {
 
     <div class="flex-1">
       <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Egységár</label>
-      <input type="number" name="price" class="productUnitPrice bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="Egységár">
+      <input type="number" name="price" class="productUnitPrice bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="Egységár" readonly>
       <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
     </div>
   `;
@@ -2065,7 +2133,7 @@ function addNewBuyingProductRow(container) {
 
     <div class="flex-1">
       <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-900">Beszerzési ár</label>
-      <input type="number" name="buy_price" class="buyingUnitPrice bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="Beszerzési ár">
+      <input type="number" name="buy_price" class=" buyingUnitPrice bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="Beszerzési ár" readonly>
       <span class="text-red-500 text-sm hidden">Mező kitöltése kötelező</span>
     </div>
   `;
