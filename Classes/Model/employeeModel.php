@@ -144,12 +144,10 @@ class EmployeeModel{
         }
     }
     public static function deleteEmployeeById($id){
-        Db::SetFKChecks(0);
         $where='staff_ID='.$id;
-        Db::Delete('tbl_enter', $where);
-        $rows=Db::Delete('tbl_staff', $where);
-        Db::SetFKChecks(1);
-        $response='Deleted '.$rows.' rows';
+        $columns_values= 'status=0';
+        $rows=Db::Update('tbl_staff', $columns_values, $where);
+        $response='Updated '.$rows.' rows';
         return $response;
     }
     public static function issetEmail($emailIn){
