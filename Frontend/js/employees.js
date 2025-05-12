@@ -1,5 +1,4 @@
 import { API_URL } from './config.js';
-//Pagination
 
 const tableBody = document.querySelector("#employeesTable tbody");
 const rowsPerPage = 10;
@@ -21,7 +20,6 @@ fetch(`${API_URL}employee`)
     console.error("Hiba a letöltésnél:", error);
   });
 
-// 🔹 Táblázat frissítése az aktuális oldallal
 function renderTable() {
   tableBody.innerHTML = ""; // Táblázat ürítése
   mobileView.innerHTML = ""; // Mobil nézet ürítése (ha szükséges)
@@ -133,20 +131,18 @@ async function deleteSale(id) {
     });
 
     if (response.ok) {
-        // Frontenden is frissítjük az adatot
         const employee = employeesData.find(emp => emp.staff_ID == id);
         if (employee) {
             employee.status = 0;
         }
 
-        // Csak az aktívakat jelenítjük meg
         const activeEmployees = employeesData.filter(emp => emp.status == 1);
         renderTable(activeEmployees);
     } else {
         alert("Hiba az inaktiválás során!");
     }
 }
-// Például közvetlenül a script betöltésekor:
+
 if (!window.mobileViewHandlerAdded) {
     mobileView.addEventListener("click", function(e) {
         if (e.target.closest(".edit-btn")) {
@@ -158,7 +154,7 @@ if (!window.mobileViewHandlerAdded) {
             deleteSale(id);
         }
     });
-    window.mobileViewHandlerAdded = true; // jelölés, hogy már hozzád lett adva
+    window.mobileViewHandlerAdded = true;
 }
 
         
@@ -170,14 +166,13 @@ function generatePageNumbers() {
     const totalPages = Math.ceil(employeesData.length / rowsPerPage);
     const pageNumbersDiv = document.getElementById("pageNumbers");
 
-    pageNumbersDiv.innerHTML = ""; // Clear page numbers
+    pageNumbersDiv.innerHTML = "";
 
     for (let i = 1; i <= totalPages; i++) {
         const pageButton = document.createElement("button");
         pageButton.textContent = i;
         pageButton.classList.add("page-button", "rounded-md", "border", "border-slate-300", "py-2", "px-3", "text-center", "text-sm", "transition-all", "shadow-sm", "hover:shadow-lg", "text-slate-600", "hover:text-white", "hover:bg-blue-600", "hover:border-blue-600", "focus:text-white", "focus:bg-blue-600", "focus:border-blue-600", "active:border-blue-600", "active:text-white", "active:bg-blue-800", "disabled:pointer-events-none", "disabled:opacity-50", "disabled:shadow-none", "ml-2");
 
-        // Disable current page button
         if (i === currentPage) {
             pageButton.disabled = true;
             pageButton.classList.add("bg-blue-600", "text-white");
@@ -192,7 +187,7 @@ function generatePageNumbers() {
     }
 }
 
-// 🔹 Következő oldal
+
 function nextPage() {
     if (currentPage < Math.ceil(employeesData.length / rowsPerPage)) {
         currentPage++;
@@ -200,7 +195,6 @@ function nextPage() {
     }
 }
 
-// 🔹 Előző oldal
 function prevPage() {
     if (currentPage > 1) {
         currentPage--;
@@ -208,18 +202,10 @@ function prevPage() {
     }
 }
 
-// 🔹 Első megjelenítés
 renderTable();
-
 
 document.getElementById("prevBtn").addEventListener("click", prevPage);
 document.getElementById("nextBtn").addEventListener("click", nextPage);
-
-
-
-
-
-
 
 //Alkalmazott felvétele Modal
 
@@ -234,8 +220,8 @@ const applyNewStaff = document.getElementById('applyNewStaff');
 
 // Modal megnyitása
 openModal.addEventListener('click', () => {
-    modal.classList.remove('hidden'); // Modal láthatóvá tétele
-    modal.classList.add('flex'); // Modal láthatóvá tétele
+    modal.classList.remove('hidden');
+    modal.classList.add('flex'); 
     overlay.classList.remove('hidden');
     
     
@@ -257,49 +243,6 @@ modal.addEventListener('click', (e) => {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-// Adatok szerkesztése "ceruza ikonnal"
-/*
-document.addEventListener("DOMContentLoaded", function () {
-    let selectedUserId = null;
-
-    // Delegált eseménykezelő a kukákhoz
-    document.addEventListener("click", function (event) {
-        let trashIcon = event.target.closest("a"); // Az <a> elemre figyelünk
-        if (trashIcon && trashIcon.querySelector("svg")) {
-            event.preventDefault(); // Ne navigáljon el a "#" miatt
-            selectedUserId = trashIcon.getAttribute("data-user-id");
-
-            // Modal megjelenítése
-            document.getElementById("userDeleteModal").classList.remove("hidden");
-            document.getElementById("userDeleteModaloverlay").classList.remove("hidden");
-        }
-    });
-
-    // Modal bezárása
-    document.querySelectorAll("[data-modal-hide='userDeleteModal']").forEach(button => {
-        button.addEventListener("click", function () {
-            document.getElementById("userDeleteModal").classList.add("hidden");
-            document.getElementById("userDeleteModaloverlay").classList.add("hidden");
-        });
-    });
-
-    // Törlés megerősítése
-    document.querySelector(".text-white.bg-blue-600").addEventListener("click", function () {
-        deleteUser(selectedUserId); // Külön függvény meghívása
-    });
-});
-*/
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-btn").forEach((button) => {
       button.addEventListener("click", function (event) {
@@ -318,7 +261,6 @@ document.addEventListener("DOMContentLoaded", function () {
           input.value = text;
           input.className = "border px-2 py-1 w-full";
   
-          // Ha elhagyja a mezőt, visszaállítja az új értéket
           input.addEventListener("blur", function () {
             cell.innerText = this.value;
           });
@@ -330,155 +272,9 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   });
-  
-
-  /*
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const editModal = document.getElementById("editModal");
-    const saveChanges = document.getElementById("saveChanges");
-    const closeUserSettingsMenuModal = document.getElementById("closeUserSettingsMenuModal");
-
-    const tableBody = document.getElementById("employeesTable").querySelector("tbody"); // ez fontos!
-
-    // Űrlap mezők
-    const editName = document.getElementById("editName");
-    const editEmail = document.getElementById("editEmail");
-    const editStatus = document.getElementById("editStatus");
-    const editPosition = document.getElementById("editPosition");
-
-    let editingRow = null;
-
-    tableBody.addEventListener("click", function (event) {
-        const button = event.target.closest(".edit-btn");
-
-        if (button) {
-            console.log("Szerkesztés gombra kattintottál!");
-            editingRow = button.closest("tr");
-            console.log(button.closest("tr"))
-
-            if (editingRow) {
-                console.log("Szerkesztett sor:", editingRow);
-
-                editName.value = editingRow.querySelector("td:nth-child(2)").textContent.trim();
-                editEmail.value = editingRow.querySelector("td:nth-child(3)").textContent.trim();
-                editStatus.value = editingRow.querySelector("td:nth-child(4)").textContent.trim();
-                editPosition.value = editingRow.querySelector("td:nth-child(5)").textContent.trim();
-
-                editModal.classList.remove("hidden");
-            } else {
-                console.warn("Nem talált szerkeszthető sort!");
-            }
-        }
-    });
-
-    closeUserSettingsMenuModal.addEventListener("click", function () {
-        editModal.classList.add("hidden");
-    });
-
-
-    saveChanges.addEventListener("click", function () {
-        
-        console.log("SaveChanges gombra kattintottál");
-        console.log("editingRow:", editingRow); // EZT ADD HOZZÁ
-        if (!editingRow) return;
-
-        if (!editingRow) return;
-
-    let fullName = editName.value.trim();
-    let nameParts = fullName.split(" ");
-    let lastName = nameParts[0] || "";
-    let firstName = nameParts.slice(1).join(" ") || "";
-
-    const updatedData = {
-        id: editingRow.dataset.id, // A sor azonosítója
-        last_name: lastName,
-        first_name: firstName,
-        
-        email: editEmail.value,
-        status: editStatus.value,
-        access_level: editPosition.value
-    };
-    
-        // Küldés a backendnek
-        fetch(`${API_URL}sale/${editingRow.dataset.id}`, {
-            method: "PUT",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(updatedData)
-        })
-        .then(response => response.json())
-        
-        .then(data => {
-            console.log("Backend válasz:", data);
-            if (data) {
-                // A frontend frissítése
-                
-                editingRow.querySelector("td:nth-child(2)").textContent = updatedData.last_name + ' ' + updatedData.first_name;
-                editingRow.querySelector("td:nth-child(3)").textContent = updatedData.email;
-                editingRow.querySelector("td:nth-child(4)").textContent = updatedData.status;
-                editingRow.querySelector("td:nth-child(5)").textContent = updatedData.access_level;
-                
-                editModal.classList.add("hidden");
-                editingRow = null;
-            } else {
-                alert("Hiba történt a módosítás során!");
-            }
-        })
-        .catch(error => console.error("Hiba:", error));
-    });
-
-    // **Eseménykezelő delegálása a táblázatra**
-
-    document.addEventListener("DOMContentLoaded", () => {
-        tableBody.addEventListener("click", function (event) {
-            const button = event.target.closest(".delete-btn"); // Csak akkor fut tovább, ha delete-btn-re kattintottak
-            if (!button) return;
-    
-            const saleId = button.getAttribute("data-id");
-            if (!saleId) {
-                console.error("Nincs érvényes sale_ID.");
-                return;
-            }
-    
-            const confirmDelete = confirm(`Biztosan törlöd az ID: ${saleId} rekordot?`);
-            if (!confirmDelete) return;
-    
-            const row = button.closest("tr");
-    
-            fetch(`${API_URL}sale/${saleId}`, {
-                method: "DELETE"
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Hiba történt a törlés során.");
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Törlés sikeres:", data);
-                if (row) row.remove(); // Sor eltávolítása, ha sikeres
-            })
-            .catch(error => {
-                console.error("Hiba a törlés során:", error);
-                alert("Hiba történt a törlés során.");
-            });
-        });
-    });
-    
-});
-
-*/
-
-
-
 
 
 //Új alkalazott felvétele Modal logikája
-// Új alkalmazott hozzáadása (POST)
-// Az eseménykezelő a form submitjára
 
 document.getElementById('applyNewStaff').addEventListener('click', function(event) {
     event.preventDefault();

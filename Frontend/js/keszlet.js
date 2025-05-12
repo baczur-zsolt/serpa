@@ -1,5 +1,4 @@
 import { API_URL } from './config.js';
-//Pagination
 
 const tableBody = document.querySelector("#employeesTable tbody");
 const rowsPerPage = 10;
@@ -7,74 +6,6 @@ let currentPage = 1;
 let employeesData = [];
 let productsData = [];
 
-//Felhasználók adatainak lekérése
-//
-//https://67bdcc05321b883e790df6fe.mockapi.io/api/users
-
-
-//Felhasználók törlése a sorból az ikon megnyomásával
-// Felhasználó törlése
-/*
-function deleteUser(selectedUserId) {
-    if (selectedUserId) {
-        fetch(`${API_URL}=${selectedUserId}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-        .then(response => {
-            if (response.ok) {
-                // Sor eltávolítása a DOM-ból
-                document.querySelector(`tr[data-user-id="${selectedUserId}"]`)?.remove();
-                console.log("Sikeresen eltávolítva")
-            } else {
-                alert("Sikertelen törlés");
-            }
-        })
-        .catch(error => console.error("Hiba:", error))
-        .finally(() => {
-            document.getElementById("userDeleteModal").classList.add("hidden");
-        });
-    }
-}
-*/
-//Felhasználói adatok módosítása
-
-
-
-
-// Felhasználók törlése a sorból az ikon megnyomásával
-/*
-document.addEventListener("DOMContentLoaded", function () {
-    let selectedUserId = null;
-
-    // Delegált eseménykezelő a kukákhoz
-    document.addEventListener("click", function (event) {
-        let trashIcon = event.target.closest("a"); // Az <a> elemre figyelünk
-        if (trashIcon && trashIcon.querySelector("svg")) {
-            event.preventDefault(); // Ne navigáljon el a "#" miatt
-            selectedUserId = trashIcon.getAttribute("data-user-id");
-
-            // Modal megjelenítése
-            document.getElementById("userDeleteModal").classList.remove("hidden");
-        }
-    });
-
-    // Modal bezárása
-    document.querySelectorAll("[data-modal-hide='userDeleteModal']").forEach(button => {
-        
-        button.addEventListener("click", function () {
-            document.getElementById("userDeleteModal").classList.add("hidden");
-        });
-    });
-    
-    // Törlés megerősítése
-    document.querySelector(".text-white.bg-blue-600").addEventListener("click", function () {
-        deleteUser(selectedUserId); // Külön függvény meghívása
-    });
-});
-*/
 
 Promise.all([
     fetch(`${API_URL}sale`), // Sale adatok
@@ -92,14 +23,12 @@ Promise.all([
       employeesData = saleData;
       productsData = productData.filter(product => product.status === 1);
   
-      // Táblázat renderelése
       renderTable();
     })
     .catch(error => {
       console.error("Hiba a letöltésnél:", error);
     });
     
-// 🔹 Táblázat frissítése az aktuális oldallal
 function renderTable() {
     productsData.sort((a, b) => b.product_ID - a.product_ID);
     tableBody.innerHTML = "";  // Táblázat ürítése
@@ -146,7 +75,6 @@ function renderTable() {
         `;
         tableBody.appendChild(row);
 
-        // 📌 Mobil verzióhoz tartozó kártya nézet (használjuk ugyanazokat a gombokat)
         const card = document.createElement("div");
         card.className = "bg-white shadow-md rounded-lg p-4 border border-gray-200";
         card.innerHTML = `
@@ -215,7 +143,6 @@ document.getElementById("saveChanges").addEventListener("click", async function 
 });
 
 
-// Például közvetlenül a script betöltésekor:
 if (!window.mobileViewHandlerAdded) {
     mobileView.addEventListener("click", function(e) {
         if (e.target.closest(".edit-btn")) {
@@ -244,14 +171,12 @@ if (!window.mobileViewHandlerAdded) {
         console.log("EDIT ITEM:", item);
     
         const product = productsData.find(prod => prod.product_ID == item.product_ID);
-    
-        // Feltételezzük, hogy minden input elem ID-ja megfelelő
+
         document.getElementById("editName").value = product?.product_name || "";
         document.getElementById("editEmail").value = product?.stock_number || "";
         document.getElementById("editPosition").value = product?.product_price || "";
         document.getElementById("editStatus").value = product?.product_profit_price || "";
     
-        // Mentéshez szükség lesz az ID-ra is, amit külön el kell tárolni
         document.getElementById("saveChanges").dataset.id = item.product_ID;
     
         document.getElementById("editModal").classList.remove("hidden");
@@ -266,10 +191,10 @@ async function deleteSale(id) {
     });
 
     if (response.ok) {
-        // 🔄 Frissítjük a terméklistát, hogy ne tartalmazza a törölt elemet
+        // Frissítjük a terméklistát, hogy ne tartalmazza a törölt elemet
         productsData = productsData.filter(product => product.product_ID != id);
 
-        // 🔁 Újrarendereljük a táblázatot
+        // Újrarendereljük a táblázatot
         renderTable();
     } else {
         alert("Hiba a törlés során!");
@@ -420,7 +345,7 @@ applyNewStaff.addEventListener("click", function (event) {
 
     if (!isValid) return; // Ha hiba van, ne menjen tovább és NE zárja be a modált
 
-    // ✅ Csak itt zárjuk be, ha minden mező jó
+    // Csak itt zárjuk be, ha minden mező jó
     modal.classList.add("hidden");
     overlay.classList.add("hidden");
 
@@ -452,46 +377,6 @@ applyNewStaff.addEventListener("click", function (event) {
     });
 });
 
-
-
-
-
-
-
-
-
-// Adatok szerkesztése "ceruza ikonnal"
-/*
-document.addEventListener("DOMContentLoaded", function () {
-    let selectedUserId = null;
-
-    // Delegált eseménykezelő a kukákhoz
-    document.addEventListener("click", function (event) {
-        let trashIcon = event.target.closest("a"); // Az <a> elemre figyelünk
-        if (trashIcon && trashIcon.querySelector("svg")) {
-            event.preventDefault(); // Ne navigáljon el a "#" miatt
-            selectedUserId = trashIcon.getAttribute("data-user-id");
-
-            // Modal megjelenítése
-            document.getElementById("userDeleteModal").classList.remove("hidden");
-            document.getElementById("userDeleteModaloverlay").classList.remove("hidden");
-        }
-    });
-
-    // Modal bezárása
-    document.querySelectorAll("[data-modal-hide='userDeleteModal']").forEach(button => {
-        button.addEventListener("click", function () {
-            document.getElementById("userDeleteModal").classList.add("hidden");
-            document.getElementById("userDeleteModaloverlay").classList.add("hidden");
-        });
-    });
-
-    // Törlés megerősítése
-    document.querySelector(".text-white.bg-blue-600").addEventListener("click", function () {
-        deleteUser(selectedUserId); // Külön függvény meghívása
-    });
-});
-*/
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-btn").forEach((button) => {
       button.addEventListener("click", function (event) {
@@ -524,158 +409,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   
 
-  /*
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const editModal = document.getElementById("editModal");
-    const saveChanges = document.getElementById("saveChanges");
-    const closeUserSettingsMenuModal = document.getElementById("closeUserSettingsMenuModal");
-
-    const tableBody = document.getElementById("employeesTable").querySelector("tbody"); // ez fontos!
-
-    // Űrlap mezők
-    const editName = document.getElementById("editName");
-    const editEmail = document.getElementById("editEmail");
-    const editStatus = document.getElementById("editStatus");
-    const editPosition = document.getElementById("editPosition");
-
-    let editingRow = null;
-
-    tableBody.addEventListener("click", function (event) {
-        const button = event.target.closest(".edit-btn");
-
-        if (button) {
-            console.log("Szerkesztés gombra kattintottál!");
-            editingRow = button.closest("tr");
-            console.log(button.closest("tr"))
-
-            if (editingRow) {
-                console.log("Szerkesztett sor:", editingRow);
-
-                editName.value = editingRow.querySelector("td:nth-child(2)").textContent.trim();
-                editEmail.value = editingRow.querySelector("td:nth-child(3)").textContent.trim();
-                editStatus.value = editingRow.querySelector("td:nth-child(4)").textContent.trim();
-                editPosition.value = editingRow.querySelector("td:nth-child(5)").textContent.trim();
-
-                editModal.classList.remove("hidden");
-            } else {
-                console.warn("Nem talált szerkeszthető sort!");
-            }
-        }
-    });
-
-    closeUserSettingsMenuModal.addEventListener("click", function () {
-        editModal.classList.add("hidden");
-    });
-
-
-    saveChanges.addEventListener("click", function () {
-        
-        console.log("SaveChanges gombra kattintottál");
-        console.log("editingRow:", editingRow); // EZT ADD HOZZÁ
-        if (!editingRow) return;
-
-        if (!editingRow) return;
-
-    let fullName = editName.value.trim();
-    let nameParts = fullName.split(" ");
-    let lastName = nameParts[0] || "";
-    let firstName = nameParts.slice(1).join(" ") || "";
-
-    const updatedData = {
-        id: editingRow.dataset.id, // A sor azonosítója
-        last_name: lastName,
-        first_name: firstName,
-        
-        email: editEmail.value,
-        status: editStatus.value,
-        access_level: editPosition.value
-    };
-    
-        // Küldés a backendnek
-        fetch(`${API_URL}sale/${editingRow.dataset.id}`, {
-            method: "PUT",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(updatedData)
-        })
-        .then(response => response.json())
-        
-        .then(data => {
-            console.log("Backend válasz:", data);
-            if (data) {
-                // A frontend frissítése
-                
-                editingRow.querySelector("td:nth-child(2)").textContent = updatedData.last_name + ' ' + updatedData.first_name;
-                editingRow.querySelector("td:nth-child(3)").textContent = updatedData.email;
-                editingRow.querySelector("td:nth-child(4)").textContent = updatedData.status;
-                editingRow.querySelector("td:nth-child(5)").textContent = updatedData.access_level;
-                
-                editModal.classList.add("hidden");
-                editingRow = null;
-            } else {
-                alert("Hiba történt a módosítás során!");
-            }
-        })
-        .catch(error => console.error("Hiba:", error));
-    });
-
-    // **Eseménykezelő delegálása a táblázatra**
-
-    document.addEventListener("DOMContentLoaded", () => {
-        tableBody.addEventListener("click", function (event) {
-            const button = event.target.closest(".delete-btn"); // Csak akkor fut tovább, ha delete-btn-re kattintottak
-            if (!button) return;
-    
-            const saleId = button.getAttribute("data-id");
-            if (!saleId) {
-                console.error("Nincs érvényes product_ID.");
-                return;
-            }
-    
-            const confirmDelete = confirm(`Biztosan törlöd az ID: ${saleId} rekordot?`);
-            if (!confirmDelete) return;
-    
-            const row = button.closest("tr");
-    
-            fetch(`${API_URL}sale/${saleId}`, {
-                method: "DELETE"
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Hiba történt a törlés során.");
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Törlés sikeres:", data);
-                if (row) row.remove(); // Sor eltávolítása, ha sikeres
-            })
-            .catch(error => {
-                console.error("Hiba a törlés során:", error);
-                alert("Hiba történt a törlés során.");
-            });
-        });
-    });
-    
-});
-
-*/
-
-
-
-
-
-//Új alkalazott felvétele Modal logikája
-// Új alkalmazott hozzáadása (POST)
-// Az eseménykezelő a form submitjára
-
-
-
 // Az addUser függvény, amely elküldi a POST kérést
-//'../../backend/api.php?endpoint=staff'
 function addUser() {
     // Az input mezőkből olvassuk ki az adatokat
     const productData = {

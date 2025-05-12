@@ -30,9 +30,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       
     ]);
 
-
-
-    
     // Adatok feldolgozása
     const now = new Date();
     const parseDate = (str) => new Date(str);
@@ -142,12 +139,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     );
 
     // ===== 2. Heti kimutatás (30 nap) =====
-// ===== 2. Heti kimutatás (30 nap) =====
-// Módosított kód, pontosan az előző 30 napot mutatja heti bontásban
-const monthlyData = [];
-// Használjuk a már definiált "now" változót a mai dátumhoz az "today" helyett
 
-// Heti időszakok generálása az előző 30 napra
+const monthlyData = [];
+
 const numberOfWeeks = 5; // 5 hét lefedi a 30 napot, és biztosít némi átfedést
 const daysPerWeek = 7;
 
@@ -175,32 +169,24 @@ for (let weekIndex = numberOfWeeks - 1; weekIndex >= 0; weekIndex--) {
   
   let weekBalance = null;
   
-  // Ha van adat az adott hétre, vegyük a legfrissebbet
   if (weekEntries.length > 0) {
     const lastEntry = weekEntries[weekEntries.length - 1];
     weekBalance = parseFloat(lastEntry.balance);
   } 
-  // Ha nincs, akkor keresünk egy korábbi értéket a héthez
   else {
-    // Keresünk egy korábbi bejegyzést ami a legközelebb áll a héthez
     const previousEntries = financeData.filter(entry => 
       parseDate(entry.date) < weekStart
     );
     
     if (previousEntries.length > 0) {
-      // Vegyük a legfrissebbet a megelőző időszakból
       const lastPreviousEntry = previousEntries[previousEntries.length - 1];
       weekBalance = parseFloat(lastPreviousEntry.balance);
     } else if (financeData.length > 0) {
-      // Ha nincs korábbi érték, használjuk az első rendelkezésre álló adatot
       weekBalance = parseFloat(financeData[0].balance);
     } else {
-      // Ha semmilyen adat nincs, állítsuk 0-ra
       weekBalance = 0;
     }
   }
-  
-  // A hét formázása "hónap, nap - hónap, nap" formában
   const weekKey = `${weekStart.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' })}`;
   
   monthlyData.push({
@@ -209,17 +195,14 @@ for (let weekIndex = numberOfWeeks - 1; weekIndex >= 0; weekIndex--) {
   });
 }
 
-// A heti adatok objektummá alakítása
 const weekly = monthlyData.reduce((acc, entry) => {
   acc[entry.date] = entry.balance;
   return acc;
 }, {});
-
-    // ===== 3. Havi kimutatás (12 hónap) =====
    // ===== 3. Havi kimutatás (12 hónap) =====
-// Módosított kód, minden hónapot mutat az előző 12 hónapból
+
 const yearlyData = [];
-// Használjuk a már korábban definiált "now" változót az "today" helyett
+
 
 // Az előző 12 hónap generálása
 for (let i = 11; i >= 0; i--) {
@@ -234,27 +217,21 @@ for (let i = 11; i >= 0; i--) {
   
   let monthBalance = null;
   
-  // Ha van adat az adott hónapból, vegyük a legfrissebbet
   if (monthEntries.length > 0) {
     const lastEntry = monthEntries[monthEntries.length - 1];
     monthBalance = parseFloat(lastEntry.balance);
   } 
-  // Ha nincs, akkor keresünk egy korábbi értéket a hónaphoz
   else {
-    // Keresünk egy korábbi bejegyzést ami a legközelebb áll a hónaphoz
     const previousEntries = financeData.filter(entry => 
       parseDate(entry.date) < monthStart
     );
     
     if (previousEntries.length > 0) {
-      // Vegyük a legfrissebbet a megelőző időszakból
       const lastPreviousEntry = previousEntries[previousEntries.length - 1];
       monthBalance = parseFloat(lastPreviousEntry.balance);
     } else if (financeData.length > 0) {
-      // Ha nincs korábbi érték, használjuk az első rendelkezésre álló adatot
       monthBalance = parseFloat(financeData[0].balance);
     } else {
-      // Ha semmilyen adat nincs, állítsuk 0-ra
       monthBalance = 0;
     }
   }

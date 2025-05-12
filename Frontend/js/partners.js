@@ -1,5 +1,4 @@
 import { API_URL } from './config.js';
-//Pagination
 
 const tableBody = document.querySelector("#employeesTable tbody");
 const rowsPerPage = 10;
@@ -86,10 +85,9 @@ function renderTable() {
         `;
         tableBody.appendChild(row);
 
-        // Mobil verzióhoz tartozó kártya nézet (használjuk ugyanazokat a gombokat)
         const card = document.createElement("div");
         card.className = "bg-white shadow-md rounded-lg p-4 border border-gray-200";
-        card.setAttribute("data-id", user.customer_ID);  // A data-id hozzáadása a kártyához
+        card.setAttribute("data-id", user.customer_ID); 
         card.innerHTML = `
             <div class="flex justify-between">
                 <h3 class="text-lg font-semibold text-gray-900">${product.first_name + ' ' + product.last_name}</h3>
@@ -116,14 +114,6 @@ function renderTable() {
         mobileView.appendChild(card); // Kártyák hozzáadása a mobil nézethez
     });
 
-
-
-
-        
-
-        
-
-// Bezárás gomb
 document.getElementById("closeUserSettingsMenuModal").addEventListener("click", () => {
     document.getElementById("editModal").classList.add("hidden");
 });
@@ -134,11 +124,9 @@ document.getElementById("closeUserSettingsMenuModal").addEventListener("click", 
         window.scrollTo({
             top: 0,
             left: 0,
-            behavior: 'smooth'  // Aktiválja a sima görgetést
+            behavior: 'smooth'
         });
     }
-
-
 
 // Törlés
 document.addEventListener("DOMContentLoaded", function () {
@@ -199,7 +187,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Törlés API hívás
     async function deleteUserFromDatabase(id) {
         const response = await fetch(`${API_URL}partner/${id}`, {
             method: "DELETE",
@@ -213,31 +200,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
-/*
-// Event delegation a táblázat soraiban
-tableBody.addEventListener("click", function(e) {
-    if (e.target.closest(".edit-btn")) {
-        const id = e.target.closest(".edit-btn").dataset.id;
-        const item = partnersData.find(emp => emp.customer_ID == id);
-        openEditModal(item);
-    } else if (e.target.closest(".delete-btn")) {
-        const id = e.target.closest(".delete-btn").dataset.id;
-        deleteSale(id);
-    }
-});
-*/
+
 function generatePageNumbers() {
     const totalPages = Math.ceil(partnersData.length / rowsPerPage);
     const pageNumbersDiv = document.getElementById("pageNumbers");
 
-    pageNumbersDiv.innerHTML = ""; // Clear page numbers
+    pageNumbersDiv.innerHTML = "";
 
     for (let i = 1; i <= totalPages; i++) {
         const pageButton = document.createElement("button");
         pageButton.textContent = i;
         pageButton.classList.add("page-button", "rounded-md", "border", "border-slate-300", "py-2", "px-3", "text-center", "text-sm", "transition-all", "shadow-sm", "hover:shadow-lg", "text-slate-600", "hover:text-white", "hover:bg-blue-600", "hover:border-blue-600", "focus:text-white", "focus:bg-blue-600", "focus:border-blue-600", "active:border-blue-600", "active:text-white", "active:bg-blue-800", "disabled:pointer-events-none", "disabled:opacity-50", "disabled:shadow-none", "ml-2");
 
-        // Disable current page button
         if (i === currentPage) {
             pageButton.disabled = true;
             pageButton.classList.add("bg-blue-600", "text-white");
@@ -252,7 +226,6 @@ function generatePageNumbers() {
     }
 }
 
-// 🔹 Következő oldal
 function nextPage() {
     if (currentPage < Math.ceil(employeesData.length / rowsPerPage)) {
         currentPage++;
@@ -260,7 +233,6 @@ function nextPage() {
     }
 }
 
-// 🔹 Előző oldal
 function prevPage() {
     if (currentPage > 1) {
         currentPage--;
@@ -268,7 +240,6 @@ function prevPage() {
     }
 }
 
-// 🔹 Első megjelenítés
 renderTable();
 
 
@@ -294,8 +265,8 @@ const applyNewStaff = document.getElementById('applyNewStaff');
 
 // Modal megnyitása
 openModal.addEventListener('click', () => {
-    modal.classList.remove('hidden'); // Modal láthatóvá tétele
-    modal.classList.add('flex'); // Modal láthatóvá tétele
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
     overlay.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
     
@@ -317,49 +288,6 @@ modal.addEventListener('click', (e) => {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-// Adatok szerkesztése "ceruza ikonnal"
-/*
-document.addEventListener("DOMContentLoaded", function () {
-    let selectedUserId = null;
-
-    // Delegált eseménykezelő a kukákhoz
-    document.addEventListener("click", function (event) {
-        let trashIcon = event.target.closest("a"); // Az <a> elemre figyelünk
-        if (trashIcon && trashIcon.querySelector("svg")) {
-            event.preventDefault(); // Ne navigáljon el a "#" miatt
-            selectedUserId = trashIcon.getAttribute("data-user-id");
-
-            // Modal megjelenítése
-            document.getElementById("userDeleteModal").classList.remove("hidden");
-            document.getElementById("userDeleteModaloverlay").classList.remove("hidden");
-        }
-    });
-
-    // Modal bezárása
-    document.querySelectorAll("[data-modal-hide='userDeleteModal']").forEach(button => {
-        button.addEventListener("click", function () {
-            document.getElementById("userDeleteModal").classList.add("hidden");
-            document.getElementById("userDeleteModaloverlay").classList.add("hidden");
-        });
-    });
-
-    // Törlés megerősítése
-    document.querySelector(".text-white.bg-blue-600").addEventListener("click", function () {
-        deleteUser(selectedUserId); // Külön függvény meghívása
-    });
-});
-*/
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".edit-btn").forEach((button) => {
       button.addEventListener("click", function (event) {
@@ -378,7 +306,7 @@ document.addEventListener("DOMContentLoaded", function () {
           input.value = text;
           input.className = "border px-2 py-1 w-full";
   
-          // Ha elhagyja a mezőt, visszaállítja az új értéket
+
           input.addEventListener("blur", function () {
             cell.innerText = this.value;
           });
@@ -507,17 +435,8 @@ if (partner) {
 });
 
 
-
-
-
-
-
-//Új alkalazott felvétele Modal logikája
-// Új alkalmazott hozzáadása (POST)
-// Az eseménykezelő a form submitjára
-
 document.getElementById('applyNewStaff').addEventListener('click', function(event) {
-    event.preventDefault(); // Ne küldje el az űrlapot alapértelmezetten
+    event.preventDefault();
 
     const requiredFields = [
         'newstaff_name',
@@ -527,36 +446,36 @@ document.getElementById('applyNewStaff').addEventListener('click', function(even
         'newstaff_address_city',
         'newstaff_address_street',
         'newstaff_address_housenumber',
-        'newstaff_status' // Új mező hozzáadása a validáláshoz
+        'newstaff_status'
     ];
 
     let formIsValid = true;
 
     requiredFields.forEach(fieldId => {
         const input = document.getElementById(fieldId);
-        const errorSpan = input.parentElement.querySelector('.error-message'); // Itt keresünk a parent elemen belül
+        const errorSpan = input.parentElement.querySelector('.error-message'); 
 
         if (fieldId === 'newstaff_status') {
             // Ha select mezőt validálunk
             if (input.value === '' || input.value === 'Válasszon típust') {
-                errorSpan.classList.remove('hidden'); // Hibajelzés megjelenítése
+                errorSpan.classList.remove('hidden'); 
                 formIsValid = false;
             } else {
-                errorSpan.classList.add('hidden'); // Hibajelzés elrejtése
+                errorSpan.classList.add('hidden'); 
             }
         } else {
-            // Ha nem select, akkor a megszokott validálás
+
             if (!input.value.trim()) {
-                errorSpan.classList.remove('hidden'); // Hibajelzés megjelenítése
+                errorSpan.classList.remove('hidden'); 
                 formIsValid = false;
             } else {
-                errorSpan.classList.add('hidden'); // Hibajelzés elrejtése
+                errorSpan.classList.add('hidden'); 
             }
         }
     });
 
     if (!formIsValid) {
-        return; // Ne folytassa a beküldést, ha a form nem érvényes
+        return; 
     }
 
     const fullName = document.getElementById('newstaff_name').value.trim();
@@ -564,7 +483,7 @@ const nameParts = fullName.split(" ");
 const last_name = nameParts[0];
 const first_name = nameParts.slice(1).join(" ") || "";
 
-    // Státusz kiválasztása
+
     const status = document.getElementById('newstaff_status').value === '1' ? true : false;
 
     const userData = {
@@ -613,14 +532,12 @@ function addUser(userData) {
     .then(data => {
         console.log("Backend válasz:", data);
 
-        // Ha az új felhasználó sikeresen létrejött
+
         const newUser = Array.isArray(data) ? data[0] : data;
 
         if (newUser?.customer_ID) {
-            // Hozzáadjuk az új felhasználót a listához
-            partnersData.unshift(newUser); // új felhasználó a lista elejére
 
-            // Újra rendereljük a táblázatot, hogy az új adat azonnal megjelenjen
+            partnersData.unshift(newUser); 
             renderTable();
         } else {
             alert("Hiba történt a felhasználó hozzáadásakor! Ellenőrizd az adatokat.");

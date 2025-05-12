@@ -52,16 +52,3 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         generalErrorElement.textContent = 'Hálózati hiba történt. Próbáld újra később!';
     }
 });
-
-
-//Teszt komment
-//Merge tesztelés
-
-//Frontend Branch tesztelés
-
-//Új változtatás frontenden
-
-//Próba 
-
-
-//Újabb változtatás
