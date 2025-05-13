@@ -25,7 +25,7 @@ $router->addRoute("GET", "$myURL/sales", function() {
     PageController::main("sales");
 });
 $router->addRoute("GET", "$myURL/products", function() {
-    AccessController::accessLevel(2);
+    AccessController::accessLevel(1);
     PageController::main("products");
 });
 $router->addRoute("GET", "$myURL/partners", function() {
@@ -100,24 +100,24 @@ $router->addRoute("POST", "$myURL/buy", function(){
 });
 //Products
 $router->addRoute("GET", "$myURL/product", function($id){
-    AccessController::accessLevel(2);
+    AccessController::accessLevel(1);
     ProductController::getProduct($id);
 });
 $router->addRoute("POST", "$myURL/product", function(){
-    AccessController::accessLevel(2);
+    AccessController::accessLevel(1);
     ProductController::setProduct();
 });
 $router->addRoute("PUT", "$myURL/product", function($id){
-    AccessController::accessLevel(2);
+    AccessController::accessLevel(1);
     ProductController::updateProduct($id);
 });
 $router->addRoute("DELETE", "$myURL/product", function($id){
-    AccessController::accessLevel(2);
+    AccessController::accessLevel(1);
     ProductController::deleteProduct($id);
 });
 //Partners
 $router->addRoute("GET", "$myURL/partner", function($id){
-    AccessController::accessLevel(2);
+    AccessController::accessLevel(1);
     PartnerController::getPartner($id);
 });
 $router->addRoute("POST", "$myURL/partner", function(){
