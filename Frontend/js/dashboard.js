@@ -8,9 +8,7 @@ import { API_URL } from './config.js';
             .then(response => response.json())
             .then(data => {
                 const cardContainer = document.getElementById("card-container");
-                cardContainer.innerHTML = ""; // Töröljük a korábbi kártyákat
-    
-                // Adjunk hozzá egy grid konténert
+                cardContainer.innerHTML = "";
                 const cardsContainer = document.createElement("div");
                 cardsContainer.classList.add("grid", "grid-cols-1", "gap-8", "p-10", "lg:grid-cols-2", "xl:grid-cols-4");
                 cardContainer.appendChild(cardsContainer);
@@ -45,7 +43,6 @@ import { API_URL } from './config.js';
                         </div>
                     `;
     
-                    // Add hozzá a kártyát a konténerhez
                     cardsContainer.appendChild(cardElement);
                 });
             })

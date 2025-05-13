@@ -1,377 +1,397 @@
 import { API_URL } from './config.js';
 
+
+
 fetch(`${API_URL}finance`)
   .then(response => response.json())
   .then(data => {
     const latestFinance = data[data.length - 1];
     const balanceElement = document.getElementById('egyenlegFt');
-    balanceElement.textContent = latestFinance.balance;
+    balanceElement.textContent = new Intl.NumberFormat('hu-HU', {
+      style: 'currency',
+      currency: 'HUF',
+      minimumFractionDigits: 0
+    }).format(latestFinance.balance);
   })
   .catch(error => {
     console.error('Hiba történt az adatok lekérése során:', error);
   });
 
-document.addEventListener('DOMContentLoaded', () => {
-  fetch(`${API_URL}finance`)
-    .then(res => res.json())
-    .then(data => {
-      const now = new Date();
-      const parseDate = (str) => new Date(str);
 
-      // ===== Segédfüggvények =====
-      const filterByDays = (days) => {
-        const from = new Date(now);
-        from.setDate(now.getDate() - days);
-        return data.filter(entry => parseDate(entry.date) >= from);
-      };
 
-      const groupBy = (arr, keyFn) =>
-        arr.reduce((acc, entry) => {
-          const key = keyFn(parseDate(entry.date));
-          acc[key] = parseFloat(entry.balance);
-          return acc;
-        }, {});
 
-      const renderText = (id, text) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = text;
-      };
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    // Párhuzamos adatlekérés mindhárom végpontról
+    const [financeData, salesData, buysData] = await Promise.all([
+      fetch(`${API_URL}finance`).then(res => res.json()),
+      fetch(`${API_URL}sale`).then(res => res.json()),
+      fetch(`${API_URL}buy`).then(res => res.json())
+      
+    ]);
 
-      const createChart = (type, canvasId, labels, datasets, xLabel = 'Idő', yLabel = 'Ft') => {
-        const ctx = document.getElementById(canvasId)?.getContext('2d');
-        if (!ctx) return;
-        new Chart(ctx, {
-          type,
-          data: { labels, datasets },
-          options: {
-            responsive: true,
-            animation: { duration: 1000, easing: 'easeOutQuart' },
-            scales: {
-              y: { beginAtZero: true, title: { display: true, text: yLabel } },
-              x: { title: { display: true, text: xLabel } }
-            }
-          }
-        });
-      };
+    // Adatok feldolgozása
+    const now = new Date();
+    const parseDate = (str) => new Date(str);
 
-      const createLineChartFromData = (canvasId, chartData, label) => {
-        createChart('line', canvasId, Object.keys(chartData), [{
-          label,
-          data: Object.values(chartData),
-          borderColor: 'rgba(0, 157, 247, 1)',
-          backgroundColor: 'rgba(59, 130, 246, 0.2)',
-          tension: 0.4,
-          fill: true
-        }]);
-      };
+    // Eladások és vásárlások számának meghatározása
+    const totalSales = salesData.length;
+    const totalBuys = buysData.length;
 
-      // ===== 1. Napi kimutatás (7 nap) =====
-      const weeklyData = filterByDays(7);
-      const daily = groupBy(weeklyData, d =>
-        d.toLocaleDateString('hu-HU', { weekday: 'short', day: 'numeric', month: 'short' })
-      );
+    // Összes bevétel és kiadás számítása
+    const totalRevenue = salesData.reduce((sum, sale) => 
+      sum + parseFloat(sale.total_price), 0);
+    const totalExpenses = buysData.reduce((sum, buy) => 
+      sum + parseFloat(buy.total_price), 0);
 
-      // ===== 2. Heti kimutatás (30 nap) =====
-      const monthlyData = filterByDays(30);
-      const weekly = groupBy(monthlyData, d => {
-        const startOfWeek = new Date(d);
-        startOfWeek.setDate(d.getDate() - d.getDay());
-        return startOfWeek.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' });
-      });
+    // ===== Segédfüggvények =====
+    const filterByDays = (days) => {
+      const from = new Date(now);
+      from.setDate(now.getDate() - days);
+      return financeData.filter(entry => parseDate(entry.date) >= from);
+    };
 
-      // ===== 3. Havi kimutatás (12 hónap) =====
-      const yearlyData = [];
-      for (let i = 11; i >= 0; i--) {
-        const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
-        
-        const monthEntries = data.filter(entry => {
-          const entryDate = parseDate(entry.date);
-          return entryDate >= monthStart && entryDate <= monthEnd;
-        });
-        
-        if (monthEntries.length > 0) {
-          const lastEntry = monthEntries[monthEntries.length - 1];
-          const monthKey = monthStart.toLocaleDateString('hu-HU', { year: 'numeric', month: 'short' });
-          yearlyData.push({
-            date: monthKey,
-            balance: lastEntry.balance
-          });
-        }
-      }
-
-      const monthly = yearlyData.reduce((acc, entry) => {
-        acc[entry.date] = parseFloat(entry.balance);
+    const groupBy = (arr, keyFn) =>
+      arr.reduce((acc, entry) => {
+        const key = keyFn(parseDate(entry.date));
+        acc[key] = parseFloat(entry.balance);
         return acc;
       }, {});
 
-      // ===== 4. Profit kiszámítás =====
-      const startBalance = parseFloat(data[0].balance);
-      const endBalance = parseFloat(data[data.length - 1].balance);
-      const profit = endBalance - startBalance;
-      const profitPercent = ((profit / startBalance) * 100).toFixed(2);
+    const renderText = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
 
-      renderText("profitFt", `${profit.toLocaleString()} Ft`);
-      renderText("profitPercent", `${profitPercent}%`);
-
-      // ===== 5. Összes eladás és bevétel =====
-      const totalSales = data.filter(e => e.sale_ID !== null).length;
-      const totalBuys = data.filter(e => e.buy_ID !== null).length;
-
-      renderText("totalSales", totalSales);
-      renderText("totalBuys", totalBuys);
-
-      // ===== 6. Havi bevétel és kiadás összegzése =====
-      const monthlyStats = {};
-      data.forEach(entry => {
-        const d = parseDate(entry.date);
-        const key = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
-        if (!monthlyStats[key]) monthlyStats[key] = { revenue: 0, expense: 0 };
-        const value = parseFloat(entry.balance);
-        if (entry.sale_ID !== null) monthlyStats[key].revenue += value;
-        if (entry.buy_ID !== null) monthlyStats[key].expense += value;
+    const createChart = (type, canvasId, labels, datasets, xLabel = 'Idő', yLabel = 'Ft') => {
+      const ctx = document.getElementById(canvasId)?.getContext('2d');
+      if (!ctx) return;
+      new Chart(ctx, {
+        type,
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          animation: { duration: 1000, easing: 'easeOutQuart' },
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: yLabel } },
+            x: { title: { display: true, text: xLabel } }
+          }
+        }
       });
+    };
 
-      const monthLabels = Object.keys(monthlyStats);
-      const revenueData = monthLabels.map(m => monthlyStats[m].revenue);
-      const expenseData = monthLabels.map(m => monthlyStats[m].expense);
+    const createLineChartFromData = (canvasId, chartData, label) => {
+      createChart('line', canvasId, Object.keys(chartData), [{
+        label,
+        data: Object.values(chartData),
+        borderColor: 'rgba(0, 157, 247, 1)',
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        tension: 0.4,
+        fill: true
+      }]);
+    };
 
-      createChart('bar', 'monthlyIncomeExpenseChart', monthLabels, [
-        {
-          label: 'Bevétel',
-          data: revenueData,
-          backgroundColor: 'rgba(34,197,94,0.6)',
-          borderColor: 'rgba(34,197,94,1)',
-          borderWidth: 1
-        },
-        {
-          label: 'Kiadás',
-          data: expenseData,
-          backgroundColor: 'rgba(239,68,68,0.6)',
-          borderColor: '#ff6666',
-          borderWidth: 1
-        }
-      ]);
+    // Sales és Buy adatok feldolgozása, date mezők alapján
+    const processSalesByDate = (days) => {
+      const from = new Date(now);
+      from.setDate(now.getDate() - days);
+      
+      // Szűrés dátum alapján
+      const filteredSales = salesData.filter(sale => {
+        const saleDate = parseDate(sale.sale_date);
+        return saleDate >= from;
+      });
+      
+      // Csoportosítás dátum szerint
+      return filteredSales.reduce((acc, sale) => {
+        const date = parseDate(sale.sale_date);
+        const key = date.toLocaleDateString('hu-HU', { day: 'numeric', month: 'short' });
+        if (!acc[key]) acc[key] = 0;
+        acc[key] += parseFloat(sale.total_price);
+        return acc;
+      }, {});
+    };
 
-      // ===== 7. Trendvonalak =====
-      createLineChartFromData('weeklyChart', daily, 'Utolsó 7 nap');
-      createLineChartFromData('monthlyChart', weekly, 'Utolsó 30 nap');
-      createLineChartFromData('yearlyChart', monthly, 'Utolsó 12 hónap');
+    const processBuysByDate = (days) => {
+      const from = new Date(now);
+      from.setDate(now.getDate() - days);
+      
+      // Szűrés dátum alapján
+      const filteredBuys = buysData.filter(buy => {
+        const buyDate = parseDate(buy.buy_date || buy.purchase_date); // Ellenőrizzük mindkét lehetséges mezőnevet
+        return buyDate >= from;
+      });
+      
+      // Csoportosítás dátum szerint
+      return filteredBuys.reduce((acc, buy) => {
+        const date = parseDate(buy.buy_date || buy.purchase_date);
+        const key = date.toLocaleDateString('hu-HU', { day: 'numeric', month: 'short' });
+        if (!acc[key]) acc[key] = 0;
+        acc[key] += parseFloat(buy.total_price);
+        return acc;
+      }, {});
+    };
 
-      // ===== 8. 30 napos Bevétel / Kiadás =====
-      const last30Days = filterByDays(30);
-      const incomeChartData = groupBy(last30Days.filter(e => e.sale_ID !== null), d =>
-        d.toLocaleDateString('hu-HU', { day: 'numeric', month: 'short' })
-      );
-      const expenseChartData = groupBy(last30Days.filter(e => e.buy_ID !== null), d =>
-        d.toLocaleDateString('hu-HU', { day: 'numeric', month: 'short' })
-      );
+    // ===== 1. Napi kimutatás (7 nap) =====
+    const weeklyData = filterByDays(7);
+    const daily = groupBy(weeklyData, d =>
+      d.toLocaleDateString('hu-HU', { weekday: 'short', day: 'numeric', month: 'short' })
+    );
 
-      const combinedLabels = Array.from(new Set([
-        ...Object.keys(incomeChartData),
-        ...Object.keys(expenseChartData)
-      ])).sort((a, b) => new Date(a) - new Date(b));
+    // ===== 2. Heti kimutatás (30 nap) =====
 
-      const combinedIncomeData = combinedLabels.map(label => incomeChartData[label] || 0);
-      const combinedExpenseData = combinedLabels.map(label => expenseChartData[label] || 0);
+const monthlyData = [];
 
-      createChart('line', 'incomeExpenseLineChart', combinedLabels, [
-        {
-          label: 'Bevétel',
-          data: combinedIncomeData,
-          borderColor: 'rgba(102, 204, 102, 1)',
-          backgroundColor: 'rgba(34, 197, 94, 0.2)',
-          tension: 0.4,
-          fill: true
-        },
-        {
-          label: 'Kiadás',
-          data: combinedExpenseData,
-          borderColor: '#ff6666',
-          backgroundColor: 'hsla(0, 84.20%, 60.20%, 0.21)',
-          tension: 0.4,
-          fill: true
-        }
-      ], 'Nap');
+const numberOfWeeks = 5; // 5 hét lefedi a 30 napot, és biztosít némi átfedést
+const daysPerWeek = 7;
 
-      // ===== 9. Bevétel oszlopdiagram =====
-      createChart('bar', 'incomeBarChart', Object.keys(incomeChartData), [
-        {
-          label: 'Bevétel',
-          data: Object.values(incomeChartData),
-          backgroundColor: 'rgba(102, 204, 102, 1)',
-          borderColor: 'rgba(102, 204, 102, 1)',
-          borderWidth: 1
-        }
-      ]);
+for (let weekIndex = numberOfWeeks - 1; weekIndex >= 0; weekIndex--) {
+  // Az adott hét kezdő és záró napjai
+  const weekEnd = new Date(now);
+  weekEnd.setDate(now.getDate() - (weekIndex * daysPerWeek));
+  const weekStart = new Date(weekEnd);
+  weekStart.setDate(weekEnd.getDate() - (daysPerWeek - 1));
+  
+  // Csak akkor vegyük figyelembe, ha ez az időszak az előző 30 napon belül van
+  const thirtyDaysAgo = new Date(now);
+  thirtyDaysAgo.setDate(now.getDate() - 30);
+  
+  // Ha a hét kezdete régebbi mint 30 nappal ezelőtt, akkor ugorjuk át
+  if (weekStart < thirtyDaysAgo) {
+    continue;
+  }
+  
+  // Szűrjük az adott hétre eső pénzügyi bejegyzéseket
+  const weekEntries = financeData.filter(entry => {
+    const entryDate = parseDate(entry.date);
+    return entryDate >= weekStart && entryDate <= weekEnd;
+  });
+  
+  let weekBalance = null;
+  
+  if (weekEntries.length > 0) {
+    const lastEntry = weekEntries[weekEntries.length - 1];
+    weekBalance = parseFloat(lastEntry.balance);
+  } 
+  else {
+    const previousEntries = financeData.filter(entry => 
+      parseDate(entry.date) < weekStart
+    );
+    
+    if (previousEntries.length > 0) {
+      const lastPreviousEntry = previousEntries[previousEntries.length - 1];
+      weekBalance = parseFloat(lastPreviousEntry.balance);
+    } else if (financeData.length > 0) {
+      weekBalance = parseFloat(financeData[0].balance);
+    } else {
+      weekBalance = 0;
+    }
+  }
+  const weekKey = `${weekStart.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' })}`;
+  
+  monthlyData.push({
+    date: weekKey,
+    balance: weekBalance
+  });
+}
 
-      // ===== 10. Kiadás oszlopdiagram =====
-      createChart('bar', 'expenseBarChart', Object.keys(expenseChartData), [
-        {
-          label: 'Kiadás',
-          data: Object.values(expenseChartData),
-          backgroundColor: '#ff6666',
-          borderColor: '#ff6666',
-          borderWidth: 1
-        }
-      ]);
+const weekly = monthlyData.reduce((acc, entry) => {
+  acc[entry.date] = entry.balance;
+  return acc;
+}, {});
+   // ===== 3. Havi kimutatás (12 hónap) =====
 
-      // ===== 11. 30 napos egyenlegváltozás =====
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(now.getDate() - 30);
-      const balancesLast30Days = data.filter(e => parseDate(e.date) >= thirtyDaysAgo);
+const yearlyData = [];
 
-      const start30 = parseFloat(balancesLast30Days[0]?.balance || endBalance);
-      const end30 = parseFloat(balancesLast30Days.at(-1)?.balance || endBalance);
-      const changePercent30 = (((end30 - start30) / start30) * 100).toFixed(2);
 
-      renderText("changePercent30", `${changePercent30}%`);
+// Az előző 12 hónap generálása
+for (let i = 11; i >= 0; i--) {
+  const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+  
+  // Szűrjük az adott hónapra eső bejegyzéseket
+  const monthEntries = financeData.filter(entry => {
+    const entryDate = parseDate(entry.date);
+    return entryDate >= monthStart && entryDate <= monthEnd;
+  });
+  
+  let monthBalance = null;
+  
+  if (monthEntries.length > 0) {
+    const lastEntry = monthEntries[monthEntries.length - 1];
+    monthBalance = parseFloat(lastEntry.balance);
+  } 
+  else {
+    const previousEntries = financeData.filter(entry => 
+      parseDate(entry.date) < monthStart
+    );
+    
+    if (previousEntries.length > 0) {
+      const lastPreviousEntry = previousEntries[previousEntries.length - 1];
+      monthBalance = parseFloat(lastPreviousEntry.balance);
+    } else if (financeData.length > 0) {
+      monthBalance = parseFloat(financeData[0].balance);
+    } else {
+      monthBalance = 0;
+    }
+  }
+  
+  // Hónap és év formázása 
+  const monthKey = monthStart.toLocaleDateString('hu-HU', { year: 'numeric', month: 'short' });
+  
+  yearlyData.push({
+    date: monthKey,
+    balance: monthBalance
+  });
+}
+
+// A havi adatok objektummá alakítása
+const monthly = yearlyData.reduce((acc, entry) => {
+  acc[entry.date] = entry.balance;
+  return acc;
+}, {});
+
+    // ===== 4. Profit kiszámítás =====
+    const startBalance = parseFloat(financeData[0].balance);
+    const endBalance = parseFloat(financeData[financeData.length - 1].balance);
+    const profit = endBalance - startBalance;
+    const profitPercent = ((profit / startBalance) * 100).toFixed(2);
+
+    renderText("profitFt", `${profit.toLocaleString()} Ft`);
+    renderText("profitPercent", `${profitPercent}%`);
+
+    // ===== 5. Összes eladás és bevétel =====
+    renderText("totalSales", totalSales);
+    renderText("totalBuys", totalBuys);
+    
+    // Opcionális: teljes bevétel és kiadás megjelenítése
+    if (document.getElementById("totalRevenue")) {
+      renderText("totalRevenue", `${totalRevenue.toLocaleString()} Ft`);
+    }
+    if (document.getElementById("totalExpenses")) {
+      renderText("totalExpenses", `${totalExpenses.toLocaleString()} Ft`);
+    }
+
+    // ===== 6. Havi bevétel és kiadás összegzése a pontos adatok alapján =====
+    const monthlyStats = {};
+    
+    // Sales adatok feldolgozása havi csoportosítással
+    salesData.forEach(sale => {
+      const d = parseDate(sale.sale_date);
+      const key = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+      if (!monthlyStats[key]) monthlyStats[key] = { revenue: 0, expense: 0 };
+      monthlyStats[key].revenue += parseFloat(sale.total_price);  // Sale → Bevétel
     });
-});
+    
+    // Buy adatok feldolgozása havi csoportosítással
+    buysData.forEach(buy => {
+      const d = parseDate(buy.buy_date || buy.purchase_date);
+      const key = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+      if (!monthlyStats[key]) monthlyStats[key] = { revenue: 0, expense: 0 };
+      monthlyStats[key].expense += parseFloat(buy.total_price);  // Buy → Kiadás
+    });
 
-const balanceCtx = document.getElementById('balanceChart');
-new Chart(balanceCtx, {
-  type: 'line',
-  data: {
-    labels: ["2025-04-28 12:24", "2025-04-28 12:25"],
-    datasets: [{
-      label: 'Egyenleg (Ft)',
-      data: [10000000, 10180000],
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59,130,246,0.2)',
-      tension: 0.3,
-      fill: true
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' },
-      title: { display: false }
-    },
-    scales: {
-      y: { beginAtZero: false }
+    const monthLabels = Object.keys(monthlyStats).sort();
+    const revenueData = monthLabels.map(m => monthlyStats[m].revenue);
+    const expenseData = monthLabels.map(m => monthlyStats[m].expense);
+
+    createChart('bar', 'monthlyIncomeExpenseChart', monthLabels, [
+      {
+        label: 'Bevétel',
+        data: revenueData,
+        backgroundColor: 'rgba(34,197,94,0.6)',
+        borderColor: 'rgba(34,197,94,1)',
+        borderWidth: 1
+      },
+      {
+        label: 'Kiadás',
+        data: expenseData,
+        backgroundColor: 'rgba(239,68,68,0.6)',
+        borderColor: '#ff6666',
+        borderWidth: 1
+      }
+    ]);
+
+    // ===== 7. Trendvonalak =====
+    createLineChartFromData('weeklyChart', daily, 'Utolsó 7 nap');
+    createLineChartFromData('monthlyChart', weekly, 'Utolsó 30 nap');
+    createLineChartFromData('yearlyChart', monthly, 'Utolsó 12 hónap');
+
+    // ===== 8. 30 napos Bevétel / Kiadás pontosabb adatokkal =====
+    const salesLast30Days = processSalesByDate(30);
+    const buysLast30Days = processBuysByDate(30);
+
+    const combinedLabels = Array.from(new Set([
+      ...Object.keys(salesLast30Days),
+      ...Object.keys(buysLast30Days)
+    ])).sort((a, b) => {
+      const dateA = new Date(a.split('. ')[1] + '. ' + a.split('. ')[0]);
+      const dateB = new Date(b.split('. ')[1] + '. ' + b.split('. ')[0]);
+      return dateA - dateB;
+    });
+
+    const combinedSalesData = combinedLabels.map(label => salesLast30Days[label] || 0);
+    const combinedBuysData = combinedLabels.map(label => buysLast30Days[label] || 0);
+
+    createChart('line', 'incomeExpenseLineChart', combinedLabels, [
+      {
+        label: 'Bevétel',
+        data: combinedSalesData,  // Sales = Bevétel (revenue)
+        borderColor: 'rgba(102, 204, 102, 1)', 
+        backgroundColor: 'rgba(34, 197, 94, 0.2)', 
+        tension: 0.4,
+        fill: true
+      },
+      {
+        label: 'Kiadás',
+        data: combinedBuysData,  // Buys = Kiadás (expense)
+        borderColor: '#ff6666',
+        backgroundColor: 'hsla(0, 75.40%, 49.40%, 0.20)',
+        tension: 0.4,
+        fill: true
+      }
+    ], 'Nap');
+
+    // ===== 9. Bevétel oszlopdiagram =====
+    createChart('bar', 'incomeBarChart', Object.keys(salesLast30Days), [
+      {
+        label: 'Bevétel',
+        data: Object.values(salesLast30Days),
+        backgroundColor: 'rgba(102, 204, 102, 1)',
+        borderColor: 'rgba(102, 204, 102, 1)',
+        borderWidth: 1
+      }
+    ]);
+
+    // ===== 10. Kiadás oszlopdiagram =====
+    createChart('bar', 'expenseBarChart', Object.keys(buysLast30Days), [
+      {
+        label: 'Kiadás',
+        data: Object.values(buysLast30Days),
+        backgroundColor: '#ff6666',
+        borderColor: '#ff6666',
+        borderWidth: 1
+      }
+    ]);
+
+    // ===== 11. 30 napos egyenlegváltozás =====
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(now.getDate() - 30);
+    const balancesLast30Days = financeData.filter(e => parseDate(e.date) >= thirtyDaysAgo);
+
+    const start30 = parseFloat(balancesLast30Days[0]?.balance || endBalance);
+    const end30 = parseFloat(balancesLast30Days.at(-1)?.balance || endBalance);
+    const changePercent30 = (((end30 - start30) / start30) * 100).toFixed(2);
+
+    renderText("changePercent30", `${changePercent30}%`);
+    
+  } catch (error) {
+    console.error("Hiba történt az adatok lekérése során:", error);
+    // Opcionális: hibaüzenet megjelenítése a felhasználói felületen
+    const errorContainer = document.getElementById("errorContainer");
+    if (errorContainer) {
+      errorContainer.textContent = "Hiba történt az adatok betöltésekor. Kérjük, próbálja újra később.";
+      errorContainer.style.display = "block";
     }
   }
 });
-
-    
-    // API kérés a /sale végpontról
-    fetch(`${API_URL}sale`)
-    .then(res => {
-        if (!res.ok) {
-          throw new Error('Hiba történt a válasz lekérésekor!');
-        }
-        return res.json();
-      })
-      .then(data => {
-        if (!data || data.length === 0) {
-          console.log('Nincsenek eladási adatok.');
-          return;
-        }
-    
-        // Eladott mennyiség alapján a legnépszerűbb termékek kiszámítása
-        const quantityData = data.reduce((acc, entry) => {
-          const { product_name, quantity_sale } = entry;
-    
-          // Ha már létezik ilyen termék, hozzáadjuk az eladott mennyiséget
-          if (acc[product_name]) {
-            acc[product_name] += quantity_sale;
-          } else {
-            // Ha még nem létezett a termék, akkor létrehozzuk
-            acc[product_name] = quantity_sale;
-          }
-          return acc;
-        }, {});
-    
-        // Adatok formázása a Pie charthoz
-        const chartLabels = Object.keys(quantityData);
-        const chartData = Object.values(quantityData);
-    
-        // Ha nincsenek termékek, ne jelenjen meg a grafikon
-        if (chartLabels.length === 0 || chartData.length === 0) {
-          console.log('Nincsenek adatok a grafikonhoz.');
-          return;
-        }
-    
-        // Színek hozzárendelése a termékekhez
-        const backgroundColors = chartLabels.map((_, index) => getProductColor(index));
-    
-        // Pie Chart létrehozása
-        const profitCtx = document.getElementById('profitPieChart');
-        if (!profitCtx) {
-          console.error('A canvas elem nem található!');
-          return;
-        }
-    
-        new Chart(profitCtx, {
-          type: 'pie',
-          data: {
-            labels: chartLabels,  // Termékek nevei
-            datasets: [{
-              data: chartData,  // Eladott mennyiségek
-              backgroundColor: backgroundColors
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { position: 'bottom' }
-            }
-          }
-        });
-      })
-      .catch(error => console.error('Hiba történt:', error));
-    
-    // Segédfüggvény a termékek színeinek meghatározásához
-    function getProductColor(index) {
-      const colors = [
-        '#22c55e', // zöld
-        '#f59e0b', // narancssárga
-        '#3b82f6', // kék
-        '#9333ea', // lila
-        '#e11d48'  // piros
-      ];
-      return colors[index % colors.length]; // A színek körbefordulnak, ha több termék van
-    }
-
-
-    // Bubble Chart – Eladás mennyiség és bevétel
-    const bubbleCtx = document.getElementById('bubbleChart');
-    new Chart(bubbleCtx, {
-      type: 'bubble',
-      data: {
-        datasets: [
-          {
-            label: "Fiskars Benzines Fűnyíró",
-            data: [{ x: 2, y: 180000, r: 10 }],
-            backgroundColor: '#60a5fa'
-          },
-          {
-            label: "Stihl Láncfűrész MS 180",
-            data: [{ x: 1, y: 60000, r: 5 }],
-            backgroundColor: '#f87171'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: {
-            title: { display: true, text: 'Eladott mennyiség' },
-            beginAtZero: true
-          },
-          y: {
-            title: { display: true, text: 'Bevétel (Ft)' },
-            beginAtZero: true
-          }
-        },
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: ctx => `Mennyiség: ${ctx.raw.x}, Bevétel: ${ctx.raw.y.toLocaleString()} Ft`
-            }
-          }
-        }
-      }
-    });
