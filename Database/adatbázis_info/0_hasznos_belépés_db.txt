@@ -14,7 +14,7 @@ fekete@freemail.com	titok		-- vezető-eladó		2
 
 gal@citromail.hu	titok		-- eladó		1
 
-kissKata@gmail.com	titok		-- eladó		1
+kisskata@gmail.com	titok		-- eladó		1
 
 kocsis@gmail.com	titok		-- eladó		1
 
